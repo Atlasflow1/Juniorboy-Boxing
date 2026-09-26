@@ -1,7 +1,5 @@
-import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'cached_repository.dart';
 
 /// Admin-only data access for the in-app dashboard: membership plan
@@ -26,31 +24,11 @@ class AdminRepository extends CachedRepository {
   Future<void> deleteTemplate(String id) =>
       db.doc('recurringTemplates/$id').delete();
 
-  /// Uploads the gym's own promo video to Storage and points Home at it.
-  /// Being the gym's own file, there's no embedding restriction or
-  /// third-party branding to work around.
-  Future<void> uploadPromoVideo(File file) async {
-    if (await file.length() > 80 * 1024 * 1024) {
-      throw const FormatException('Video must be smaller than 80 MB');
-    }
-    final ext = file.path.split('.').last.toLowerCase();
-    final contentType = switch (ext) {
-      'mov' => 'video/quicktime',
-      'webm' => 'video/webm',
-      _ => 'video/mp4',
-    };
-    final ref = FirebaseStorage.instance.ref('gym/promo_video.$ext');
-    await ref.putFile(file, SettableMetadata(contentType: contentType));
-    await db.doc('gymSettings/config').set({
-      'promoVideoUrl': await ref.getDownloadURL(),
-      'updatedAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
-  }
-
-  Future<void> removePromoVideo() => db.doc('gymSettings/config').set({
-    'promoVideoUrl': '',
-    'updatedAt': FieldValue.serverTimestamp(),
-  }, SetOptions(merge: true));
+  Future<void> savePromoVideoUrl(String url) =>
+      db.doc('gymSettings/config').set({
+        'promoVideoUrl': url,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
 
   /// Verifies the admin PIN server-side; the PIN itself is never sent to
   /// or readable by any client.

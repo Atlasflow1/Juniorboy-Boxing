@@ -1,14 +1,12 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/snackbar_utils.dart';
 import '../../../core/widgets/jbb_button.dart';
 import '../../../core/widgets/jbb_card.dart';
 import '../../../core/widgets/jbb_loading.dart';
-import '../../home/widgets/promo_video_player.dart';
+import '../../home/widgets/youtube_background_player.dart';
 import '../../profile/providers/profile_provider.dart';
 import '../providers/admin_provider.dart';
 import 'plan_editor_screen.dart';
@@ -207,9 +205,8 @@ class AdminDashboardScreen extends ConsumerWidget {
   }
 }
 
-/// Lets the admin upload the gym's own promo video, which then plays
-/// silently on loop near the top of Home. Being the gym's own file (not
-/// a YouTube embed), there's no embedding restriction to run into.
+/// Lets the admin set the YouTube video that plays silently and on loop
+/// near the top of Home. Leave the field empty to hide it.
 class _PromoVideoSection extends ConsumerStatefulWidget {
   const _PromoVideoSection();
   @override
@@ -217,29 +214,30 @@ class _PromoVideoSection extends ConsumerStatefulWidget {
 }
 
 class _PromoVideoSectionState extends ConsumerState<_PromoVideoSection> {
-  bool busy = false;
+  final url = TextEditingController();
+  bool loaded = false, busy = false;
 
-  Future<void> pickAndUpload() async {
-    final video = await ImagePicker().pickVideo(source: ImageSource.gallery);
-    if (video == null) return;
-    setState(() => busy = true);
-    try {
-      await ref
-          .read(adminRepositoryProvider)
-          .uploadPromoVideo(File(video.path));
-      if (mounted) showMessage(context, 'Video uploaded.');
-    } catch (e) {
-      if (mounted) showMessage(context, friendlyError(e));
-    } finally {
-      if (mounted) setState(() => busy = false);
-    }
+  @override
+  void dispose() {
+    url.dispose();
+    super.dispose();
   }
 
-  Future<void> remove() async {
+  Future<void> save() async {
+    final trimmed = url.text.trim();
+    if (trimmed.isNotEmpty && extractYoutubeId(trimmed) == null) {
+      showMessage(context, 'That doesn\'t look like a valid YouTube link.');
+      return;
+    }
     setState(() => busy = true);
     try {
-      await ref.read(adminRepositoryProvider).removePromoVideo();
-      if (mounted) showMessage(context, 'Video removed from Home.');
+      await ref.read(adminRepositoryProvider).savePromoVideoUrl(trimmed);
+      if (mounted) {
+        showMessage(
+          context,
+          trimmed.isEmpty ? 'Video removed from Home.' : 'Video saved.',
+        );
+      }
     } catch (e) {
       if (mounted) showMessage(context, friendlyError(e));
     } finally {
@@ -249,7 +247,11 @@ class _PromoVideoSectionState extends ConsumerState<_PromoVideoSection> {
 
   @override
   Widget build(BuildContext context) {
-    final videoUrl = ref.watch(settingsProvider).value?['promoVideoUrl'] ?? '';
+    final settings = ref.watch(settingsProvider).value;
+    if (!loaded && settings != null) {
+      url.text = settings['promoVideoUrl'] ?? '';
+      loaded = true;
+    }
     return JbbCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -260,32 +262,19 @@ class _PromoVideoSectionState extends ConsumerState<_PromoVideoSection> {
           ),
           const SizedBox(height: 4),
           const Text(
-            'Plays silently on loop at the top of Home. Upload a video from your phone, or remove it to hide the section.',
+            'Plays silently on loop at the top of Home. Paste a YouTube link, or clear it to hide the video.',
             style: TextStyle(color: AppColors.muted, fontSize: 12),
           ),
           const SizedBox(height: 12),
-          if ((videoUrl as String).isNotEmpty) ...[
-            PromoVideoPlayer(url: videoUrl),
-            const SizedBox(height: 12),
-          ],
-          Row(
-            children: [
-              Expanded(
-                child: JbbButton(
-                  label: videoUrl.isEmpty ? 'Upload Video' : 'Replace Video',
-                  busy: busy,
-                  onPressed: pickAndUpload,
-                ),
-              ),
-              if (videoUrl.isNotEmpty) ...[
-                const SizedBox(width: 12),
-                IconButton(
-                  onPressed: busy ? null : remove,
-                  icon: const Icon(Icons.delete_outline),
-                ),
-              ],
-            ],
+          TextField(
+            controller: url,
+            decoration: const InputDecoration(
+              labelText: 'YouTube link',
+              hintText: 'https://www.youtube.com/watch?v=...',
+            ),
           ),
+          const SizedBox(height: 12),
+          JbbButton(label: 'Save Video', busy: busy, onPressed: save),
         ],
       ),
     );

@@ -4,7 +4,6 @@ service firebase.storage {
     function active() { return request.auth != null && firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.isActive == true; }
     function admin() { return active() && firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin'; }
     function image() { return request.resource.size < 5 * 1024 * 1024 && request.resource.contentType.matches('image/(jpeg|png|webp)'); }
-    function video() { return request.resource.size < 80 * 1024 * 1024 && request.resource.contentType.matches('video/(mp4|quicktime|webm)'); }
     match /avatars/{uid}/{file} {
       allow read: if active() && (request.auth.uid == uid || admin());
       allow create, update: if active() && request.auth.uid == uid && image();
@@ -12,7 +11,7 @@ service firebase.storage {
     }
     match /gym/{file=**} {
       allow read: if true;
-      allow create, update: if admin() && (image() || video());
+      allow create, update: if admin() && image();
       allow delete: if admin();
     }
   }
