@@ -9,7 +9,7 @@ import '../widgets/home_hero_banner.dart';
 import '../widgets/next_session_card.dart';
 import '../widgets/quick_actions_grid.dart';
 import '../widgets/programs_section.dart';
-import '../widgets/youtube_background_player.dart';
+import '../widgets/promo_video_player.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -17,9 +17,7 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(profileProvider).value,
         next = ref.watch(nextBookingProvider);
-    final videoId = extractYoutubeId(
-      ref.watch(settingsProvider).value?['promoVideoUrl'] ?? '',
-    );
+    final videoUrl = ref.watch(settingsProvider).value?['promoVideoUrl'] ?? '';
     return PageContent(
       showHeader: false,
       refresh: () async {
@@ -31,9 +29,9 @@ class HomeScreen extends ConsumerWidget {
         HomeHeroBanner(
           name: (user?['fullName'] ?? 'Champion').toString().split(' ').first,
         ),
-        if (videoId != null) ...[
+        if (videoUrl.isNotEmpty) ...[
           const SizedBox(height: 16),
-          YoutubeBackgroundPlayer(videoId: videoId),
+          PromoVideoPlayer(url: videoUrl),
         ],
         const SizedBox(height: 20),
         if (next != null)
