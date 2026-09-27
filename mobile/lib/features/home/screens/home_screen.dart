@@ -6,7 +6,9 @@ import '../../profile/providers/profile_provider.dart';
 import '../../booking/providers/booking_provider.dart';
 import '../providers/home_provider.dart';
 import '../../store/providers/store_provider.dart';
+import '../../membership/providers/membership_provider.dart';
 import '../widgets/home_hero_banner.dart';
+import '../widgets/membership_summary_card.dart';
 import '../widgets/next_session_card.dart';
 import '../widgets/product_ad_banner.dart';
 import '../widgets/quick_actions_grid.dart';
@@ -24,6 +26,16 @@ class HomeScreen extends ConsumerWidget {
         ref.watch(settingsProvider).value?['promoVideoUrl'] ?? '';
     final videoId = extractYoutubeId(promoVideoUrl);
     final featuredProduct = ref.watch(featuredProductProvider);
+    final sessionsRemaining = (user?['sessionsRemaining'] as num?) ?? 0;
+    final sessionsReserved = (user?['sessionsReserved'] as num?) ?? 0;
+    final planId = user?['membershipPlanId'] as String?;
+    final plans = ref.watch(plansProvider).value ?? const [];
+    final planName = planId == null
+        ? null
+        : plans
+              .cast<Map<String, dynamic>?>()
+              .firstWhere((p) => p?['id'] == planId, orElse: () => null)?['name']
+              as String?;
     return PageContent(
       showHeader: false,
       refresh: () async {
@@ -45,6 +57,14 @@ class HomeScreen extends ConsumerWidget {
         if (featuredProduct != null) ...[
           const SizedBox(height: 16),
           ProductAdBanner(product: featuredProduct),
+        ],
+        if (sessionsRemaining > 0 || sessionsReserved > 0) ...[
+          const SizedBox(height: 16),
+          MembershipSummaryCard(
+            planName: planName,
+            sessionsRemaining: sessionsRemaining.toInt(),
+            sessionsReserved: sessionsReserved.toInt(),
+          ),
         ],
         const SizedBox(height: 20),
         if (next != null)

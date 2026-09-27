@@ -1,3 +1,4 @@
 -keepattributes Signature,InnerClasses,EnclosingMethod
 -keep class com.stripe.** { *; }
 -dontwarn com.stripe.**
+-dontwarn com.google.android.gms.tapandpay.**

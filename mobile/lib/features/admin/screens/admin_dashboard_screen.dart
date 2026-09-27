@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../core/constants/programs.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/snackbar_utils.dart';
 import '../../../core/widgets/jbb_button.dart';
@@ -10,6 +11,7 @@ import '../../../core/widgets/jbb_loading.dart';
 import '../../profile/providers/profile_provider.dart';
 import '../../store/screens/store_screen.dart';
 import '../providers/admin_provider.dart';
+import 'admin_bookings_screen.dart';
 import 'admin_orders_screen.dart';
 import 'admin_subscriptions_screen.dart';
 import 'plan_editor_screen.dart';
@@ -94,6 +96,27 @@ class AdminDashboardScreen extends ConsumerWidget {
               ],
             ),
           ),
+          const SizedBox(height: 12),
+          JbbCard(
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const AdminBookingsScreen()),
+            ),
+            child: const Row(
+              children: [
+                Icon(Icons.event_available_outlined, color: AppColors.red),
+                SizedBox(width: 14),
+                Expanded(
+                  child: Text(
+                    'Bookings',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Icon(Icons.chevron_right, color: AppColors.muted),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          const _GymInfoSection(),
           const SizedBox(height: 24),
           const _PromoVideoSection(),
           const SizedBox(height: 24),
@@ -104,6 +127,13 @@ class AdminDashboardScreen extends ConsumerWidget {
                   'Membership Prices',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
                 ),
+              ),
+              TextButton.icon(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const PlanEditorScreen()),
+                ),
+                icon: const Icon(Icons.add, size: 18),
+                label: const Text('Add'),
               ),
             ],
           ),
@@ -138,7 +168,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                                   ),
                                 ),
                                 Text(
-                                  '${plan['priceLabel'] ?? ''} · ${plan['isActive'] == true ? 'Active' : 'Hidden'}',
+                                  '${plan['priceLabel'] ?? ''} · ${plan['isActive'] == true ? 'Active' : 'Hidden'} · ${Programs.categories[plan['category']] ?? 'General'}',
                                   style: const TextStyle(
                                     color: AppColors.muted,
                                     fontSize: 12,
@@ -244,6 +274,79 @@ class AdminDashboardScreen extends ConsumerWidget {
             error: (e, s) => Text('Could not load schedule times: $e'),
             loading: () => const JbbLoading(),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Lets the admin edit the gym's public address and phone number, shown
+/// on the Contact screen and the website.
+class _GymInfoSection extends ConsumerStatefulWidget {
+  const _GymInfoSection();
+  @override
+  ConsumerState<_GymInfoSection> createState() => _GymInfoSectionState();
+}
+
+class _GymInfoSectionState extends ConsumerState<_GymInfoSection> {
+  final address = TextEditingController(), phone = TextEditingController();
+  bool loaded = false, busy = false;
+
+  @override
+  void dispose() {
+    address.dispose();
+    phone.dispose();
+    super.dispose();
+  }
+
+  Future<void> save() async {
+    setState(() => busy = true);
+    try {
+      await ref
+          .read(adminRepositoryProvider)
+          .saveGymInfo(address.text.trim(), phone.text.trim());
+      if (mounted) showMessage(context, 'Gym info saved.');
+    } catch (e) {
+      if (mounted) showMessage(context, friendlyError(e));
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final settings = ref.watch(settingsProvider).value;
+    if (!loaded && settings != null) {
+      address.text = settings['address'] ?? '';
+      phone.text = settings['phone'] ?? '';
+      loaded = true;
+    }
+    return JbbCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Gym Info',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'Shown on the Contact screen and the website.',
+            style: TextStyle(color: AppColors.muted, fontSize: 12),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: address,
+            decoration: const InputDecoration(labelText: 'Address'),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: phone,
+            keyboardType: TextInputType.phone,
+            decoration: const InputDecoration(labelText: 'Phone'),
+          ),
+          const SizedBox(height: 12),
+          JbbButton(label: 'Save Gym Info', busy: busy, onPressed: save),
         ],
       ),
     );

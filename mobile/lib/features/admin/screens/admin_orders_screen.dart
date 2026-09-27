@@ -171,6 +171,42 @@ class _OrderDetailSheetState extends ConsumerState<_OrderDetailSheet> {
     }
   }
 
+  Future<void> delete() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete this order?'),
+        content: const Text(
+          'This removes the order record only. It does not refund the '
+          'customer or reverse fulfillment — use Refund first if the '
+          'purchase itself needs to be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    setState(() => busy = true);
+    try {
+      await ref.read(adminRepositoryProvider).deletePayment(widget.order['id']);
+      if (mounted) {
+        showMessage(context, 'Order deleted.');
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (mounted) showMessage(context, friendlyError(e));
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) => Padding(
     padding: EdgeInsets.only(
@@ -184,11 +220,24 @@ class _OrderDetailSheetState extends ConsumerState<_OrderDetailSheet> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            widget.order['size'] != null
-                ? '${widget.order['productName'] ?? 'Order'} · Size ${widget.order['size']}'
-                : widget.order['productName'] ?? 'Order',
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  widget.order['size'] != null
+                      ? '${widget.order['productName'] ?? 'Order'} · Size ${widget.order['size']}'
+                      : widget.order['productName'] ?? 'Order',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+              ),
+              IconButton(
+                onPressed: busy ? null : delete,
+                icon: const Icon(Icons.delete_outline),
+              ),
+            ],
           ),
           Text(
             '\$${(widget.order['amount'] / 100).toStringAsFixed(2)} · ${widget.order['status']}',

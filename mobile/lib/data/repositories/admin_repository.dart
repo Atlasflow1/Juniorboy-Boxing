@@ -20,6 +20,8 @@ class AdminRepository extends CachedRepository {
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
+  Future<void> deletePlan(String id) => db.doc('membershipPlans/$id').delete();
+
   Future<void> saveTemplate(String id, Map<String, dynamic> values) =>
       db.doc('recurringTemplates/$id').set(values, SetOptions(merge: true));
 
@@ -29,6 +31,13 @@ class AdminRepository extends CachedRepository {
   Future<void> savePromoVideoUrl(String url) =>
       db.doc('gymSettings/config').set({
         'promoVideoUrl': url,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+  Future<void> saveGymInfo(String address, String phone) =>
+      db.doc('gymSettings/config').set({
+        'address': address,
+        'phone': phone,
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
@@ -69,4 +78,26 @@ class AdminRepository extends CachedRepository {
     'estimatedDeliveryDate': estimatedDeliveryDate.toIso8601String(),
     'note': note,
   });
+
+  Future<void> deletePayment(String paymentId) =>
+      FirebaseFunctions.instance.httpsCallable('deletePayment').call({
+        'paymentId': paymentId,
+      });
+
+  Stream<List<Map<String, dynamic>>> bookings() => watchQuery(
+    db.collection('bookings').orderBy('date', descending: true).limit(200),
+    'admin_bookings',
+  );
+
+  Future<void> markAttendance(String bookingId, String status) =>
+      FirebaseFunctions.instance.httpsCallable('markBookingCompleted').call({
+        'bookingId': bookingId,
+        'status': status,
+      });
+
+  Future<void> cancelBookingAsAdmin(String bookingId, String reason) =>
+      FirebaseFunctions.instance.httpsCallable('cancelBooking').call({
+        'bookingId': bookingId,
+        'reason': reason,
+      });
 }

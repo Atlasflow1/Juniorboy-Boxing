@@ -109,7 +109,7 @@ class StripeService {
                   .call({
                     'productId': productId,
                     'requestId': requestId,
-                    if (size != null) 'size': size,
+                    'size': ?size,
                   }))
               .data;
     } on FirebaseFunctionsException catch (e) {

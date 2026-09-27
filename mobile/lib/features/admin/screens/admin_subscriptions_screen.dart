@@ -11,10 +11,53 @@ import '../widgets/buyer_name.dart';
 /// Dedicated admin view of membership purchases, separate from store
 /// orders. Credits are added automatically on payment, so this is a
 /// record/reporting view rather than something the admin has to act on.
-class AdminSubscriptionsScreen extends ConsumerWidget {
+class AdminSubscriptionsScreen extends ConsumerStatefulWidget {
   const AdminSubscriptionsScreen({super.key});
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AdminSubscriptionsScreen> createState() =>
+      _AdminSubscriptionsScreenState();
+}
+
+class _AdminSubscriptionsScreenState
+    extends ConsumerState<AdminSubscriptionsScreen> {
+  String? busyId;
+
+  Future<void> delete(Map<String, dynamic> order) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete this subscription record?'),
+        content: const Text(
+          'This removes the payment record only. It does not remove '
+          'session credits already added — use Refund first if the '
+          'purchase itself needs to be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    setState(() => busyId = order['id']);
+    try {
+      await ref.read(adminRepositoryProvider).deletePayment(order['id']);
+      if (mounted) showMessage(context, 'Record deleted.');
+    } catch (e) {
+      if (mounted) showMessage(context, friendlyError(e));
+    } finally {
+      if (mounted) setState(() => busyId = null);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final orders = ref.watch(adminOrdersProvider);
     final plans = ref.watch(adminPlansProvider).value ?? const [];
     final planNames = {
@@ -91,6 +134,22 @@ class AdminSubscriptionsScreen extends ConsumerWidget {
                               ),
                             ),
                           ],
+                        ),
+                        IconButton(
+                          onPressed: busyId != null ? null : () => delete(order),
+                          icon: busyId == order['id']
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Icon(
+                                  Icons.delete_outline,
+                                  color: Colors.grey,
+                                  size: 20,
+                                ),
                         ),
                       ],
                     ),
