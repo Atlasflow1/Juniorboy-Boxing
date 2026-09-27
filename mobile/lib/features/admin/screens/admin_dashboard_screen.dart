@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/snackbar_utils.dart';
 import '../../../core/widgets/jbb_button.dart';
@@ -8,6 +7,7 @@ import '../../../core/widgets/jbb_card.dart';
 import '../../../core/widgets/jbb_loading.dart';
 import '../../home/widgets/youtube_background_player.dart';
 import '../../profile/providers/profile_provider.dart';
+import '../../store/screens/store_screen.dart';
 import '../providers/admin_provider.dart';
 import 'plan_editor_screen.dart';
 import 'template_editor_screen.dart';
@@ -34,7 +34,9 @@ class AdminDashboardScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(20),
         children: [
           JbbCard(
-            onTap: () => context.push('/store'),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const StoreScreen()),
+            ),
             child: const Row(
               children: [
                 Icon(Icons.shopping_bag_outlined, color: AppColors.red),
