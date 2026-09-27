@@ -8,3 +8,6 @@ final adminPlansProvider = StreamProvider(
 final adminTemplatesProvider = StreamProvider(
   (ref) => ref.watch(adminRepositoryProvider).templates(),
 );
+final adminOrdersProvider = StreamProvider(
+  (ref) => ref.watch(adminRepositoryProvider).orders(),
+);

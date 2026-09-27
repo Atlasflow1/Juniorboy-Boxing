@@ -6,8 +6,10 @@ import 'cached_repository.dart';
 
 bool isProfileComplete(Map<String, dynamic> user) =>
     (user['phone'] as String? ?? '').isNotEmpty &&
-    (user['childName'] as String? ?? '').isNotEmpty &&
-    ((user['childAge'] as num?) ?? 0) > 0;
+    (user['lastName'] as String? ?? '').isNotEmpty &&
+    ((user['age'] as num?) ?? 0) > 0 &&
+    (user['address'] as String? ?? '').isNotEmpty &&
+    (user['zipCode'] as String? ?? '').isNotEmpty;
 
 class UserRepository extends CachedRepository {
   Stream<Map<String, dynamic>> watch() =>

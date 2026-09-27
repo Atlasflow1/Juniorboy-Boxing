@@ -15,4 +15,8 @@ abstract final class Validators {
     final age = int.tryParse(value ?? '');
     return age != null && age >= 0 && age <= 120 ? null : 'Enter a valid age';
   }
+  static String? zip(String? value) =>
+      RegExp(r'^[A-Za-z0-9\- ]{3,10}$').hasMatch(value?.trim() ?? '')
+      ? null
+      : 'Enter a valid postal code';
 }

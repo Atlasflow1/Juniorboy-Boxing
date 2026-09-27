@@ -64,7 +64,7 @@ class MoreScreen extends ConsumerWidget {
           ('Membership', Icons.workspace_premium, '/membership'),
           ('Gym Store', Icons.shopping_bag_outlined, '/store'),
           ('Reviews & Ratings', Icons.star_outline, '/reviews'),
-          ('Payments', Icons.receipt_long, '/payments'),
+          ('My Account', Icons.receipt_long, '/payments'),
           ('Notifications', Icons.notifications_outlined, '/notifications'),
           ('Contact Us', Icons.phone_outlined, '/contact'),
           ('Location', Icons.location_on_outlined, '/contact'),

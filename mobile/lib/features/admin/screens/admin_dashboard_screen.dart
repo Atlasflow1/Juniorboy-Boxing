@@ -9,6 +9,8 @@ import '../../home/widgets/youtube_background_player.dart';
 import '../../profile/providers/profile_provider.dart';
 import '../../store/screens/store_screen.dart';
 import '../providers/admin_provider.dart';
+import 'admin_orders_screen.dart';
+import 'admin_subscriptions_screen.dart';
 import 'plan_editor_screen.dart';
 import 'template_editor_screen.dart';
 
@@ -44,6 +46,46 @@ class AdminDashboardScreen extends ConsumerWidget {
                 Expanded(
                   child: Text(
                     'Manage Store Products',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Icon(Icons.chevron_right, color: AppColors.muted),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          JbbCard(
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const AdminOrdersScreen()),
+            ),
+            child: const Row(
+              children: [
+                Icon(Icons.local_shipping_outlined, color: AppColors.red),
+                SizedBox(width: 14),
+                Expanded(
+                  child: Text(
+                    'Store Orders',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Icon(Icons.chevron_right, color: AppColors.muted),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          JbbCard(
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const AdminSubscriptionsScreen(),
+              ),
+            ),
+            child: const Row(
+              children: [
+                Icon(Icons.workspace_premium_outlined, color: AppColors.red),
+                SizedBox(width: 14),
+                Expanded(
+                  child: Text(
+                    'Membership Subscriptions',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),

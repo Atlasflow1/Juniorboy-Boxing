@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/utils/snackbar_utils.dart';
 import '../../../core/widgets/jbb_button.dart';
 import '../providers/profile_provider.dart';
-import '../../auth/providers/auth_provider.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
@@ -17,7 +17,7 @@ class EditProfileScreen extends ConsumerStatefulWidget {
 
 class _EditState extends ConsumerState<EditProfileScreen> {
   final form = GlobalKey<FormState>();
-  final fields = List.generate(5, (_) => TextEditingController());
+  final fields = List.generate(9, (_) => TextEditingController());
   bool loaded = false, busy = false;
   @override
   void dispose() {
@@ -34,12 +34,16 @@ class _EditState extends ConsumerState<EditProfileScreen> {
       final repo = ref.read(userRepositoryProvider);
       await repo.save({
         'fullName': fields[0].text.trim(),
-        'phone': fields[2].text.trim(),
-        'childName': fields[3].text.trim(),
-        'childAge': int.parse(fields[4].text),
+        'lastName': fields[1].text.trim(),
+        'age': int.parse(fields[3].text),
+        'address': fields[4].text.trim(),
+        'zipCode': fields[5].text.trim(),
+        'phone': fields[6].text.trim(),
+        'childName': fields[7].text.trim(),
+        'childAge': int.tryParse(fields[8].text) ?? 0,
       });
-      if (fields[1].text.trim() != FirebaseAuth.instance.currentUser?.email) {
-        await repo.changeEmail(fields[1].text.trim());
+      if (fields[2].text.trim() != FirebaseAuth.instance.currentUser?.email) {
+        await repo.changeEmail(fields[2].text.trim());
         if (mounted) {
           showMessage(
             context,
@@ -62,12 +66,16 @@ class _EditState extends ConsumerState<EditProfileScreen> {
     if (!loaded && user != null) {
       final values = [
         user['fullName'],
+        user['lastName'],
         user['email'],
+        (user['age'] ?? 0) > 0 ? '${user['age']}' : '',
+        user['address'],
+        user['zipCode'],
         user['phone'],
         user['childName'],
-        '${user['childAge']}',
+        (user['childAge'] ?? 0) > 0 ? '${user['childAge']}' : '',
       ];
-      for (var i = 0; i < 5; i++) {
+      for (var i = 0; i < fields.length; i++) {
         fields[i].text = values[i] ?? '';
       }
       loaded = true;
@@ -80,11 +88,8 @@ class _EditState extends ConsumerState<EditProfileScreen> {
           key: form,
           child: Column(
             children: [
-              IconButton(
-                iconSize: 60,
-                tooltip: 'Change profile photo',
-                icon: const Icon(Icons.add_a_photo_outlined),
-                onPressed: busy
+              GestureDetector(
+                onTap: busy
                     ? null
                     : () async {
                         final image = await ImagePicker().pickImage(
@@ -106,27 +111,65 @@ class _EditState extends ConsumerState<EditProfileScreen> {
 }
                         }
                       },
+                child: Stack(
+                  alignment: Alignment.bottomRight,
+                  children: [
+                    CircleAvatar(
+                      radius: 48,
+                      backgroundImage: (user?['avatarUrl'] ?? '').isNotEmpty
+                          ? CachedNetworkImageProvider(user!['avatarUrl'])
+                          : null,
+                      child: (user?['avatarUrl'] ?? '').isEmpty
+                          ? const Icon(Icons.person_outline, size: 40)
+                          : null,
+                    ),
+                    const CircleAvatar(
+                      radius: 15,
+                      child: Icon(Icons.add_a_photo_outlined, size: 16),
+                    ),
+                  ],
+                ),
               ),
               for (var i = 0; i < fields.length; i++)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 14),
                   child: TextFormField(
                     controller: fields[i],
+                    keyboardType: [
+                      TextInputType.text,
+                      TextInputType.text,
+                      TextInputType.emailAddress,
+                      TextInputType.number,
+                      TextInputType.text,
+                      TextInputType.text,
+                      TextInputType.phone,
+                      TextInputType.text,
+                      TextInputType.number,
+                    ][i],
                     decoration: InputDecoration(
                       labelText: [
                         'Full Name',
+                        'Last Name',
                         'Email',
+                        'Your Age',
+                        'Address',
+                        'Postal / ZIP Code',
                         'Phone',
-                        "Child’s Name",
-                        "Child’s Age",
+                        "Child’s Name (optional)",
+                        "Child’s Age (optional)",
                       ][i],
                     ),
                     validator: [
                       Validators.required,
-                      Validators.email,
-                      Validators.phone,
                       Validators.required,
+                      Validators.email,
                       Validators.age,
+                      Validators.required,
+                      Validators.zip,
+                      Validators.phone,
+                      null,
+                      (v) =>
+                          (v ?? '').trim().isEmpty ? null : Validators.age(v),
                     ][i],
                   ),
                 ),
@@ -134,21 +177,6 @@ class _EditState extends ConsumerState<EditProfileScreen> {
                 label: 'Save Changes',
                 busy: busy,
                 onPressed: loaded ? save : null,
-              ),
-              TextButton(
-                onPressed: () async {
-                  try {
-                    await ref
-                        .read(authRepositoryProvider)
-                        .resetPassword(fields[1].text);
-                    if (context.mounted) {
-                      showMessage(context, 'Password reset email sent.');
-}
-                  } catch (e) {
-                    if (context.mounted) showMessage(context, friendlyError(e));
-                  }
-                },
-                child: const Text('Change password by email'),
               ),
               SwitchListTile(
                 title: const Text('Push notifications'),

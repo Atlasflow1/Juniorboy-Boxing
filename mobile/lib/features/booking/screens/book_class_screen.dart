@@ -71,7 +71,7 @@ class _BookClassState extends ConsumerState<BookClassScreen> {
                     child: Hero(
                       tag: 'class-${widget.scheduleId}',
                       child: Image.asset(
-                        'assets/images/photos/photo_kid_boxing.png',
+                        'assets/images/photos/photo_kid_boxing.jpg',
                         height: 210,
                         width: double.infinity,
                         fit: BoxFit.cover,

@@ -18,7 +18,7 @@ class JbbClassCard extends StatelessWidget {
             child: Hero(
               tag: 'class-${session['id']}',
               child: Image.asset(
-                'assets/images/photos/photo_kid_boxing.png',
+                'assets/images/photos/photo_kid_boxing.jpg',
                 width: 66,
                 height: 90,
                 fit: BoxFit.cover,

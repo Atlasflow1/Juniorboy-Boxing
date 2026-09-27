@@ -10,11 +10,13 @@ class ProductRepository extends CachedRepository {
   );
   Stream<List<Map<String, dynamic>>> productsAdmin() =>
       watchQuery(db.collection('products'), 'products_admin');
-  Future<String> uploadImage(String productId, File file) async {
+  Future<String> uploadImage(String productId, int index, File file) async {
     if (await file.length() > 5 * 1024 * 1024) {
       throw const FormatException('Image must be smaller than 5 MB');
     }
-    final image = FirebaseStorage.instance.ref('gym/products/$productId');
+    final image = FirebaseStorage.instance.ref(
+      'gym/products/${productId}_$index',
+    );
     await image.putFile(file, SettableMetadata(contentType: 'image/jpeg'));
     return image.getDownloadURL();
   }

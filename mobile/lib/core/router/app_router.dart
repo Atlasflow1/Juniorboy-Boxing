@@ -6,9 +6,6 @@ import '../../features/auth/providers/auth_provider.dart';
 import '../../features/profile/providers/profile_provider.dart';
 import '../../data/repositories/user_repository.dart';
 import '../../features/auth/screens/welcome_screen.dart';
-import '../../features/auth/screens/sign_in_screen.dart';
-import '../../features/auth/screens/sign_up_screen.dart';
-import '../../features/auth/screens/phone_screen.dart';
 import '../../features/home/screens/home_screen.dart';
 import '../../features/home/screens/program_screen.dart';
 import '../../features/profile/screens/waiver_screen.dart';
@@ -42,12 +39,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final auth = ref.read(authProvider);
       final profile = ref.read(profileProvider);
-      final isAuth = [
-        '/welcome',
-        '/signin',
-        '/signup',
-        '/phone',
-      ].contains(state.uri.path);
+      final isAuth = state.uri.path == '/welcome';
       if (auth.isLoading) return null;
       final user = auth.value;
       if (user == null && !isAuth) return '/welcome';
@@ -74,9 +66,6 @@ final routerProvider = Provider<GoRouter>((ref) {
     },
     routes: [
       GoRoute(path: '/welcome', builder: (c, s) => const WelcomeScreen()),
-      GoRoute(path: '/signin', builder: (c, s) => const SignInScreen()),
-      GoRoute(path: '/signup', builder: (c, s) => const SignUpScreen()),
-      GoRoute(path: '/phone', builder: (c, s) => const PhoneScreen()),
       ShellRoute(
         builder: (c, s, child) => _Shell(location: s.uri.path, child: child),
         routes: [

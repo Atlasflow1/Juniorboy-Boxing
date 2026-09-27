@@ -14,12 +14,20 @@ class CompleteProfileScreen extends ConsumerStatefulWidget {
 
 class _CompleteProfileState extends ConsumerState<CompleteProfileScreen> {
   final form = GlobalKey<FormState>(),
+      lastName = TextEditingController(),
+      age = TextEditingController(),
+      address = TextEditingController(),
+      zipCode = TextEditingController(),
       phone = TextEditingController(),
       childName = TextEditingController(),
       childAge = TextEditingController();
   bool busy = false, loaded = false;
   @override
   void dispose() {
+    lastName.dispose();
+    age.dispose();
+    address.dispose();
+    zipCode.dispose();
     phone.dispose();
     childName.dispose();
     childAge.dispose();
@@ -31,9 +39,13 @@ class _CompleteProfileState extends ConsumerState<CompleteProfileScreen> {
     setState(() => busy = true);
     try {
       await ref.read(userRepositoryProvider).save({
+        'lastName': lastName.text.trim(),
+        'age': int.parse(age.text),
+        'address': address.text.trim(),
+        'zipCode': zipCode.text.trim(),
         'phone': phone.text.trim(),
         'childName': childName.text.trim(),
-        'childAge': int.parse(childAge.text),
+        'childAge': int.tryParse(childAge.text) ?? 0,
       });
       if (mounted) {
         if (context.canPop()) {
@@ -54,6 +66,12 @@ class _CompleteProfileState extends ConsumerState<CompleteProfileScreen> {
     final user = ref.watch(profileProvider).value;
     if (user != null && !loaded) {
       loaded = true;
+      if (lastName.text.isEmpty) lastName.text = user['lastName'] ?? '';
+      if (age.text.isEmpty && (user['age'] ?? 0) > 0) {
+        age.text = '${user['age']}';
+}
+      if (address.text.isEmpty) address.text = user['address'] ?? '';
+      if (zipCode.text.isEmpty) zipCode.text = user['zipCode'] ?? '';
       if (phone.text.isEmpty) phone.text = user['phone'] ?? '';
       if (childName.text.isEmpty) childName.text = user['childName'] ?? '';
       if (childAge.text.isEmpty && (user['childAge'] ?? 0) > 0) {
@@ -76,9 +94,35 @@ class _CompleteProfileState extends ConsumerState<CompleteProfileScreen> {
               ),
               const SizedBox(height: 10),
               const Text(
-                'Enter details for the person who will attend training.',
+                'We need a few account details, plus who will attend training.',
               ),
               const SizedBox(height: 32),
+              TextFormField(
+                controller: lastName,
+                decoration: const InputDecoration(labelText: 'Last Name'),
+                validator: Validators.required,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: age,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'Your Age'),
+                validator: Validators.age,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: address,
+                decoration: const InputDecoration(labelText: 'Address'),
+                validator: Validators.required,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: zipCode,
+                keyboardType: TextInputType.text,
+                decoration: const InputDecoration(labelText: 'Postal / ZIP Code'),
+                validator: Validators.zip,
+              ),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: phone,
                 keyboardType: TextInputType.phone,
@@ -89,16 +133,18 @@ class _CompleteProfileState extends ConsumerState<CompleteProfileScreen> {
               TextFormField(
                 controller: childName,
                 decoration: const InputDecoration(
-                  labelText: 'Participant Name (Yourself or Child)',
+                  labelText: 'Participant Name (Yourself or Child, optional)',
                 ),
-                validator: Validators.required,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: childAge,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Participant Age'),
-                validator: Validators.age,
+                decoration: const InputDecoration(
+                  labelText: 'Participant Age (optional)',
+                ),
+                validator: (v) =>
+                    (v ?? '').trim().isEmpty ? null : Validators.age(v),
               ),
               const SizedBox(height: 28),
               JbbButton(label: 'Continue', busy: busy, onPressed: save),

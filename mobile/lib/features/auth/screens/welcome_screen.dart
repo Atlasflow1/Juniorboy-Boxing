@@ -85,16 +85,6 @@ class _WelcomeState extends ConsumerState<WelcomeScreen> {
                       ),
                       const SizedBox(height: 30),
                       FilledButton(
-                        onPressed: busy ? null : () => context.go('/signup'),
-                        child: const Text('Get Started  ›'),
-                      ),
-                      const SizedBox(height: 12),
-                      OutlinedButton(
-                        onPressed: busy ? null : () => context.go('/signin'),
-                        child: const Text('Sign In'),
-                      ),
-                      const SizedBox(height: 12),
-                      OutlinedButton(
                         onPressed: busy
                             ? null
                             : () => run(

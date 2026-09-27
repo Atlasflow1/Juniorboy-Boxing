@@ -13,6 +13,12 @@ class ProductAdBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final imageUrl = (product['imageUrl'] as String?) ?? '';
+    final discountPercent = (product['discountPercent'] as num?)?.toDouble() ?? 0;
+    final hasDiscount = product['discountActive'] == true && discountPercent > 0;
+    final priceCents = (product['price'] as num?) ?? 0;
+    final saleCents = hasDiscount
+        ? (priceCents * (1 - discountPercent / 100)).round()
+        : priceCents;
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: Material(
@@ -71,13 +77,36 @@ class ProductAdBanner extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        (product['priceLabel'] as String?) ?? '',
-                        style: const TextStyle(
-                          color: AppColors.muted,
-                          fontSize: 13,
+                      if (hasDiscount)
+                        Row(
+                          children: [
+                            Text(
+                              '\$${(priceCents / 100).toStringAsFixed(2)}',
+                              style: const TextStyle(
+                                color: AppColors.muted,
+                                fontSize: 12,
+                                decoration: TextDecoration.lineThrough,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              '\$${(saleCents / 100).toStringAsFixed(2)}',
+                              style: const TextStyle(
+                                color: Colors.green,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        )
+                      else
+                        Text(
+                          (product['priceLabel'] as String?) ?? '',
+                          style: const TextStyle(
+                            color: AppColors.muted,
+                            fontSize: 13,
+                          ),
                         ),
-                      ),
                     ],
                   ),
                 ),

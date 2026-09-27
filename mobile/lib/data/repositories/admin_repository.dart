@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'cached_repository.dart';
 
 /// Admin-only data access for the in-app dashboard: membership plan
@@ -28,4 +29,24 @@ class AdminRepository extends CachedRepository {
         'promoVideoUrl': url,
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
+
+  Stream<List<Map<String, dynamic>>> orders() => watchQuery(
+    db.collection('payments').orderBy('createdAt', descending: true).limit(200),
+    'admin_orders',
+  );
+
+  Future<Map<String, dynamic>?> buyer(String userId) async {
+    final snap = await db.doc('users/$userId').get();
+    return snap.data();
+  }
+
+  Future<void> setOrderDelivery(
+    String paymentId,
+    DateTime estimatedDeliveryDate,
+    String note,
+  ) => FirebaseFunctions.instance.httpsCallable('setOrderDelivery').call({
+    'paymentId': paymentId,
+    'estimatedDeliveryDate': estimatedDeliveryDate.toIso8601String(),
+    'note': note,
+  });
 }
