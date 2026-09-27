@@ -5,8 +5,10 @@ import '../../../core/widgets/jbb_empty_state.dart';
 import '../../profile/providers/profile_provider.dart';
 import '../../booking/providers/booking_provider.dart';
 import '../providers/home_provider.dart';
+import '../../store/providers/store_provider.dart';
 import '../widgets/home_hero_banner.dart';
 import '../widgets/next_session_card.dart';
+import '../widgets/product_ad_banner.dart';
 import '../widgets/quick_actions_grid.dart';
 import '../widgets/programs_section.dart';
 import '../widgets/youtube_background_player.dart';
@@ -20,6 +22,7 @@ class HomeScreen extends ConsumerWidget {
     final videoId = extractYoutubeId(
       ref.watch(settingsProvider).value?['promoVideoUrl'] ?? '',
     );
+    final featuredProduct = ref.watch(featuredProductProvider);
     return PageContent(
       showHeader: false,
       refresh: () async {
@@ -34,6 +37,10 @@ class HomeScreen extends ConsumerWidget {
         if (videoId != null) ...[
           const SizedBox(height: 16),
           YoutubeBackgroundPlayer(videoId: videoId),
+        ],
+        if (featuredProduct != null) ...[
+          const SizedBox(height: 16),
+          ProductAdBanner(product: featuredProduct),
         ],
         const SizedBox(height: 20),
         if (next != null)

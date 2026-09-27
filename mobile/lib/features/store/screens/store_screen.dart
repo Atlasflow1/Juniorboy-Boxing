@@ -105,6 +105,18 @@ class StoreScreen extends ConsumerWidget {
                                           ),
                                         ),
                                       ),
+                                    if (isAdmin && product['isFeatured'] == true)
+                                      const Padding(
+                                        padding: EdgeInsets.only(left: 8),
+                                        child: Text(
+                                          'FEATURED',
+                                          style: TextStyle(
+                                            color: Colors.red,
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
                                   ],
                                 ),
                                 if ((product['description'] ?? '')

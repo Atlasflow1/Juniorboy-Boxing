@@ -8,3 +8,12 @@ final productsProvider = StreamProvider(
 final productsAdminProvider = StreamProvider(
   (ref) => ref.watch(productRepositoryProvider).productsAdmin(),
 );
+
+/// The product currently flagged to advertise on Home, if any.
+final featuredProductProvider = Provider<Map<String, dynamic>?>((ref) {
+  final products = ref.watch(productsProvider).value ?? const [];
+  for (final product in products) {
+    if (product['isFeatured'] == true) return product;
+  }
+  return null;
+});

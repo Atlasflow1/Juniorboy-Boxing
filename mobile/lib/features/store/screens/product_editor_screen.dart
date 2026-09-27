@@ -32,6 +32,7 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
   );
   late String? imageUrl = widget.product?['imageUrl'];
   late bool isActive = widget.product?['isActive'] ?? true;
+  late bool isFeatured = widget.product?['isFeatured'] ?? false;
   bool busy = false;
   @override
   void dispose() {
@@ -73,6 +74,7 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
         'priceLabel': '\$${(cents / 100).toStringAsFixed(2)}',
         'imageUrl': imageUrl ?? '',
         'isActive': isActive,
+        'isFeatured': isFeatured,
         'sortOrder': widget.product?['sortOrder'] ?? 0,
         'createdAt': widget.product?['createdAt'] ?? FieldValue.serverTimestamp(),
       });
@@ -186,6 +188,15 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
               title: const Text('Active (visible in the store)'),
               value: isActive,
               onChanged: (v) => setState(() => isActive = v),
+            ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Feature on Home (product ad)'),
+              subtitle: const Text(
+                'Shows this product as a banner near the top of Home.',
+              ),
+              value: isFeatured,
+              onChanged: (v) => setState(() => isFeatured = v),
             ),
             const SizedBox(height: 16),
             JbbButton(label: 'Save Product', busy: busy, onPressed: save),
