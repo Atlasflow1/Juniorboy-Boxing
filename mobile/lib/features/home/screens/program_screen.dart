@@ -7,6 +7,7 @@ import '../../../core/constants/programs.dart';
 import '../../../core/widgets/jbb_button.dart';
 import '../../../core/widgets/jbb_loading.dart';
 import '../../../core/widgets/jbb_empty_state.dart';
+import '../../../core/utils/nav_debounce.dart';
 import '../../../core/utils/snackbar_utils.dart';
 import '../../../data/services/stripe_service.dart';
 import '../../../data/repositories/user_repository.dart';
@@ -92,7 +93,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
           ),
           const SizedBox(height: 12),
           TextButton(
-            onPressed: () => context.push('/contact'),
+            onPressed: () => context.safePush('/contact'),
             child: const Text('Ask the Coach'),
           ),
           const SizedBox(height: 24),

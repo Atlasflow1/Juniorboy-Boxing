@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import '../../../core/utils/nav_debounce.dart';
 import '../../../core/widgets/jbb_card.dart';
 
 class QuickActionsGrid extends StatelessWidget {
@@ -22,7 +22,7 @@ class QuickActionsGrid extends StatelessWidget {
         ('Contact', Icons.phone_outlined, '/contact'),
       ])
         JbbCard(
-          onTap: () => context.push(item.$3),
+          onTap: () => context.safePush(item.$3),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

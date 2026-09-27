@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/widgets/page_content.dart';
 import '../../../core/widgets/jbb_card.dart';
 import '../../../core/utils/date_utils.dart';
+import '../../../core/utils/nav_debounce.dart';
 import '../../../core/utils/snackbar_utils.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../providers/profile_provider.dart';
@@ -50,7 +51,7 @@ class MoreScreen extends ConsumerWidget {
                         ),
                       ),
                     TextButton(
-                      onPressed: () => context.push('/profile'),
+                      onPressed: () => context.safePush('/profile'),
                       child: const Text('Edit Profile'),
                     ),
                   ],
@@ -80,7 +81,7 @@ class MoreScreen extends ConsumerWidget {
             leading: Icon(item.$2, color: Colors.red),
             title: Text(item.$1),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(item.$3),
+            onTap: () => context.safePush(item.$3),
           ),
         const SizedBox(height: 20),
         OutlinedButton(

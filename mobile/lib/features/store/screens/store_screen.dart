@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:go_router/go_router.dart';
 import '../../../core/widgets/page_content.dart';
 import '../../../core/widgets/jbb_card.dart';
 import '../../../core/widgets/jbb_button.dart';
 import '../../../core/widgets/jbb_loading.dart';
 import '../../../core/widgets/jbb_empty_state.dart';
+import '../../../core/utils/nav_debounce.dart';
 import '../../../core/utils/snackbar_utils.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../profile/providers/profile_provider.dart';
@@ -262,7 +262,7 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
                   if (!isAdmin) ...[
                     const SizedBox(height: 8),
                     TextButton(
-                      onPressed: () => context.push('/contact'),
+                      onPressed: () => context.safePush('/contact'),
                       child: const Text('Question about an order? Contact the gym'),
                     ),
                   ],

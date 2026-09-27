@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import '../../../core/utils/date_utils.dart';
+import '../../../core/utils/nav_debounce.dart';
 import '../../../core/widgets/jbb_card.dart';
 
 class NextSessionCard extends StatelessWidget {
@@ -31,7 +31,7 @@ class NextSessionCard extends StatelessWidget {
         const Text('Junior Boy Boxing · Tracy, CA'),
         const SizedBox(height: 16),
         FilledButton(
-          onPressed: () => context.push('/bookings'),
+          onPressed: () => context.safePush('/bookings'),
           child: const Text('View Booking  ›'),
         ),
       ],

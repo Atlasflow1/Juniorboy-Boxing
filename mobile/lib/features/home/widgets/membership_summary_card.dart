@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import '../../../core/utils/nav_debounce.dart';
 import '../../../core/widgets/jbb_card.dart';
 
 /// Confirms the member's active subscription right on Home — plan name
@@ -17,7 +17,7 @@ class MembershipSummaryCard extends StatelessWidget {
   final int sessionsReserved;
   @override
   Widget build(BuildContext context) => JbbCard(
-    onTap: () => context.push('/membership'),
+    onTap: () => context.safePush('/membership'),
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

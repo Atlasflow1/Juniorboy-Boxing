@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/nav_debounce.dart';
 
 /// Advertises the product an admin flagged as "featured" near the top of
 /// Home, linking through to the Gym Store. Navigates with [context.push],
@@ -24,7 +24,7 @@ class ProductAdBanner extends StatelessWidget {
       child: Material(
         color: AppColors.card,
         child: InkWell(
-          onTap: () => context.push('/store'),
+          onTap: () => context.safePush('/store'),
           child: Container(
             decoration: BoxDecoration(
               border: Border.all(color: AppColors.border),

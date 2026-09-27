@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_assets.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/nav_debounce.dart';
 import '../../../core/widgets/jbb_card.dart';
 
 class ProgramsSection extends StatelessWidget {
@@ -30,7 +30,7 @@ class ProgramsSection extends StatelessWidget {
             button: true,
             label: 'View ${item.$2} schedule',
             child: InkWell(
-              onTap: () => context.push('/schedule'),
+              onTap: () => context.safePush('/schedule'),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: Image.asset(
@@ -44,7 +44,7 @@ class ProgramsSection extends StatelessWidget {
         ),
       for (final item in _textPrograms)
         JbbCard(
-          onTap: () => context.push(
+          onTap: () => context.safePush(
             '/programs/${['boxing', 'fitness', 'strength', 'weight-loss', 'self-defense'][_textPrograms.indexOf(item)]}',
           ),
           child: Row(

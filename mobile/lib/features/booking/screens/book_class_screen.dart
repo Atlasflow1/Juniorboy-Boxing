@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/utils/date_utils.dart';
+import '../../../core/utils/nav_debounce.dart';
 import '../../../core/utils/snackbar_utils.dart';
 import '../../../core/widgets/jbb_button.dart';
 import '../../../core/widgets/jbb_card.dart';
@@ -29,7 +30,7 @@ class _BookClassState extends ConsumerState<BookClassScreen> {
         (user?['waiverVersion'] != waiver?['version'] ||
             user?['waiverParticipantName'] != user?['childName']?.trim() ||
             user?['waiverParticipantAge'] != user?['childAge'])) {
-      context.push('/waiver');
+      context.safePush('/waiver');
       return;
     }
     if ((user?['sessionsRemaining'] ?? 0) - (user?['sessionsReserved'] ?? 0) <

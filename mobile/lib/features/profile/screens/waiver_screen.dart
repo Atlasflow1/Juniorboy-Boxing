@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:go_router/go_router.dart';
 import '../../../core/widgets/jbb_button.dart';
+import '../../../core/utils/nav_debounce.dart';
 import '../../../core/utils/snackbar_utils.dart';
 import '../../../core/constants/app_strings.dart';
 import '../providers/profile_provider.dart';
@@ -98,7 +98,7 @@ class _WaiverState extends ConsumerState<WaiverScreen> {
                       'Participant: ${profile?['childName'] ?? ''} · Age: ${profile?['childAge'] ?? ''}',
                     ),
                     TextButton(
-                      onPressed: () => context.push('/profile'),
+                      onPressed: () => context.safePush('/profile'),
                       child: const Text('Edit participant details'),
                     ),
                     TextField(
