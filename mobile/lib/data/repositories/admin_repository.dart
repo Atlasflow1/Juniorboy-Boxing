@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 import 'cached_repository.dart';
 
 /// Admin-only data access for the in-app dashboard: membership plan
@@ -29,11 +28,4 @@ class AdminRepository extends CachedRepository {
         'promoVideoUrl': url,
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
-
-  /// Verifies the admin PIN server-side; the PIN itself is never sent to
-  /// or readable by any client.
-  Future<void> verifyPin(String pin) =>
-      FirebaseFunctions.instance.httpsCallable('verifyAdminPin').call({
-        'pin': pin,
-      });
 }
