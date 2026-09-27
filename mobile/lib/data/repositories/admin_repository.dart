@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'cached_repository.dart';
 
 /// Admin-only data access for the in-app dashboard: membership plan
@@ -29,6 +31,24 @@ class AdminRepository extends CachedRepository {
         'promoVideoUrl': url,
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
+
+  /// Uploads the gym's own promo video to Storage and points Home at it.
+  /// Being the gym's own file (not a YouTube embed), there's no embedding
+  /// restriction to run into regardless of what the source video is.
+  Future<void> uploadPromoVideo(File file) async {
+    if (await file.length() > 80 * 1024 * 1024) {
+      throw const FormatException('Video must be smaller than 80 MB');
+    }
+    final ext = file.path.split('.').last.toLowerCase();
+    final contentType = switch (ext) {
+      'mov' => 'video/quicktime',
+      'webm' => 'video/webm',
+      _ => 'video/mp4',
+    };
+    final ref = FirebaseStorage.instance.ref('gym/promo_video.$ext');
+    await ref.putFile(file, SettableMetadata(contentType: contentType));
+    await savePromoVideoUrl(await ref.getDownloadURL());
+  }
 
   Stream<List<Map<String, dynamic>>> orders() => watchQuery(
     db.collection('payments').orderBy('createdAt', descending: true).limit(200),

@@ -12,6 +12,7 @@ import '../widgets/product_ad_banner.dart';
 import '../widgets/quick_actions_grid.dart';
 import '../widgets/programs_section.dart';
 import '../widgets/youtube_background_player.dart';
+import '../widgets/direct_video_background_player.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -19,9 +20,9 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(profileProvider).value,
         next = ref.watch(nextBookingProvider);
-    final videoId = extractYoutubeId(
-      ref.watch(settingsProvider).value?['promoVideoUrl'] ?? '',
-    );
+    final promoVideoUrl =
+        ref.watch(settingsProvider).value?['promoVideoUrl'] ?? '';
+    final videoId = extractYoutubeId(promoVideoUrl);
     final featuredProduct = ref.watch(featuredProductProvider);
     return PageContent(
       showHeader: false,
@@ -37,6 +38,9 @@ class HomeScreen extends ConsumerWidget {
         if (videoId != null) ...[
           const SizedBox(height: 16),
           YoutubeBackgroundPlayer(videoId: videoId),
+        ] else if (promoVideoUrl.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          DirectVideoBackgroundPlayer(url: promoVideoUrl),
         ],
         if (featuredProduct != null) ...[
           const SizedBox(height: 16),

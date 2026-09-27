@@ -58,7 +58,9 @@ class PaymentsScreen extends ConsumerWidget {
                                       contentPadding: EdgeInsets.zero,
                                       title: Text(
                                         p['productName'] != null
-                                            ? '${p['productName']} (Store)'
+                                            ? p['size'] != null
+                                                  ? '${p['productName']} · Size ${p['size']} (Store)'
+                                                  : '${p['productName']} (Store)'
                                             : 'Membership',
                                       ),
                                       subtitle: Text(

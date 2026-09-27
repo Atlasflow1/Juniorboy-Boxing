@@ -46,7 +46,9 @@ class AdminOrdersScreen extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                order['productName'] ?? 'Product',
+                                order['size'] != null
+                                    ? '${order['productName'] ?? 'Product'} · Size ${order['size']}'
+                                    : order['productName'] ?? 'Product',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
@@ -183,7 +185,9 @@ class _OrderDetailSheetState extends ConsumerState<_OrderDetailSheet> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            widget.order['productName'] ?? 'Order',
+            widget.order['size'] != null
+                ? '${widget.order['productName'] ?? 'Order'} · Size ${widget.order['size']}'
+                : widget.order['productName'] ?? 'Order',
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
           Text(

@@ -1,11 +1,12 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/snackbar_utils.dart';
 import '../../../core/widgets/jbb_button.dart';
 import '../../../core/widgets/jbb_card.dart';
 import '../../../core/widgets/jbb_loading.dart';
-import '../../home/widgets/youtube_background_player.dart';
 import '../../profile/providers/profile_provider.dart';
 import '../../store/screens/store_screen.dart';
 import '../providers/admin_provider.dart';
@@ -249,8 +250,12 @@ class AdminDashboardScreen extends ConsumerWidget {
   }
 }
 
-/// Lets the admin set the YouTube video that plays silently and on loop
-/// near the top of Home. Leave the field empty to hide it.
+/// Lets the admin set the video that plays silently and on loop near the
+/// top of Home — either upload a file from the phone (goes to Storage,
+/// so there's never an embedding restriction), or paste a YouTube / direct
+/// video link. Some YouTube videos block embedding elsewhere entirely (a
+/// Content ID claim on the audio is the usual cause) and that can't be
+/// worked around client-side, so uploading is the reliable option.
 class _PromoVideoSection extends ConsumerStatefulWidget {
   const _PromoVideoSection();
   @override
@@ -269,8 +274,8 @@ class _PromoVideoSectionState extends ConsumerState<_PromoVideoSection> {
 
   Future<void> save() async {
     final trimmed = url.text.trim();
-    if (trimmed.isNotEmpty && extractYoutubeId(trimmed) == null) {
-      showMessage(context, 'That doesn\'t look like a valid YouTube link.');
+    if (trimmed.isNotEmpty && Uri.tryParse(trimmed)?.hasScheme != true) {
+      showMessage(context, 'That doesn\'t look like a valid link.');
       return;
     }
     setState(() => busy = true);
@@ -281,6 +286,25 @@ class _PromoVideoSectionState extends ConsumerState<_PromoVideoSection> {
           context,
           trimmed.isEmpty ? 'Video removed from Home.' : 'Video saved.',
         );
+      }
+    } catch (e) {
+      if (mounted) showMessage(context, friendlyError(e));
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
+  Future<void> pickAndUpload() async {
+    final video = await ImagePicker().pickVideo(source: ImageSource.gallery);
+    if (video == null) return;
+    setState(() => busy = true);
+    try {
+      await ref
+          .read(adminRepositoryProvider)
+          .uploadPromoVideo(File(video.path));
+      if (mounted) {
+        url.text = ref.read(settingsProvider).value?['promoVideoUrl'] ?? '';
+        showMessage(context, 'Video uploaded.');
       }
     } catch (e) {
       if (mounted) showMessage(context, friendlyError(e));
@@ -306,19 +330,34 @@ class _PromoVideoSectionState extends ConsumerState<_PromoVideoSection> {
           ),
           const SizedBox(height: 4),
           const Text(
-            'Plays silently on loop at the top of Home. Paste a YouTube link, or clear it to hide the video.',
+            'Plays silently on loop at the top of Home. Upload a video from '
+            'your phone (most reliable — no embedding restrictions), or '
+            'paste a YouTube / direct video link instead. If a YouTube '
+            'video shows "video unavailable" on Home, YouTube itself is '
+            'blocking it from being embedded — upload the file instead.',
             style: TextStyle(color: AppColors.muted, fontSize: 12),
           ),
           const SizedBox(height: 12),
+          JbbButton(
+            label: 'Upload Video from Phone',
+            busy: busy,
+            onPressed: pickAndUpload,
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Or paste a link',
+            style: TextStyle(color: AppColors.muted, fontSize: 12),
+          ),
+          const SizedBox(height: 8),
           TextField(
             controller: url,
             decoration: const InputDecoration(
-              labelText: 'YouTube link',
-              hintText: 'https://www.youtube.com/watch?v=...',
+              labelText: 'Video link',
+              hintText: 'https://www.youtube.com/watch?v=... or https://.../video.mp4',
             ),
           ),
           const SizedBox(height: 12),
-          JbbButton(label: 'Save Video', busy: busy, onPressed: save),
+          JbbButton(label: 'Save Link', busy: busy, onPressed: save),
         ],
       ),
     );

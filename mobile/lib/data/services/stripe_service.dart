@@ -82,7 +82,7 @@ class StripeService {
     return 'Payment submitted. Check Payments for confirmation; do not pay again while pending.';
   }
 
-  Future<String> purchaseProduct(String productId) async {
+  Future<String> purchaseProduct(String productId, {String? size}) async {
     const configuredKey = String.fromEnvironment('STRIPE_PUBLISHABLE_KEY');
     final settings = await FirebaseFirestore.instance
         .doc('gymSettings/config')
@@ -98,7 +98,7 @@ class StripeService {
     Stripe.publishableKey = key;
     await Stripe.instance.applySettings();
     final uid = FirebaseAuth.instance.currentUser!.uid;
-    final attemptKey = 'checkout_product:$uid:$productId', box = Hive.box('jbb_device');
+    final attemptKey = 'checkout_product:$uid:$productId:${size ?? ''}', box = Hive.box('jbb_device');
     final requestId = box.get(attemptKey) as String? ?? const Uuid().v4();
     await box.put(attemptKey, requestId);
     dynamic data;
@@ -106,7 +106,11 @@ class StripeService {
       data =
           (await FirebaseFunctions.instance
                   .httpsCallable('createProductPaymentIntent')
-                  .call({'productId': productId, 'requestId': requestId}))
+                  .call({
+                    'productId': productId,
+                    'requestId': requestId,
+                    if (size != null) 'size': size,
+                  }))
               .data;
     } on FirebaseFunctionsException catch (e) {
       if (e.details is Map && e.details['reason'] == 'checkout-expired') {

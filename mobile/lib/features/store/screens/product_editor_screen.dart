@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../../../core/constants/product_sizes.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/utils/snackbar_utils.dart';
 import '../../../core/widgets/jbb_button.dart';
@@ -38,6 +39,10 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
   );
   late bool isActive = widget.product?['isActive'] ?? true;
   late bool isFeatured = widget.product?['isFeatured'] ?? false;
+  late String category = widget.product?['category'] ?? 'other';
+  late Set<String> selectedSizes = Set<String>.from(
+    widget.product?['sizes'] ?? const [],
+  );
   late bool discountActive = widget.product?['discountActive'] ?? false;
   late final discountPercent = TextEditingController(
     text: ((widget.product?['discountPercent'] as num?) ?? 0) > 0
@@ -100,6 +105,8 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
         'imageUrls': cleanImages,
         'isActive': isActive,
         'isFeatured': isFeatured,
+        'category': category,
+        'sizes': category == 'other' ? [] : selectedSizes.toList(),
         'discountActive': discountActive,
         'discountPercent': double.tryParse(discountPercent.text) ?? 0,
         'sortOrder': widget.product?['sortOrder'] ?? 0,
@@ -245,6 +252,48 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
                   ? null
                   : 'Enter a valid price',
             ),
+            DropdownButtonFormField<String>(
+              initialValue: category,
+              decoration: const InputDecoration(labelText: 'Category'),
+              items: [
+                const DropdownMenuItem(
+                  value: 'other',
+                  child: Text('Other (no sizes)'),
+                ),
+                for (final entry in ProductSizes.categories.entries)
+                  DropdownMenuItem(value: entry.key, child: Text(entry.value)),
+              ],
+              onChanged: (v) => setState(() {
+                category = v ?? 'other';
+                selectedSizes = selectedSizes
+                    .intersection(ProductSizes.forCategory(category).toSet());
+              }),
+            ),
+            if (category != 'other') ...[
+              const SizedBox(height: 12),
+              Text(
+                'Available sizes (US)',
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final size in ProductSizes.forCategory(category))
+                    FilterChip(
+                      label: Text(size),
+                      selected: selectedSizes.contains(size),
+                      onSelected: (v) => setState(
+                        () => v
+                            ? selectedSizes.add(size)
+                            : selectedSizes.remove(size),
+                      ),
+                    ),
+                ],
+              ),
+            ],
+            const SizedBox(height: 16),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               title: const Text('Active (visible in the store)'),

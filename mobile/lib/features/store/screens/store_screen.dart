@@ -24,10 +24,17 @@ class StoreScreen extends ConsumerStatefulWidget {
 class _StoreScreenState extends ConsumerState<StoreScreen> {
   final stripe = StripeService();
   String? busyProductId;
+  final Map<String, String> selectedSize = {};
 
   Future<void> buyNow(Map<String, dynamic> product) async {
     if (busyProductId != null) return;
-    setState(() => busyProductId = product['id'] as String);
+    final id = product['id'] as String;
+    final sizes = List<String>.from(product['sizes'] ?? const []);
+    if (sizes.isNotEmpty && selectedSize[id] == null) {
+      showMessage(context, 'Choose a size first.');
+      return;
+    }
+    setState(() => busyProductId = id);
     try {
       final authUser = FirebaseAuth.instance.currentUser;
       if (authUser == null || authUser.isAnonymous) {
@@ -35,7 +42,7 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
         if (mounted) showMessage(context, 'Signed in. Tap Buy Now again to complete your order.');
         return;
       }
-      final message = await stripe.purchaseProduct(product['id'] as String);
+      final message = await stripe.purchaseProduct(id, size: selectedSize[id]);
       if (mounted) showMessage(context, message);
     } catch (e) {
       if (mounted) {
@@ -174,6 +181,23 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
                     ),
                   ),
                 if (!isAdmin) ...[
+                  if (List.from(product['sizes'] ?? const []).isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        for (final size in List<String>.from(product['sizes']))
+                          ChoiceChip(
+                            label: Text(size),
+                            selected: selectedSize[product['id']] == size,
+                            onSelected: (_) => setState(
+                              () => selectedSize[product['id']] = size,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
                   const SizedBox(height: 10),
                   SizedBox(
                     width: double.infinity,
