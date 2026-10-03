@@ -2,58 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../../core/widgets/page_content.dart';
 import '../../../core/widgets/jbb_card.dart';
+import '../../../core/widgets/social_links_row.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/utils/nav_debounce.dart';
 import '../../../core/utils/snackbar_utils.dart';
 import '../../../core/theme/theme_provider.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../providers/profile_provider.dart';
-
-class _SocialLinks extends ConsumerWidget {
-  const _SocialLinks();
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final settings = ref.watch(settingsProvider).value ?? {};
-    final links = (settings['socialLinks'] as Map?) ?? {};
-    const icons = {
-      'instagram': 'assets/icons/ic_instagram.svg',
-      'facebook': 'assets/icons/ic_facebook.svg',
-      'tiktok': 'assets/icons/ic_tiktok.svg',
-    };
-    final active = icons.entries
-        .where((e) => (links[e.key] ?? '').toString().startsWith('https://'))
-        .toList();
-    if (active.isEmpty) return const SizedBox.shrink();
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
-      child: Row(
-        children: [
-          const Text('Follow Us  '),
-          ...active.map(
-            (e) => IconButton(
-              icon: SvgPicture.asset(e.value, width: 24, height: 24),
-              tooltip: e.key,
-              onPressed: () async {
-                try {
-                  await launchUrl(
-                    Uri.parse(links[e.key].toString()),
-                    mode: LaunchMode.externalApplication,
-                  );
-                } catch (err) {
-                  if (context.mounted) showMessage(context, friendlyError(err));
-                }
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class MoreScreen extends ConsumerWidget {
   const MoreScreen({super.key});
@@ -129,7 +86,10 @@ class MoreScreen extends ConsumerWidget {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.safePush(item.$3),
           ),
-        const _SocialLinks(),
+        const Padding(
+          padding: EdgeInsets.only(bottom: 20),
+          child: SocialLinksRow(),
+        ),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
           title: const Text('Black Background'),

@@ -123,6 +123,8 @@ class AdminDashboardScreen extends ConsumerWidget {
           const SizedBox(height: 24),
           const _GymInfoSection(),
           const SizedBox(height: 24),
+          const _SocialLinksSection(),
+          const SizedBox(height: 24),
           const _PromoVideoSection(),
           const SizedBox(height: 24),
           Row(
@@ -511,6 +513,103 @@ class _GymInfoSectionState extends ConsumerState<_GymInfoSection> {
           ),
           const SizedBox(height: 12),
           JbbButton(label: 'Save Gym Info', busy: busy, onPressed: save),
+        ],
+      ),
+    );
+  }
+}
+
+/// Lets the admin set the gym's Instagram, Facebook, TikTok and YouTube
+/// links — shown as icons on the website footer and the app's More screen.
+class _SocialLinksSection extends ConsumerStatefulWidget {
+  const _SocialLinksSection();
+  @override
+  ConsumerState<_SocialLinksSection> createState() => _SocialLinksSectionState();
+}
+
+class _SocialLinksSectionState extends ConsumerState<_SocialLinksSection> {
+  final instagram = TextEditingController(),
+      facebook = TextEditingController(),
+      tiktok = TextEditingController(),
+      youtube = TextEditingController();
+  bool loaded = false, busy = false;
+
+  @override
+  void dispose() {
+    instagram.dispose();
+    facebook.dispose();
+    tiktok.dispose();
+    youtube.dispose();
+    super.dispose();
+  }
+
+  Future<void> save() async {
+    setState(() => busy = true);
+    try {
+      await ref.read(adminRepositoryProvider).saveSocialLinks({
+        'instagram': instagram.text.trim(),
+        'facebook': facebook.text.trim(),
+        'tiktok': tiktok.text.trim(),
+        'youtube': youtube.text.trim(),
+      });
+      if (mounted) showMessage(context, 'Social links saved.');
+    } catch (e) {
+      if (mounted) showMessage(context, friendlyError(e));
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final settings = ref.watch(settingsProvider).value;
+    if (!loaded && settings != null) {
+      final links = (settings['socialLinks'] as Map?) ?? {};
+      instagram.text = links['instagram'] ?? '';
+      facebook.text = links['facebook'] ?? '';
+      tiktok.text = links['tiktok'] ?? '';
+      youtube.text = links['youtube'] ?? '';
+      loaded = true;
+    }
+    return JbbCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Social Links',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'Shown as icons on the website and the app\'s More screen.',
+            style: TextStyle(color: AppColors.muted, fontSize: 12),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: instagram,
+            keyboardType: TextInputType.url,
+            decoration: const InputDecoration(labelText: 'Instagram URL'),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: facebook,
+            keyboardType: TextInputType.url,
+            decoration: const InputDecoration(labelText: 'Facebook URL'),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: tiktok,
+            keyboardType: TextInputType.url,
+            decoration: const InputDecoration(labelText: 'TikTok URL'),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: youtube,
+            keyboardType: TextInputType.url,
+            decoration: const InputDecoration(labelText: 'YouTube URL'),
+          ),
+          const SizedBox(height: 12),
+          JbbButton(label: 'Save Social Links', busy: busy, onPressed: save),
         ],
       ),
     );

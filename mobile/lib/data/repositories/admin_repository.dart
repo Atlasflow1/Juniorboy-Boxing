@@ -92,6 +92,12 @@ class AdminRepository extends CachedRepository {
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
+  Future<void> saveSocialLinks(Map<String, String> links) =>
+      db.doc('gymSettings/config').set({
+        'socialLinks': links,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
   /// Uploads the gym's own promo video to Storage and points Home at it.
   /// Being the gym's own file (not a YouTube embed), there's no embedding
   /// restriction to run into regardless of what the source video is.

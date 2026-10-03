@@ -16,6 +16,7 @@ import '../widgets/program_ads_carousel.dart';
 import '../widgets/programs_section.dart';
 import '../widgets/youtube_background_player.dart';
 import '../widgets/direct_video_background_player.dart';
+import '../../../core/widgets/social_links_row.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -49,6 +50,8 @@ class HomeScreen extends ConsumerWidget {
           name: (user?['fullName'] ?? 'Champion').toString().split(' ').first,
           imageUrl: heroImageUrl,
         ),
+        const SizedBox(height: 14),
+        const Center(child: SocialLinksRow()),
         if (videoId != null) ...[
           const SizedBox(height: 16),
           YoutubeBackgroundPlayer(videoId: videoId),
