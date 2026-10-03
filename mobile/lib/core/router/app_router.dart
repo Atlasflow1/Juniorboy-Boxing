@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../features/auth/providers/auth_provider.dart';
 import '../../features/profile/providers/profile_provider.dart';
 import '../../data/repositories/user_repository.dart';
@@ -23,6 +24,7 @@ import '../../features/profile/screens/notifications_screen.dart';
 import '../../features/profile/screens/contact_screen.dart';
 import '../../features/profile/screens/payments_screen.dart';
 import '../../features/reviews/screens/reviews_screen.dart';
+import '../../features/blog/screens/blog_screen.dart';
 import '../../features/admin/screens/admin_dashboard_screen.dart';
 import '../widgets/jbb_bottom_nav.dart';
 import '../constants/app_strings.dart';
@@ -113,19 +115,22 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/privacy',
-        builder: (c, s) => const _InformationScreen(
+        builder: (c, s) => const _LegalScreen(
+          page: 'privacy',
           title: 'Privacy Policy',
-          text: AppStrings.privacy,
+          fallback: AppStrings.privacy,
         ),
       ),
       GoRoute(
         path: '/terms',
-        builder: (c, s) => const _InformationScreen(
+        builder: (c, s) => const _LegalScreen(
+          page: 'terms',
           title: 'Terms of Service',
-          text: AppStrings.terms,
+          fallback: AppStrings.terms,
         ),
       ),
       GoRoute(path: '/waiver', builder: (c, s) => const WaiverScreen()),
+      GoRoute(path: '/blog', builder: (c, s) => const BlogScreen()),
       GoRoute(
         path: '/programs/:id',
         builder: (c, s) => ProgramScreen(id: s.pathParameters['id']!),
@@ -207,20 +212,44 @@ class _Shell extends ConsumerWidget {
 }
 
 class _InformationScreen extends ConsumerWidget {
-  const _InformationScreen({required this.title, this.text});
+  const _InformationScreen({required this.title});
   final String title;
-  final String? text;
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
     appBar: AppBar(title: Text(title)),
     body: SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Text(
-        text ??
-            ref.watch(settingsProvider).value?['aboutText'] ??
+        ref.watch(settingsProvider).value?['aboutText'] ??
             'Discipline builds champions. Train, learn and grow at Junior Boy Boxing.',
         style: const TextStyle(height: 1.7),
       ),
+    ),
+  );
+}
+
+class _LegalScreen extends StatelessWidget {
+  const _LegalScreen({
+    required this.page,
+    required this.title,
+    required this.fallback,
+  });
+  final String page;
+  final String title;
+  final String fallback;
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(title: Text(title)),
+    body: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+      stream: FirebaseFirestore.instance.doc('legalDocuments/$page').snapshots(),
+      builder: (context, snapshot) {
+        final data = snapshot.data?.data();
+        final text = (data != null && data['published'] == true) ? data['body'] as String : fallback;
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Text(text, style: const TextStyle(height: 1.7)),
+        );
+      },
     ),
   );
 }

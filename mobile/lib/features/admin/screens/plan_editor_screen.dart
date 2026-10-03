@@ -38,6 +38,12 @@ class _PlanEditorState extends ConsumerState<PlanEditorScreen> {
   );
   late bool isActive = widget.plan?['isActive'] ?? true;
   late bool isRecommended = widget.plan?['isRecommended'] ?? false;
+  late bool discountActive = widget.plan?['discountActive'] ?? false;
+  late final discountPercent = TextEditingController(
+    text: ((widget.plan?['discountPercent'] as num?) ?? 0) > 0
+        ? '${widget.plan!['discountPercent']}'
+        : '',
+  );
   late String category = widget.plan?['category'] ?? 'general';
   bool busy = false;
 
@@ -48,6 +54,7 @@ class _PlanEditorState extends ConsumerState<PlanEditorScreen> {
     perSessionLabel.dispose();
     price.dispose();
     sessionCount.dispose();
+    discountPercent.dispose();
     super.dispose();
   }
 
@@ -66,6 +73,8 @@ class _PlanEditorState extends ConsumerState<PlanEditorScreen> {
         'category': category,
         'isActive': isActive,
         'isRecommended': isRecommended,
+        'discountActive': discountActive,
+        'discountPercent': double.tryParse(discountPercent.text) ?? 0,
         'sortOrder': widget.plan?['sortOrder'] ?? 0,
         'planType': widget.plan?['planType'] ?? 'package',
         'createdAt': widget.plan?['createdAt'] ?? FieldValue.serverTimestamp(),
@@ -193,6 +202,25 @@ class _PlanEditorState extends ConsumerState<PlanEditorScreen> {
               title: const Text('Recommended'),
               value: isRecommended,
               onChanged: (v) => setState(() => isRecommended = v),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: discountPercent,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              decoration: const InputDecoration(labelText: 'Discount % (optional)'),
+              onChanged: (_) => setState(() {}),
+            ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Show discount badge'),
+              subtitle: Text(
+                (double.tryParse(discountPercent.text) ?? 0) > 0 &&
+                        (double.tryParse(price.text) ?? 0) > 0
+                    ? 'Customers will see: \$${(double.parse(price.text) * (1 - (double.tryParse(discountPercent.text) ?? 0) / 100)).toStringAsFixed(2)} (was \$${double.parse(price.text).toStringAsFixed(2)})'
+                    : 'Set a price and discount % to preview.',
+              ),
+              value: discountActive,
+              onChanged: (v) => setState(() => discountActive = v),
             ),
             const SizedBox(height: 16),
             JbbButton(label: 'Save Plan', busy: busy, onPressed: save),

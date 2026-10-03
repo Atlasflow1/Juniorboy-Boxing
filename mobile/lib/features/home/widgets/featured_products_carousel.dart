@@ -1,14 +1,95 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/nav_debounce.dart';
+import '../../store/providers/store_provider.dart';
 
-/// Advertises the product an admin flagged as "featured" near the top of
-/// Home, linking through to the Gym Store. Navigates with [context.push],
-/// the same pattern [QuickActionsGrid] already uses for `/store` from
-/// Home, so it never double-stacks the route.
-class ProductAdBanner extends StatelessWidget {
-  const ProductAdBanner({super.key, required this.product});
+/// A sliding, auto-advancing banner of the products the admin flagged
+/// "Feature on Home" — swipe manually or let it advance on its own. Tapping
+/// a slide opens the Gym Store.
+class FeaturedProductsCarousel extends ConsumerStatefulWidget {
+  const FeaturedProductsCarousel({super.key});
+  @override
+  ConsumerState<FeaturedProductsCarousel> createState() =>
+      _FeaturedProductsCarouselState();
+}
+
+class _FeaturedProductsCarouselState
+    extends ConsumerState<FeaturedProductsCarousel> {
+  final controller = PageController();
+  Timer? timer;
+  int page = 0;
+
+  void _restartAutoAdvance(int itemCount) {
+    timer?.cancel();
+    if (itemCount <= 1) return;
+    timer = Timer.periodic(const Duration(seconds: 5), (_) {
+      if (!controller.hasClients) return;
+      final next = (page + 1) % itemCount;
+      controller.animateToPage(
+        next,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final products = ref.watch(featuredProductsProvider);
+    if (products.isEmpty) return const SizedBox.shrink();
+    _restartAutoAdvance(products.length);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          height: 108,
+          child: PageView.builder(
+            controller: controller,
+            itemCount: products.length,
+            onPageChanged: (i) => setState(() => page = i),
+            itemBuilder: (context, i) => Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2),
+              child: _ProductSlide(product: products[i]),
+            ),
+          ),
+        ),
+        if (products.length > 1)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                for (var i = 0; i < products.length; i++)
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    margin: const EdgeInsets.symmetric(horizontal: 3),
+                    width: i == page ? 16 : 6,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: i == page ? AppColors.red : Colors.white24,
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _ProductSlide extends StatelessWidget {
+  const _ProductSlide({required this.product});
   final Map<String, dynamic> product;
   @override
   Widget build(BuildContext context) {
@@ -39,10 +120,7 @@ class ProductAdBanner extends StatelessWidget {
                     width: 72,
                     height: 72,
                     child: imageUrl.isNotEmpty
-                        ? CachedNetworkImage(
-                            imageUrl: imageUrl,
-                            fit: BoxFit.cover,
-                          )
+                        ? CachedNetworkImage(imageUrl: imageUrl, fit: BoxFit.cover)
                         : Container(
                             color: Colors.white10,
                             child: const Icon(

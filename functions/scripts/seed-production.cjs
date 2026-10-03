@@ -58,19 +58,19 @@ async function main() {
   }
 
   const classes = [
-    { id: 'junior', className: 'Junior Boxing', description: 'Boxing fundamentals, confidence and discipline for kids and teens.', ageGroup: 'Ages 8–14', maxSpots: 12, imageUrl: '/assets/images/cards/card_program_junior.png' },
-    { id: 'group', className: 'Group Training', description: 'Small group boxing sessions focused on technique and conditioning.', ageGroup: 'Ages 14+', maxSpots: 4, imageUrl: '/assets/images/cards/card_program_group.png' },
+    { id: 'junior', className: 'Junior Boxing', description: 'Boxing fundamentals, confidence and discipline for kids and teens.', ageGroup: 'Ages 8–14', maxSpots: 12, imageUrl: '' },
+    { id: 'group', className: 'Group Training', description: 'Small group boxing sessions focused on technique and conditioning.', ageGroup: 'Ages 14+', maxSpots: 4, imageUrl: '' },
   ];
   for (const c of classes) {
     const fields = {
       className: str(c.className), description: str(c.description), ageGroup: str(c.ageGroup), maxSpots: int(c.maxSpots), imageUrl: str(c.imageUrl),
-      coachName: str('Coach Sharif'), durationMinutes: int(60), location: str('Junior Boy Boxing'), address: str('3200 Naglee Rd, Tracy, CA'), isActive: bool(true), createdAt: ts(DateTime.now()),
+      coachName: str('Coach Sharif'), durationMinutes: int(60), location: str('Junior Boy Boxing'), address: str(''), isActive: bool(true), createdAt: ts(DateTime.now()),
     };
     console.log('classes/' + c.id, await createIfAbsent(`classes/${c.id}`, fields));
   }
 
   console.log('gymSettings/config', await createIfAbsent('gymSettings/config', {
-    gymName: str('Junior Boy Boxing'), address: str('3200 Naglee Rd, Tracy, CA'), phone: str('415-290-0559'), email: str('juniorboyboxing@gmail.com'),
+    gymName: str('Junior Boy Boxing'), address: str(''), phone: str(''), email: str('email@juniorboyboxing.com'),
     coachName: str('Coach Sharif'), operatingHours: { mapValue: { fields: {} } }, socialLinks: { mapValue: { fields: { instagram: str(''), facebook: str(''), tiktok: str('') } } },
     aboutText: str('Discipline builds champions. Junior Boy Boxing helps kids and teens build confidence, strength and skills through boxing.'),
     cancellationPolicyHours: int(24), classRemindersEnabled: bool(true), membershipAlertsEnabled: bool(true), updatedAt: ts(DateTime.now()),

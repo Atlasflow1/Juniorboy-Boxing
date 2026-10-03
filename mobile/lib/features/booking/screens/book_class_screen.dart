@@ -96,10 +96,6 @@ class _BookClassState extends ConsumerState<BookClassScreen> {
                             'TIME',
                             '${timeLabel(readDate(session['date']))} – ${timeLabel(readDate(session['endAt']))} PT',
                           ),
-                          (
-                            'LOCATION',
-                            program['address'] ?? '3200 Naglee Rd, Tracy, CA',
-                          ),
                           ('AVAILABILITY', '$spots spots'),
                         ])
                           Padding(

@@ -28,7 +28,7 @@ class NextSessionCard extends StatelessWidget {
           '${timeLabel(readDate(booking['date']))} – ${timeLabel(readDate(booking['endAt']))}',
         ),
         const SizedBox(height: 6),
-        const Text('Junior Boy Boxing · Tracy, CA'),
+        const Text('Junior Boy Boxing'),
         const SizedBox(height: 16),
         FilledButton(
           onPressed: () => context.safePush('/bookings'),

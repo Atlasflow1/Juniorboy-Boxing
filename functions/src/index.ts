@@ -8,3 +8,4 @@ export { sendNotification, sendAnnouncement, deliverNotificationOnCreate, retryN
 export { getDashboardStats, exportBookingsCSV, contactGym } from './admin';
 export { submitReview, deleteReview } from './reviews';
 export { acceptWaiver, publishWaiver } from './waiver';
+export { publishLegalPage } from './legal';

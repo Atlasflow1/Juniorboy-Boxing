@@ -13,6 +13,10 @@ class AdminRepository extends CachedRepository {
       watchQuery(db.collection('membershipPlans'), 'admin_plans');
   Stream<List<Map<String, dynamic>>> templates() =>
       watchQuery(db.collection('recurringTemplates'), 'admin_templates');
+  Stream<List<Map<String, dynamic>>> programs() =>
+      watchQuery(db.collection('classes'), 'admin_programs');
+  Stream<List<Map<String, dynamic>>> ads() =>
+      watchQuery(db.collection('homeAds'), 'admin_ads');
 
   Future<void> savePlan(String id, Map<String, dynamic> values) =>
       db.doc('membershipPlans/$id').set({
@@ -21,6 +25,42 @@ class AdminRepository extends CachedRepository {
       }, SetOptions(merge: true));
 
   Future<void> deletePlan(String id) => db.doc('membershipPlans/$id').delete();
+
+  Future<void> saveProgram(String id, Map<String, dynamic> values) =>
+      db.doc('classes/$id').set({
+        ...values,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+  /// Shares the same `gym/programs/{id}` Storage path the web admin panel
+  /// uploads to, so a photo added from either platform shows on both.
+  Future<String> uploadProgramImage(String classId, File file) async {
+    if (await file.length() > 5 * 1024 * 1024) {
+      throw const FormatException('Image must be smaller than 5 MB');
+    }
+    final ref = FirebaseStorage.instance.ref('gym/programs/$classId');
+    await ref.putFile(file, SettableMetadata(contentType: 'image/jpeg'));
+    return ref.getDownloadURL();
+  }
+
+  Future<void> saveAd(String id, Map<String, dynamic> values) =>
+      db.doc('homeAds/$id').set({
+        ...values,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+  Future<void> deleteAd(String id) => db.doc('homeAds/$id').delete();
+
+  /// Shares the same `gym/ads/{id}` Storage path the web admin panel uploads
+  /// to, so a photo added from either platform shows on both.
+  Future<String> uploadAdImage(String adId, File file) async {
+    if (await file.length() > 5 * 1024 * 1024) {
+      throw const FormatException('Image must be smaller than 5 MB');
+    }
+    final ref = FirebaseStorage.instance.ref('gym/ads/$adId');
+    await ref.putFile(file, SettableMetadata(contentType: 'image/jpeg'));
+    return ref.getDownloadURL();
+  }
 
   Future<void> saveTemplate(String id, Map<String, dynamic> values) =>
       db.doc('recurringTemplates/$id').set(values, SetOptions(merge: true));

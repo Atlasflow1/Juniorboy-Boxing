@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/constants/programs.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/snackbar_utils.dart';
@@ -14,7 +15,9 @@ import '../providers/admin_provider.dart';
 import 'admin_bookings_screen.dart';
 import 'admin_orders_screen.dart';
 import 'admin_subscriptions_screen.dart';
+import 'ad_editor_screen.dart';
 import 'plan_editor_screen.dart';
+import 'program_editor_screen.dart';
 import 'template_editor_screen.dart';
 
 const _weekdayNames = {
@@ -33,6 +36,8 @@ class AdminDashboardScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final plans = ref.watch(adminPlansProvider);
     final templates = ref.watch(adminTemplatesProvider);
+    final programs = ref.watch(adminProgramsProvider);
+    final ads = ref.watch(adminAdsProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('Admin Dashboard')),
       body: ListView(
@@ -124,6 +129,77 @@ class AdminDashboardScreen extends ConsumerWidget {
             children: [
               const Expanded(
                 child: Text(
+                  'Programs',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                ),
+              ),
+              TextButton.icon(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const ProgramEditorScreen()),
+                ),
+                icon: const Icon(Icons.add, size: 18),
+                label: const Text('Add'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          programs.when(
+            data: (rows) => Column(
+              children: [
+                for (final p in rows)
+                  JbbCard(
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => ProgramEditorScreen(program: p),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        if ((p['imageUrl'] ?? '').isNotEmpty)
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: CachedNetworkImage(
+                              imageUrl: p['imageUrl'],
+                              width: 44,
+                              height: 44,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                p['className'] ?? '',
+                                style: const TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                [p['ageGroup'], p['priceLabel'], p['isActive'] == true ? 'Active' : 'Hidden']
+                                    .where((s) => (s ?? '').toString().isNotEmpty)
+                                    .join(' · '),
+                                style: const TextStyle(
+                                  color: AppColors.muted,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.chevron_right, color: AppColors.muted),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+            error: (e, s) => Text('Could not load programs: $e'),
+            loading: () => const JbbLoading(),
+          ),
+          const SizedBox(height: 24),
+          Row(
+            children: [
+              const Expanded(
+                child: Text(
                   'Membership Prices',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
                 ),
@@ -162,7 +238,9 @@ class AdminDashboardScreen extends ConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  plan['name'] ?? '',
+                                  plan['discountActive'] == true && (plan['discountPercent'] ?? 0) > 0
+                                      ? '${plan['name'] ?? ''}  ·  ${plan['discountPercent']}% OFF'
+                                      : plan['name'] ?? '',
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -272,6 +350,92 @@ class AdminDashboardScreen extends ConsumerWidget {
               );
             },
             error: (e, s) => Text('Could not load schedule times: $e'),
+            loading: () => const JbbLoading(),
+          ),
+          const SizedBox(height: 24),
+          Row(
+            children: [
+              const Expanded(
+                child: Text(
+                  'Home Ads',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                ),
+              ),
+              TextButton.icon(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const AdEditorScreen()),
+                ),
+                icon: const Icon(Icons.add, size: 18),
+                label: const Text('Add'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          ads.when(
+            data: (rows) {
+              final sorted = [...rows]
+                ..sort(
+                  (a, b) => (a['sortOrder'] as num? ?? 0).compareTo(
+                    b['sortOrder'] as num? ?? 0,
+                  ),
+                );
+              if (sorted.isEmpty) {
+                return const Text(
+                  'No ads yet. Create one to feature it on the home page.',
+                  style: TextStyle(color: AppColors.muted),
+                );
+              }
+              return Column(
+                children: [
+                  for (final a in sorted)
+                    JbbCard(
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => AdEditorScreen(ad: a),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          if ((a['imageUrl'] ?? '').isNotEmpty)
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: CachedNetworkImage(
+                                imageUrl: a['imageUrl'],
+                                width: 44,
+                                height: 44,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  a['title'] ?? '',
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  [
+                                    a['priceLabel'],
+                                    a['isActive'] == true ? 'Active' : 'Hidden',
+                                  ].where((s) => (s ?? '').toString().isNotEmpty).join(' · '),
+                                  style: const TextStyle(
+                                    color: AppColors.muted,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Icon(Icons.chevron_right, color: AppColors.muted),
+                        ],
+                      ),
+                    ),
+                ],
+              );
+            },
+            error: (e, s) => Text('Could not load ads: $e'),
             loading: () => const JbbLoading(),
           ),
         ],

@@ -12,3 +12,9 @@ export function errorMessage(error: unknown): string {
   return e.message?.replace(/^Firebase:\s*/,'').replace(/\s*\(auth\/[^)]+\)\.?$/,'') || 'Unable to complete this action. Please retry.';
 }
 export function downloadCSV(csv: string, filename: string) { const url = URL.createObjectURL(new Blob(['\ufeff',csv], {type:'text/csv;charset=utf-8;'})); const a = document.createElement('a'); a.href = url; a.download = filename; a.click(); URL.revokeObjectURL(url); }
+export function isProfileComplete(profile: { childName?: string; childAge?: number; phone?: string; address?: string } | null): boolean {
+  return !!profile && !!profile.childName?.trim() && !!profile.childAge && profile.childAge > 0 && !!profile.phone?.trim() && !!profile.address?.trim();
+}
+export function composeAddress(data: {houseNumber?:string; streetName?:string; city?:string; country?:string}): string {
+  return [[data.houseNumber,data.streetName].filter(Boolean).join(' '), data.city, data.country].filter(Boolean).join(', ').trim();
+}

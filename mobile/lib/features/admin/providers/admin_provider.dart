@@ -8,6 +8,12 @@ final adminPlansProvider = StreamProvider(
 final adminTemplatesProvider = StreamProvider(
   (ref) => ref.watch(adminRepositoryProvider).templates(),
 );
+final adminProgramsProvider = StreamProvider(
+  (ref) => ref.watch(adminRepositoryProvider).programs(),
+);
+final adminAdsProvider = StreamProvider(
+  (ref) => ref.watch(adminRepositoryProvider).ads(),
+);
 final adminOrdersProvider = StreamProvider(
   (ref) => ref.watch(adminRepositoryProvider).orders(),
 );

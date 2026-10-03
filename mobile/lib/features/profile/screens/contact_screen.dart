@@ -31,28 +31,21 @@ class ContactScreen extends ConsumerWidget {
             style: Theme.of(context).textTheme.headlineMedium,
           ),
           const SizedBox(height: 16),
-          Text(settings['address'] ?? AppStrings.address),
-          const SizedBox(height: 24),
-          if ((settings['phone'] ?? '').isNotEmpty)
-            ListTile(
-              leading: const Icon(Icons.phone, color: Colors.red),
-              title: Text(settings['phone']),
-              onTap: () => open(Uri(scheme: 'tel', path: settings['phone'])),
+          ListTile(
+            leading: const Icon(Icons.mail, color: Colors.red),
+            title: Text(
+              (settings['email'] ?? '').isNotEmpty
+                  ? settings['email']
+                  : AppStrings.contactEmail,
             ),
-          if ((settings['email'] ?? '').isNotEmpty)
-            ListTile(
-              leading: const Icon(Icons.mail, color: Colors.red),
-              title: Text(settings['email']),
-              onTap: () => open(Uri(scheme: 'mailto', path: settings['email'])),
+            onTap: () => open(
+              Uri(
+                scheme: 'mailto',
+                path: (settings['email'] ?? '').isNotEmpty
+                    ? settings['email']
+                    : AppStrings.contactEmail,
+              ),
             ),
-          FilledButton(
-            onPressed: () => open(
-              Uri.https('www.google.com', '/maps/search/', {
-                'api': '1',
-                'query': settings['address'] ?? AppStrings.address,
-              }),
-            ),
-            child: const Text('Get Directions'),
           ),
           const SizedBox(height: 24),
           Text(

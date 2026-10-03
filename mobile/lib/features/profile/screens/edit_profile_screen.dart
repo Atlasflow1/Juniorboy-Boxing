@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/utils/snackbar_utils.dart';
+import '../../../core/utils/address_utils.dart';
 import '../../../core/widgets/jbb_button.dart';
 import '../providers/profile_provider.dart';
 
@@ -17,8 +18,8 @@ class EditProfileScreen extends ConsumerStatefulWidget {
 
 class _EditState extends ConsumerState<EditProfileScreen> {
   final form = GlobalKey<FormState>();
-  final fields = List.generate(9, (_) => TextEditingController());
-  bool loaded = false, busy = false;
+  final fields = List.generate(12, (_) => TextEditingController());
+  bool loaded = false, busy = false, photoBusy = false;
   @override
   void dispose() {
     for (final c in fields) {
@@ -36,11 +37,16 @@ class _EditState extends ConsumerState<EditProfileScreen> {
         'fullName': fields[0].text.trim(),
         'lastName': fields[1].text.trim(),
         'age': int.parse(fields[3].text),
-        'address': fields[4].text.trim(),
-        'zipCode': fields[5].text.trim(),
-        'phone': fields[6].text.trim(),
-        'childName': fields[7].text.trim(),
-        'childAge': int.tryParse(fields[8].text) ?? 0,
+        'address': composeAddress(
+          houseNumber: fields[4].text.trim(),
+          streetName: fields[5].text.trim(),
+          city: fields[6].text.trim(),
+          country: fields[7].text.trim(),
+        ),
+        'zipCode': fields[8].text.trim(),
+        'phone': fields[9].text.trim(),
+        'childName': fields[10].text.trim(),
+        'childAge': int.tryParse(fields[11].text) ?? 0,
       });
       if (fields[2].text.trim() != FirebaseAuth.instance.currentUser?.email) {
         await repo.changeEmail(fields[2].text.trim());
@@ -60,6 +66,24 @@ class _EditState extends ConsumerState<EditProfileScreen> {
     }
   }
 
+  Future<void> pickPhoto() async {
+    final image = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1024,
+      imageQuality: 85,
+    );
+    if (image == null) return;
+    setState(() => photoBusy = true);
+    try {
+      await ref.read(userRepositoryProvider).uploadAvatar(File(image.path));
+      if (mounted) showMessage(context, 'Profile photo updated.');
+    } catch (e) {
+      if (mounted) showMessage(context, friendlyError(e));
+    } finally {
+      if (mounted) setState(() => photoBusy = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(profileProvider).value;
@@ -69,7 +93,10 @@ class _EditState extends ConsumerState<EditProfileScreen> {
         user['lastName'],
         user['email'],
         (user['age'] ?? 0) > 0 ? '${user['age']}' : '',
+        '',
         user['address'],
+        '',
+        '',
         user['zipCode'],
         user['phone'],
         user['childName'],
@@ -88,29 +115,13 @@ class _EditState extends ConsumerState<EditProfileScreen> {
           key: form,
           child: Column(
             children: [
+              Text(
+                'Profile photo',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 12),
               GestureDetector(
-                onTap: busy
-                    ? null
-                    : () async {
-                        final image = await ImagePicker().pickImage(
-                          source: ImageSource.gallery,
-                          maxWidth: 1024,
-                          imageQuality: 85,
-                        );
-                        if (image == null) return;
-                        try {
-                          await ref
-                              .read(userRepositoryProvider)
-                              .uploadAvatar(File(image.path));
-                          if (context.mounted) {
-                            showMessage(context, 'Profile photo updated.');
-}
-                        } catch (e) {
-                          if (context.mounted) {
-                            showMessage(context, friendlyError(e));
-}
-                        }
-                      },
+                onTap: photoBusy ? null : pickPhoto,
                 child: Stack(
                   alignment: Alignment.bottomRight,
                   children: [
@@ -123,56 +134,122 @@ class _EditState extends ConsumerState<EditProfileScreen> {
                           ? const Icon(Icons.person_outline, size: 40)
                           : null,
                     ),
-                    const CircleAvatar(
+                    CircleAvatar(
                       radius: 15,
-                      child: Icon(Icons.add_a_photo_outlined, size: 16),
+                      child: photoBusy
+                          ? const SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.add_a_photo_outlined, size: 16),
                     ),
                   ],
                 ),
               ),
-              for (var i = 0; i < fields.length; i++)
+              const SizedBox(height: 24),
+              Text('Your name', style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 12),
+              for (final i in [0, 1])
                 Padding(
                   padding: const EdgeInsets.only(bottom: 14),
                   child: TextFormField(
                     controller: fields[i],
-                    keyboardType: [
-                      TextInputType.text,
-                      TextInputType.text,
-                      TextInputType.emailAddress,
-                      TextInputType.number,
-                      TextInputType.text,
-                      TextInputType.text,
-                      TextInputType.phone,
-                      TextInputType.text,
-                      TextInputType.number,
-                    ][i],
                     decoration: InputDecoration(
-                      labelText: [
-                        'Full Name',
-                        'Last Name',
-                        'Email',
-                        'Your Age',
-                        'Address',
-                        'Postal / ZIP Code',
-                        'Phone',
-                        "Child’s Name (optional)",
-                        "Child’s Age (optional)",
-                      ][i],
+                      labelText: ['Full Name', 'Last Name'][i],
                     ),
-                    validator: [
-                      Validators.required,
-                      Validators.required,
-                      Validators.email,
-                      Validators.age,
-                      Validators.required,
-                      Validators.zip,
-                      Validators.phone,
-                      null,
-                      (v) =>
-                          (v ?? '').trim().isEmpty ? null : Validators.age(v),
-                    ][i],
+                    validator: Validators.required,
                   ),
                 ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Contact',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+              const SizedBox(height: 12),
+              for (final i in [2, 3])
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 14),
+                  child: TextFormField(
+                    controller: fields[i],
+                    keyboardType: i == 2
+                        ? TextInputType.emailAddress
+                        : TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: ['Email', 'Your Age'][i - 2],
+                    ),
+                    validator: i == 2 ? Validators.email : Validators.age,
+                  ),
+                ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Address',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+              const SizedBox(height: 12),
+              for (final i in [4, 5, 6, 7])
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 14),
+                  child: TextFormField(
+                    controller: fields[i],
+                    decoration: InputDecoration(
+                      labelText: [
+                        'House / Building Number',
+                        'Street Name',
+                        'City',
+                        'Country',
+                      ][i - 4],
+                    ),
+                    validator: Validators.required,
+                  ),
+                ),
+              for (final i in [8, 9])
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 14),
+                  child: TextFormField(
+                    controller: fields[i],
+                    keyboardType: i == 8
+                        ? TextInputType.text
+                        : TextInputType.phone,
+                    decoration: InputDecoration(
+                      labelText: ['Postal / ZIP Code', 'Phone'][i - 8],
+                    ),
+                    validator: i == 8 ? Validators.zip : Validators.phone,
+                  ),
+                ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Participant',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 14),
+                child: TextFormField(
+                  controller: fields[10],
+                  decoration: const InputDecoration(
+                    labelText: "Child’s Name (optional)",
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 14),
+                child: TextFormField(
+                  controller: fields[11],
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: "Child’s Age (optional)",
+                  ),
+                  validator: (v) =>
+                      (v ?? '').trim().isEmpty ? null : Validators.age(v),
+                ),
+              ),
               JbbButton(
                 label: 'Save Changes',
                 busy: busy,

@@ -5,13 +5,13 @@ import '../../../core/widgets/jbb_empty_state.dart';
 import '../../profile/providers/profile_provider.dart';
 import '../../booking/providers/booking_provider.dart';
 import '../providers/home_provider.dart';
-import '../../store/providers/store_provider.dart';
 import '../../membership/providers/membership_provider.dart';
 import '../widgets/home_hero_banner.dart';
 import '../widgets/membership_summary_card.dart';
 import '../widgets/next_session_card.dart';
-import '../widgets/product_ad_banner.dart';
+import '../widgets/featured_products_carousel.dart';
 import '../widgets/quick_actions_grid.dart';
+import '../widgets/home_ads_section.dart';
 import '../widgets/programs_section.dart';
 import '../widgets/youtube_background_player.dart';
 import '../widgets/direct_video_background_player.dart';
@@ -26,7 +26,6 @@ class HomeScreen extends ConsumerWidget {
     final promoVideoUrl = settings?['promoVideoUrl'] ?? '';
     final heroImageUrl = settings?['heroImageUrl'] as String?;
     final videoId = extractYoutubeId(promoVideoUrl);
-    final featuredProduct = ref.watch(featuredProductProvider);
     final sessionsRemaining = (user?['sessionsRemaining'] as num?) ?? 0;
     final sessionsReserved = (user?['sessionsReserved'] as num?) ?? 0;
     final planId = user?['membershipPlanId'] as String?;
@@ -56,10 +55,8 @@ class HomeScreen extends ConsumerWidget {
           const SizedBox(height: 16),
           DirectVideoBackgroundPlayer(url: promoVideoUrl),
         ],
-        if (featuredProduct != null) ...[
-          const SizedBox(height: 16),
-          ProductAdBanner(product: featuredProduct),
-        ],
+        const SizedBox(height: 16),
+        const FeaturedProductsCarousel(),
         if (sessionsRemaining > 0 || sessionsReserved > 0) ...[
           const SizedBox(height: 16),
           MembershipSummaryCard(
@@ -77,6 +74,7 @@ class HomeScreen extends ConsumerWidget {
           ),
         const QuickActionsGrid(),
         const SizedBox(height: 18),
+        const HomeAdsSection(),
         const ProgramsSection(),
       ],
     );

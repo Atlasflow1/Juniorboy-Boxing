@@ -39,7 +39,9 @@ export const createPaymentIntent = onCall({ secrets: [STRIPE_SECRET_KEY], enforc
     if (!plan?.isActive || !Number.isInteger(plan.price) || plan.price <= 0) throw new HttpsError('failed-precondition', 'Plan is not available.');
     const credits = plan.sessionCount ?? plan.creditsPerPurchase;
     if (!Number.isInteger(credits) || credits <= 0) throw new HttpsError('failed-precondition', 'This plan requires a credit configuration.');
-    const data = { userId: uid, membershipPlanId: planId, amount: plan.price, credits, currency: 'usd', status: 'pending', paymentMethod: 'stripe', stripePaymentIntentId: null, receiptUrl: null, createdAt: now(), updatedAt: now() };
+    const discountPercent = plan.discountActive && typeof plan.discountPercent === 'number' && plan.discountPercent > 0 && plan.discountPercent <= 100 ? plan.discountPercent : 0;
+    const amount = discountPercent > 0 ? Math.round(plan.price * (1 - discountPercent / 100)) : plan.price;
+    const data = { userId: uid, membershipPlanId: planId, amount, credits, currency: 'usd', status: 'pending', paymentMethod: 'stripe', stripePaymentIntentId: null, receiptUrl: null, createdAt: now(), updatedAt: now() };
     tx.create(ref, data);
     return data;
   });
