@@ -47,9 +47,12 @@ class _ProgramEditorState extends ConsumerState<ProgramEditorScreen> {
     text: '${widget.program?['durationMinutes'] ?? 60}',
   );
   late String imageUrl = widget.program?['imageUrl'] ?? '';
+  late List<String> adImages = List<String>.from(
+    widget.program?['adImages'] ?? const [],
+  );
   late bool isActive = widget.program?['isActive'] ?? true;
   late bool discountActive = widget.program?['discountActive'] ?? false;
-  bool busy = false, photoBusy = false;
+  bool busy = false, photoBusy = false, adPhotoBusy = false;
 
   @override
   void dispose() {
@@ -83,6 +86,37 @@ class _ProgramEditorState extends ConsumerState<ProgramEditorScreen> {
     }
   }
 
+  Future<void> pickAdPhoto(int index) async {
+    final image = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1600,
+      imageQuality: 85,
+    );
+    if (image == null) return;
+    setState(() => adPhotoBusy = true);
+    try {
+      final url = await ref
+          .read(adminRepositoryProvider)
+          .uploadProgramAdImage(id, index, File(image.path));
+      if (mounted) {
+        setState(() {
+          while (adImages.length <= index) {
+            adImages.add('');
+          }
+          adImages[index] = url;
+        });
+      }
+    } catch (e) {
+      if (mounted) showMessage(context, friendlyError(e));
+    } finally {
+      if (mounted) setState(() => adPhotoBusy = false);
+    }
+  }
+
+  void removeAdPhoto(int index) {
+    if (index < adImages.length) setState(() => adImages[index] = '');
+  }
+
   Future<void> save() async {
     if (!form.currentState!.validate()) return;
     setState(() => busy = true);
@@ -101,6 +135,7 @@ class _ProgramEditorState extends ConsumerState<ProgramEditorScreen> {
         'discountPercent': double.tryParse(discountPercent.text) ?? 0,
         'durationMinutes': int.parse(durationMinutes.text),
         'imageUrl': imageUrl,
+        'adImages': adImages.where((u) => u.isNotEmpty).toList(),
         'location': 'Junior Boy Boxing',
         'address': widget.program?['address'] ?? '',
         'maxSpots': widget.program?['maxSpots'] ?? 12,
@@ -205,6 +240,51 @@ class _ProgramEditorState extends ConsumerState<ProgramEditorScreen> {
                     ? null
                     : 'Enter 15–240 minutes';
               },
+            ),
+            const SizedBox(height: 20),
+            const Text('Ad photos for home page (optional, up to 3)'),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                for (var i = 0; i < 3; i++)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 10),
+                    child: GestureDetector(
+                      onTap: adPhotoBusy ? null : () => pickAdPhoto(i),
+                      child: Stack(
+                        alignment: Alignment.topRight,
+                        children: [
+                          Container(
+                            width: 84,
+                            height: 84,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              color: Colors.black12,
+                              image: i < adImages.length && adImages[i].isNotEmpty
+                                  ? DecorationImage(
+                                      image: CachedNetworkImageProvider(adImages[i]),
+                                      fit: BoxFit.cover,
+                                    )
+                                  : null,
+                            ),
+                            child: i >= adImages.length || adImages[i].isEmpty
+                                ? const Center(child: Icon(Icons.add, size: 22))
+                                : null,
+                          ),
+                          if (i < adImages.length && adImages[i].isNotEmpty)
+                            GestureDetector(
+                              onTap: () => removeAdPhoto(i),
+                              child: const CircleAvatar(
+                                radius: 10,
+                                backgroundColor: Colors.red,
+                                child: Icon(Icons.close, size: 13, color: Colors.white),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
             ),
             const SizedBox(height: 16),
             TextFormField(

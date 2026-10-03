@@ -12,6 +12,7 @@ import '../widgets/next_session_card.dart';
 import '../widgets/featured_products_carousel.dart';
 import '../widgets/quick_actions_grid.dart';
 import '../widgets/home_ads_section.dart';
+import '../widgets/program_ads_carousel.dart';
 import '../widgets/programs_section.dart';
 import '../widgets/youtube_background_player.dart';
 import '../widgets/direct_video_background_player.dart';
@@ -76,6 +77,8 @@ class HomeScreen extends ConsumerWidget {
         const SizedBox(height: 18),
         const HomeAdsSection(),
         const ProgramsSection(),
+        const SizedBox(height: 18),
+        const ProgramAdsCarousel(),
       ],
     );
   }

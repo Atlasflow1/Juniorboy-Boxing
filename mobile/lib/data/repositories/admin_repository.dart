@@ -43,6 +43,17 @@ class AdminRepository extends CachedRepository {
     return ref.getDownloadURL();
   }
 
+  /// Shares the same `gym/programs/{id}_ad{index}` Storage path the web
+  /// admin panel uploads to, for the home-page program ad banners.
+  Future<String> uploadProgramAdImage(String classId, int index, File file) async {
+    if (await file.length() > 5 * 1024 * 1024) {
+      throw const FormatException('Image must be smaller than 5 MB');
+    }
+    final ref = FirebaseStorage.instance.ref('gym/programs/${classId}_ad$index');
+    await ref.putFile(file, SettableMetadata(contentType: 'image/jpeg'));
+    return ref.getDownloadURL();
+  }
+
   Future<void> saveAd(String id, Map<String, dynamic> values) =>
       db.doc('homeAds/$id').set({
         ...values,

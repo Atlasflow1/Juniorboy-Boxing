@@ -7,6 +7,7 @@ export function FeaturedProductsCarousel() {
   const {rows} = useRows('products',[where('isActive','==',true),where('isFeatured','==',true)]);
   const [index,setIndex] = useState(0);
   const trackRef = useRef<HTMLDivElement>(null);
+  const scrollTimer = useRef<ReturnType<typeof setTimeout>>();
   useEffect(()=>{
     if (rows.length < 2) return;
     const id = setInterval(()=>setIndex(i=>(i+1)%rows.length), 5000);
@@ -19,8 +20,12 @@ export function FeaturedProductsCarousel() {
   if (!rows.length) return null;
   return <div className="featured-carousel">
     <div ref={trackRef} className="featured-track" onScroll={e=>{
-      const el=e.currentTarget, i=Math.round(el.scrollLeft/(el.clientWidth||1));
-      if (i!==index) setIndex(i);
+      const el=e.currentTarget;
+      clearTimeout(scrollTimer.current);
+      scrollTimer.current = setTimeout(()=>{
+        const i=Math.round(el.scrollLeft/(el.clientWidth||1));
+        setIndex(current=>i!==current?i:current);
+      }, 150);
     }}>
       {rows.map(p=>{
         const hasDiscount=p.discountActive===true&&p.discountPercent>0;
