@@ -3,11 +3,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 import 'app_text_styles.dart';
 
-ThemeData buildTheme() {
+ThemeData buildTheme({Color background = AppColors.background}) {
   final base = ThemeData.dark(useMaterial3: true);
   return base.copyWith(
-    scaffoldBackgroundColor: AppColors.background,
-    colorScheme: const ColorScheme.dark(
+    scaffoldBackgroundColor: background,
+    colorScheme: ColorScheme.dark(
       primary: AppColors.red,
       surface: AppColors.card,
     ),
@@ -15,8 +15,8 @@ ThemeData buildTheme() {
       headlineMedium: AppTextStyles.title,
       titleLarge: AppTextStyles.section,
     ),
-    appBarTheme: const AppBarTheme(
-      backgroundColor: AppColors.background,
+    appBarTheme: AppBarTheme(
+      backgroundColor: background,
       foregroundColor: Colors.white,
       surfaceTintColor: Colors.transparent,
     ),

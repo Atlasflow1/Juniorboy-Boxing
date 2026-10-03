@@ -15,7 +15,7 @@ String friendlyError(Object error) {
       _ => error.message ?? 'Unable to complete the action. Please retry.',
     };
   }
-  return 'Unable to complete the action. Please retry.';
+  return 'Unable to complete the action. Please retry.\n($error)';
 }
 
 void showMessage(BuildContext context, String text) =>

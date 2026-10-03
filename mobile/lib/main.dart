@@ -4,6 +4,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:timezone/data/latest.dart' as timezone;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/theme_provider.dart';
 import 'core/router/app_router.dart';
 import 'data/services/firebase_service.dart';
 import 'data/services/notification_service.dart';
@@ -47,6 +48,7 @@ class JbbApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
+    final background = ref.watch(backgroundColorProvider);
     NotificationService.instance.navigate = (path) => router.go(path);
     ref.listen(profileProvider, (previous, next) {
       if (next.value?['isActive'] == true &&
@@ -60,7 +62,7 @@ class JbbApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'Junior Boy Boxing',
       debugShowCheckedModeBanner: false,
-      theme: buildTheme(),
+      theme: buildTheme(background: background),
       routerConfig: router,
     );
   }

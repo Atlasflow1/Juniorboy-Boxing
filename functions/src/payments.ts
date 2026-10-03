@@ -1,4 +1,5 @@
 import Stripe from 'stripe';
+import { Timestamp } from 'firebase-admin/firestore';
 import { defineSecret } from 'firebase-functions/params';
 import { HttpsError, onCall, onRequest } from 'firebase-functions/v2/https';
 import { logger } from 'firebase-functions';
@@ -9,11 +10,19 @@ const STRIPE_SECRET_KEY = defineSecret('STRIPE_SECRET_KEY');
 const STRIPE_WEBHOOK_SECRET = defineSecret('STRIPE_WEBHOOK_SECRET');
 const stripe = () => new Stripe(STRIPE_SECRET_KEY.value());
 const purchaseSchema = z.object({ planId: id, requestId: z.string().uuid() });
+const productPurchaseSchema = z.object({ productId: id, requestId: z.string().uuid(), size: z.string().max(20).optional() });
+
+async function createOrRetrieveIntent(ref: FirebaseFirestore.DocumentReference, order: FirebaseFirestore.DocumentData, metadata: Record<string, string>, receiptEmail?: string) {
+  const api = stripe();
+  const intent = order.stripePaymentIntentId ? await api.paymentIntents.retrieve(order.stripePaymentIntentId) : await api.paymentIntents.create({ amount: order.amount, currency: 'usd', automatic_payment_methods: { enabled: true }, receipt_email: receiptEmail || undefined, metadata }, { idempotencyKey: ref.id });
+  await ref.update({ stripePaymentIntentId: intent.id, updatedAt: now() });
+  return intent;
+}
 
 export const createPaymentIntent = onCall({ secrets: [STRIPE_SECRET_KEY], enforceAppCheck, maxInstances: 20 }, async request => {
   const uid = requireRegistered(request);
   const user = await requireMember(uid);
-  if (!user.phone?.trim() || !user.childName?.trim() || !Number.isInteger(user.childAge) || user.childAge < 1) throw new HttpsError('failed-precondition', 'Complete your phone number and participant details in Profile Settings before purchasing.');
+  if (!user.phone?.trim()) throw new HttpsError('failed-precondition', 'Complete your phone number in Profile Settings before purchasing.');
   await rateLimit(uid, 'payment', 8);
   const input = purchaseSchema.safeParse(request.data);
   if (!input.success) throw new HttpsError('invalid-argument', 'A plan and unique request ID are required.');
@@ -35,12 +44,40 @@ export const createPaymentIntent = onCall({ secrets: [STRIPE_SECRET_KEY], enforc
     return data;
   });
   if (['completed', 'refunded', 'refund_pending'].includes(order.status)) return { paymentId: ref.id, status: order.status };
-  const api = stripe();
-  const intent = order.stripePaymentIntentId ? await api.paymentIntents.retrieve(order.stripePaymentIntentId) : await api.paymentIntents.create({ amount: order.amount, currency: 'usd', automatic_payment_methods: { enabled: true }, receipt_email: user.email || undefined, metadata: { paymentId: ref.id, userId: uid, planId } }, { idempotencyKey: ref.id });
-  await ref.update({ stripePaymentIntentId: intent.id, updatedAt: now() });
+  const intent = await createOrRetrieveIntent(ref, order, { paymentId: ref.id, userId: uid, planId }, user.email);
   return { paymentId: ref.id, clientSecret: intent.client_secret, status: intent.status };
 });
 export const purchaseMembership = createPaymentIntent;
+
+export const createProductPaymentIntent = onCall({ secrets: [STRIPE_SECRET_KEY], enforceAppCheck, maxInstances: 20 }, async request => {
+  const uid = requireRegistered(request);
+  await requireMember(uid);
+  await rateLimit(uid, 'payment', 8);
+  const input = productPurchaseSchema.safeParse(request.data);
+  if (!input.success) throw new HttpsError('invalid-argument', 'A product and unique request ID are required.');
+  const { productId, requestId, size } = input.data;
+  const ref = db.doc(`payments/${uid}_${requestId}`);
+  const order = await db.runTransaction(async tx => {
+    const [old, productSnap] = await Promise.all([tx.get(ref), tx.get(db.doc(`products/${productId}`))]);
+    if (old.exists) {
+      if (old.data()!.productId !== productId) throw new HttpsError('already-exists', 'Use a new checkout request when changing products.');
+      if (!old.data()!.stripePaymentIntentId && Date.now() - old.data()!.createdAt.toMillis() > 23 * 3_600_000) throw new HttpsError('failed-precondition', 'Checkout expired. Start a new checkout.', { reason: 'checkout-expired' });
+      return old.data()!;
+    }
+    const product = productSnap.data();
+    if (!product?.isActive || !Number.isInteger(product.price) || product.price <= 0) throw new HttpsError('failed-precondition', 'Product is not available.');
+    const availableSizes: string[] = Array.isArray(product.sizes) ? product.sizes : [];
+    if (availableSizes.length > 0 && (!size || !availableSizes.includes(size))) throw new HttpsError('invalid-argument', 'Choose an available size before purchasing.');
+    const discountPercent = product.discountActive && typeof product.discountPercent === 'number' && product.discountPercent > 0 && product.discountPercent <= 100 ? product.discountPercent : 0;
+    const amount = discountPercent > 0 ? Math.round(product.price * (1 - discountPercent / 100)) : product.price;
+    const data = { userId: uid, productId, productName: product.name as string, size: availableSizes.length > 0 ? size : null, amount, currency: 'usd', status: 'pending', paymentMethod: 'stripe', stripePaymentIntentId: null, receiptUrl: null, createdAt: now(), updatedAt: now() };
+    tx.create(ref, data);
+    return data;
+  });
+  if (['completed', 'refunded', 'refund_pending'].includes(order.status)) return { paymentId: ref.id, status: order.status };
+  const intent = await createOrRetrieveIntent(ref, order, { paymentId: ref.id, userId: uid, productId });
+  return { paymentId: ref.id, clientSecret: intent.client_secret, status: intent.status };
+});
 
 export async function applySuccessfulPayment(paymentId: string, intent: { id: string; amount: number; currency: string }, receiptUrl: string | null = null) {
   await db.runTransaction(async tx => {
@@ -50,10 +87,16 @@ export async function applySuccessfulPayment(paymentId: string, intent: { id: st
     if (['completed', 'refunded', 'refund_pending'].includes(payment.status)) return;
     if (payment.amount !== intent.amount || payment.currency !== intent.currency || (payment.stripePaymentIntentId && payment.stripePaymentIntentId !== intent.id)) throw new Error('Payment verification mismatch');
     const user = await tx.get(db.doc(`users/${payment.userId}`));
-    tx.update(ref, { status: 'completed', stripePaymentIntentId: intent.id, receiptUrl, updatedAt: now(), paidAt: now(), fulfillmentStatus: user.exists ? 'fulfilled' : 'account_deleted' });
+    const isProduct = !!payment.productId;
+    tx.update(ref, { status: 'completed', stripePaymentIntentId: intent.id, receiptUrl, updatedAt: now(), paidAt: now(), fulfillmentStatus: !user.exists ? 'account_deleted' : isProduct ? 'ready_for_pickup' : 'fulfilled' });
     if (!user.exists) return;
-    tx.update(user.ref, { membershipPlanId: payment.membershipPlanId, sessionsRemaining: user.data()!.sessionsRemaining + payment.credits, updatedAt: now() });
-    notify(tx, `payment_${paymentId}`, payment.userId, 'Membership purchased', `${payment.credits} session credits have been added to your account.`, 'membership_purchased', { paymentId });
+    if (isProduct) {
+      const label = payment.size ? `${payment.productName} (size ${payment.size})` : payment.productName;
+      notify(tx, `payment_${paymentId}`, payment.userId, 'Order confirmed', `Your order for ${label} is ready to pick up at the gym.`, 'product_purchased', { paymentId });
+    } else {
+      tx.update(user.ref, { membershipPlanId: payment.membershipPlanId, sessionsRemaining: user.data()!.sessionsRemaining + payment.credits, updatedAt: now() });
+      notify(tx, `payment_${paymentId}`, payment.userId, 'Membership purchased', `${payment.credits} session credits have been added to your account.`, 'membership_purchased', { paymentId });
+    }
   });
 }
 
@@ -95,7 +138,7 @@ async function settleRefund(refund: Stripe.Refund) {
     if (refund.status === 'succeeded') tx.update(ref, { status: 'refunded', stripeRefundId: refund.id, updatedAt: now() });
     else if (refund.status === 'failed' || refund.status === 'canceled') {
       tx.update(ref, { status: 'completed', refundError: refund.failure_reason ?? refund.status, updatedAt: now() });
-      if (user.exists) tx.update(user.ref, { sessionsRemaining: user.data()!.sessionsRemaining + p.credits, updatedAt: now() });
+      if (!p.productId && user.exists) tx.update(user.ref, { sessionsRemaining: user.data()!.sessionsRemaining + p.credits, updatedAt: now() });
     }
   });
 }
@@ -110,8 +153,9 @@ export const createRefund = onCall({ secrets: [STRIPE_SECRET_KEY], enforceAppChe
     if (['refunded', 'refund_pending'].includes(payment.status)) return payment;
     if (payment.status !== 'completed' || payment.refundError) throw new HttpsError('failed-precondition', 'Payment is not eligible for an automatic refund.');
     const user = await tx.get(db.doc(`users/${payment.userId}`));
-    if (user.exists && user.data()!.sessionsRemaining - (user.data()!.sessionsReserved ?? 0) < payment.credits) throw new HttpsError('failed-precondition', 'Cancel reservations or resolve used credits before refunding.');
-    if (user.exists) tx.update(user.ref, { sessionsRemaining: user.data()!.sessionsRemaining - payment.credits, updatedAt: now() });
+    const isProduct = !!payment.productId;
+    if (!isProduct && user.exists && user.data()!.sessionsRemaining - (user.data()!.sessionsReserved ?? 0) < payment.credits) throw new HttpsError('failed-precondition', 'Cancel reservations or resolve used credits before refunding.');
+    if (!isProduct && user.exists) tx.update(user.ref, { sessionsRemaining: user.data()!.sessionsRemaining - payment.credits, updatedAt: now() });
     tx.update(ref, { status: 'refund_pending', updatedAt: now() });
     audit(tx, uid, 'refund', ref.id);
     return payment;
@@ -140,9 +184,43 @@ export const recordManualPayment = callable(z.object({ userId: id, planId: id, r
   });
   return { paymentId: ref.id };
 }, true);
+// Removes a payment/order record from the admin's history. This does not
+// reverse its effects (session credits already granted, or a store order
+// already marked fulfilled) — use createRefund first if the purchase
+// itself needs to be undone. This is for clearing out mistaken or test
+// entries, with an audit trail of who removed what.
+export const deletePayment = callable(z.object({ paymentId: id }), 'deletePayment', async (input, uid) => {
+  const ref = db.doc(`payments/${input.paymentId}`);
+  await db.runTransaction(async tx => {
+    const snap = await tx.get(ref);
+    if (!snap.exists) return;
+    tx.delete(ref);
+    audit(tx, uid, 'deletePayment', ref.id, { snapshot: snap.data() });
+  });
+  return { success: true };
+}, true);
 export const getPaymentHistory = callable(z.object({ before: z.string().datetime().optional() }), 'paymentHistory', async ({ before }, uid) => {
   let q = db.collection('payments').where('userId', '==', uid).orderBy('createdAt', 'desc').limit(50);
   if (before) q = q.startAfter(new Date(before));
   const page = await q.get();
   return { payments: page.docs.map(d => ({ ...d.data(), id: d.id, createdAt: d.data().createdAt.toDate().toISOString(), updatedAt: d.data().updatedAt.toDate().toISOString() })) };
 });
+
+// Lets an admin schedule a store order for pickup/delivery, so the buyer can
+// see when to expect it. The admin looks up the buyer's contact/address
+// directly on their profile (users/{uid}) before deciding whether to arrange
+// shipping or a gym pickup.
+export const setOrderDelivery = callable(z.object({ paymentId: id, estimatedDeliveryDate: z.string().datetime(), note: z.string().max(300).default('') }), 'orderDelivery', async (input, uid) => {
+  const ref = db.doc(`payments/${input.paymentId}`);
+  await db.runTransaction(async tx => {
+    const snap = await tx.get(ref), payment = snap.data();
+    if (!payment) throw new HttpsError('not-found', 'Order not found.');
+    if (!payment.productId) throw new HttpsError('failed-precondition', 'Only store orders can be scheduled for delivery.');
+    if (payment.status !== 'completed') throw new HttpsError('failed-precondition', 'Order must be paid before scheduling delivery.');
+    const deliveryDate = Timestamp.fromDate(new Date(input.estimatedDeliveryDate));
+    tx.update(ref, { estimatedDeliveryDate: deliveryDate, deliveryNote: input.note, fulfillmentStatus: 'scheduled', updatedAt: now() });
+    notify(tx, `delivery_${ref.id}_${deliveryDate.toMillis()}`, payment.userId, 'Delivery scheduled', `Your order for ${payment.productName} is expected around ${new Date(input.estimatedDeliveryDate).toLocaleDateString()}.`, 'product_delivery', { paymentId: ref.id });
+    audit(tx, uid, 'setOrderDelivery', ref.id, { estimatedDeliveryDate: input.estimatedDeliveryDate });
+  });
+  return { success: true };
+}, true);

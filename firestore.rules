@@ -12,8 +12,12 @@ service cloud.firestore {
     match /users/{uid} {
       allow read: if signedIn() && (request.auth.uid == uid || admin());
       allow update: if active() && request.auth.uid == uid
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['fullName', 'phone', 'childName', 'childAge', 'avatarUrl', 'updatedAt', 'notificationPreferences'])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['fullName', 'lastName', 'age', 'address', 'zipCode', 'phone', 'childName', 'childAge', 'avatarUrl', 'updatedAt', 'notificationPreferences'])
         && request.resource.data.fullName is string && request.resource.data.fullName.size() > 0 && request.resource.data.fullName.size() <= 100
+        && request.resource.data.lastName is string && request.resource.data.lastName.size() <= 100
+        && request.resource.data.age is int && request.resource.data.age >= 0 && request.resource.data.age <= 120
+        && request.resource.data.address is string && request.resource.data.address.size() <= 200
+        && request.resource.data.zipCode is string && request.resource.data.zipCode.size() <= 20
         && request.resource.data.phone is string && request.resource.data.phone.size() <= 32
         && request.resource.data.childName is string && request.resource.data.childName.size() <= 100
         && request.resource.data.childAge is int && request.resource.data.childAge >= 0 && request.resource.data.childAge <= 120
@@ -37,6 +41,7 @@ service cloud.firestore {
     match /bookings/{id} { allow read: if owns() || admin(); }
     match /payments/{id} { allow read: if owns() || admin(); }
     match /membershipPlans/{id} { allow read: if resource.data.isActive == true || admin(); allow write: if admin(); }
+    match /homeAds/{id} { allow read: if resource.data.isActive == true || admin(); allow write: if admin(); }
     match /products/{id} { allow read: if resource.data.isActive == true || admin(); allow write: if admin(); }
     match /reviews/{id} { allow read: if true; }
     match /reviewStats/{id} { allow read: if true; }

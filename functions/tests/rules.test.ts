@@ -9,7 +9,7 @@ before(async () => {
   env = await initializeTestEnvironment({ projectId: 'demo-jbb', firestore: { rules: readFileSync('../firestore.rules', 'utf8') }, storage: { rules: readFileSync('../storage.rules', 'utf8') } });
   await env.clearFirestore();
   await env.withSecurityRulesDisabled(async context => {
-    for (const uid of ['alice', 'bob', 'admin', 'inactive']) await setDoc(doc(context.firestore(), 'users', uid), { fullName: uid, email: `${uid}@example.com`, phone: '', childName: '', childAge: 0, avatarUrl: '', role: uid === 'admin' ? 'admin' : 'member', isActive: uid !== 'inactive', sessionsRemaining: 10, sessionsReserved: 0, notificationPreferences: { push: true, email: true } });
+    for (const uid of ['alice', 'bob', 'admin', 'inactive']) await setDoc(doc(context.firestore(), 'users', uid), { fullName: uid, lastName: '', age: 0, address: '', zipCode: '', email: `${uid}@example.com`, phone: '', childName: '', childAge: 0, avatarUrl: '', role: uid === 'admin' ? 'admin' : 'member', isActive: uid !== 'inactive', sessionsRemaining: 10, sessionsReserved: 0, notificationPreferences: { push: true, email: true } });
     await setDoc(doc(context.firestore(), 'bookings', 'alice_one'), { userId: 'alice', status: 'confirmed' });
     await setDoc(doc(context.firestore(), 'membershipPlans', 'ten'), { isActive: true, price: 60000 });
     await setDoc(doc(context.firestore(), 'membershipPlans', 'hidden'), { isActive: false, price: 1 });

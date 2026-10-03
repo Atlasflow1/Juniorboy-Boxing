@@ -41,7 +41,14 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
   bool busy = false;
 
   Future<void> purchase() async {
-    if (busy || selected == null) return;
+    final chosenPlan = selected;
+    if (busy || chosenPlan == null || chosenPlan.isEmpty) {
+      if (mounted && selected == null) {
+        showMessage(context, 'Choose a plan to continue.');
+      }
+      return;
+    }
+
     setState(() => busy = true);
     try {
       final authUser = FirebaseAuth.instance.currentUser;
@@ -58,7 +65,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
         final completed = await context.push<bool>('/complete-profile');
         if (completed != true || !mounted) return;
       }
-      final message = await stripe.purchase(selected!);
+      final message = await stripe.purchase(chosenPlan);
       if (mounted) showMessage(context, message);
     } catch (e) {
       if (mounted) {
@@ -122,15 +129,19 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                       message: 'Plans for this program will appear here when available.',
                     );
                   }
-                  if (selected == null || !plans.any((p) => p['id'] == selected)) {
-                    selected = plans.first['id'];
-                  }
+
+                  final effectiveSelected = plans.any(
+                        (plan) => plan['id'] == selected,
+                      )
+                      ? selected
+                      : plans.first['id'] as String?;
+
                   return Column(
                     children: [
                       for (final plan in plans)
                         PlanCard(
                           plan: plan,
-                          selected: selected == plan['id'],
+                          selected: effectiveSelected == plan['id'],
                           onTap: busy
                               ? () {}
                               : () => setState(() => selected = plan['id']),
@@ -139,7 +150,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                       JbbButton(
                         label: 'Continue  →',
                         busy: busy,
-                        onPressed: purchase,
+                        onPressed: effectiveSelected == null ? null : purchase,
                       ),
                     ],
                   );

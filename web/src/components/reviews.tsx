@@ -1,21 +1,20 @@
 'use client';
 import { FormEvent, useState } from 'react';
 import { orderBy, limit } from 'firebase/firestore';
-import { Star, User as UserIcon } from 'lucide-react';
 import { useAuth } from './providers';
 import { useRows, useDocument } from '@/lib/hooks';
 import { call } from '@/lib/firebase';
 import { errorMessage } from '@/lib/utils';
-import { ActionLink, Button, Notice, PageHeading, Loading } from './ui';
+import { ActionLink, Button, Icon, Notice, PageHeading, Loading } from './ui';
 
 function Stars({ value, size = 18, onChange }: { value: number; size?: number; onChange?: (star: number) => void }) {
   const interactive = !!onChange;
-  return <span className="row" style={{ gap: 2 }}>{[1, 2, 3, 4, 5].map(star => <Star key={star} size={size} onClick={interactive ? () => onChange!(star) : undefined} style={{ cursor: interactive ? 'pointer' : 'default', fill: value >= star ? 'var(--red,#e50914)' : 'transparent', color: value >= star ? 'var(--red,#e50914)' : '#555' }} />)}</span>;
+  return <span className="row" style={{ gap: 2 }}>{[1, 2, 3, 4, 5].map(star => <Icon key={star} name="star" outlined={value < star} size={size} onClick={interactive ? () => onChange!(star) : undefined} style={{ cursor: interactive ? 'pointer' : 'default', color: value >= star ? 'var(--red,#e50914)' : '#555' }} />)}</span>;
 }
 
 function DistributionBar({ star, count, total }: { star: number; count: number; total: number }) {
   const pct = total ? Math.round((count / total) * 100) : 0;
-  return <div className="row" style={{ gap: 8, fontSize: 12 }}><span className="muted" style={{ width: 10 }}>{star}</span><Star size={11} style={{ fill: 'var(--red,#e50914)', color: 'var(--red,#e50914)' }} /><div style={{ flex: 1, height: 6, borderRadius: 4, background: '#2a2a2a', overflow: 'hidden' }}><div style={{ width: `${pct}%`, height: '100%', background: 'var(--red,#e50914)' }} /></div><span className="muted" style={{ width: 20, textAlign: 'right' }}>{count}</span></div>;
+  return <div className="row" style={{ gap: 8, fontSize: 12 }}><span className="muted" style={{ width: 10 }}>{star}</span><Icon name="star" outlined={false} size={11} style={{ color: 'var(--red,#e50914)' }} /><div style={{ flex: 1, height: 6, borderRadius: 4, background: '#2a2a2a', overflow: 'hidden' }}><div style={{ width: `${pct}%`, height: '100%', background: 'var(--red,#e50914)' }} /></div><span className="muted" style={{ width: 20, textAlign: 'right' }}>{count}</span></div>;
 }
 
 export function ReviewsSummary() {
@@ -56,7 +55,7 @@ export function ReviewsList() {
   if (loading) return <Loading />;
   if (error) return <Notice error>{error}</Notice>;
   if (!rows.length) return null;
-  return <div className="stack">{rows.map(r => <article className="card" key={r.id}><div className="row" style={{ gap: 12, alignItems: 'flex-start' }}>{r.userAvatarUrl ? <img src={r.userAvatarUrl} alt="" style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }} /> : <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#2a2a2a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><UserIcon size={18} color="#a0a0a0" /></div>}<div style={{ flex: 1 }}><div className="row spread"><strong>{r.userName}</strong><Stars value={r.rating} size={14} /></div>{r.comment && <p className="muted" style={{ margin: '6px 0 0' }}>{r.comment}</p>}</div></div></article>)}</div>;
+  return <div className="stack">{rows.map(r => <article className="card" key={r.id}><div className="row" style={{ gap: 12, alignItems: 'flex-start' }}>{r.userAvatarUrl ? <img src={r.userAvatarUrl} alt="" style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }} /> : <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#2a2a2a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Icon name="person" size={18} style={{ color: '#a0a0a0' }} /></div>}<div style={{ flex: 1 }}><div className="row spread"><strong>{r.userName}</strong><Stars value={r.rating} size={14} /></div>{r.comment && <p className="muted" style={{ margin: '6px 0 0' }}>{r.comment}</p>}</div></div></article>)}</div>;
 }
 
 export function ReviewsPage() {

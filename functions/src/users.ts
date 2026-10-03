@@ -12,8 +12,8 @@ export async function ensureUser(user: UserRecord) {
     const old = await tx.get(ref);
     if (old.exists) return;
     tx.create(ref, {
-      fullName: user.displayName || 'Member', email: user.email || '', phone: user.phoneNumber || '', role: 'member',
-      childName: '', childAge: 0, avatarUrl: '', membershipPlanId: null, sessionsRemaining: 0, sessionsReserved: 0,
+      fullName: user.displayName || 'Member', lastName: '', age: 0, address: '', zipCode: '', email: user.email || '', phone: user.phoneNumber || '', role: 'member',
+      childName: '', childAge: 0, avatarUrl: user.photoURL || '', membershipPlanId: null, sessionsRemaining: 0, sessionsReserved: 0,
       memberSince: now(), isActive: true, fcmToken: '', createdAt: now(), updatedAt: now(), notificationPreferences: { push: true, email: true },
     });
     notify(tx, `welcome_${user.uid}`, user.uid, 'Welcome to Junior Boy Boxing', 'Train. Learn. Grow. Your account is ready. Choose a plan to book your first session.', 'welcome');
@@ -25,7 +25,10 @@ export const initializeProfile = onCall({ enforceAppCheck }, async request => {
   await rateLimit(uid, 'initializeProfile', 10);
   const user = await auth.getUser(uid);
   await ensureUser(user);
-  await db.doc(`users/${uid}`).update({ email: user.email || '', updatedAt: now() });
+  const ref = db.doc(`users/${uid}`);
+  const updates: Record<string, unknown> = { email: user.email || '', updatedAt: now() };
+  if (user.photoURL && !(await ref.get()).data()?.avatarUrl) updates.avatarUrl = user.photoURL;
+  await ref.update(updates);
   return { success: true };
 });
 

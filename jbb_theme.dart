@@ -11,7 +11,7 @@ class JBBColors {
   static const Color redAccent = Color(0xFFFF0000);
 
   // Backgrounds
-  static const Color bgPrimary = Color(0xFF0D0D0D);
+  static const Color bgPrimary = Color(0xFF194051);
   static const Color bgSecondary = Color(0xFF1A1A1A);
   static const Color bgCard = Color(0xFF181818);
   static const Color bgCardBorder = Color(0xFF2A2A2A);

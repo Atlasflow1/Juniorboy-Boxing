@@ -6,21 +6,31 @@ import '../services/notification_service.dart';
 
 class AuthRepository {
   final auth = FirebaseAuth.instance;
+
+  // google_sign_in 7.x's Credential Manager flow on Android has a known,
+  // reproducible regression (flutter/flutter#187395) where the account
+  // picker silently fails to render and the call throws
+  // GoogleSignInExceptionCode.canceled / "Account reauth failed". Staying
+  // on the pre-7.0 API sidesteps Credential Manager entirely.
+  final _googleSignIn = GoogleSignIn(
+    serverClientId: const String.fromEnvironment(
+      'GOOGLE_SERVER_CLIENT_ID',
+      defaultValue:
+          '772438105367-q284tguvctru8ltf50np6nfck80rhmf3.apps.googleusercontent.com',
+    ),
+  );
+
   Future<void> initializeProfile() async {
     await FirebaseFunctions.instance.httpsCallable('initializeProfile').call();
   }
 
   Future<void> googleSignIn() async {
-    await GoogleSignIn.instance.initialize(
-      serverClientId: const String.fromEnvironment(
-        'GOOGLE_SERVER_CLIENT_ID',
-        defaultValue:
-            '772438105367-q284tguvctru8ltf50np6nfck80rhmf3.apps.googleusercontent.com',
-      ),
-    );
-    final account = await GoogleSignIn.instance.authenticate();
+    final googleUser = await _googleSignIn.signIn();
+    if (googleUser == null) return;
+    final googleAuth = await googleUser.authentication;
     final credential = GoogleAuthProvider.credential(
-      idToken: account.authentication.idToken,
+      idToken: googleAuth.idToken,
+      accessToken: googleAuth.accessToken,
     );
     if (auth.currentUser?.isAnonymous == true) {
       try {

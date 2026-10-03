@@ -22,8 +22,9 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(profileProvider).value,
         next = ref.watch(nextBookingProvider);
-    final promoVideoUrl =
-        ref.watch(settingsProvider).value?['promoVideoUrl'] ?? '';
+    final settings = ref.watch(settingsProvider).value;
+    final promoVideoUrl = settings?['promoVideoUrl'] ?? '';
+    final heroImageUrl = settings?['heroImageUrl'] as String?;
     final videoId = extractYoutubeId(promoVideoUrl);
     final featuredProduct = ref.watch(featuredProductProvider);
     final sessionsRemaining = (user?['sessionsRemaining'] as num?) ?? 0;
@@ -46,6 +47,7 @@ class HomeScreen extends ConsumerWidget {
       children: [
         HomeHeroBanner(
           name: (user?['fullName'] ?? 'Champion').toString().split(' ').first,
+          imageUrl: heroImageUrl,
         ),
         if (videoId != null) ...[
           const SizedBox(height: 16),

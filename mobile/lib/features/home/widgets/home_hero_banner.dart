@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/constants/app_assets.dart';
 import '../../../core/theme/app_colors.dart';
 
 /// Square brand hero image at the top of Home, with the welcome
-/// greeting overlaid on a dark gradient scrim.
+/// greeting overlaid on a dark gradient scrim. Shows the gym's uploaded
+/// [imageUrl] (kept in sync with the website's Home page) when set,
+/// falling back to the bundled asset otherwise.
 class HomeHeroBanner extends StatelessWidget {
-  const HomeHeroBanner({super.key, required this.name});
+  const HomeHeroBanner({super.key, required this.name, this.imageUrl});
   final String name;
+  final String? imageUrl;
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
@@ -16,11 +20,16 @@ class HomeHeroBanner extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Image.asset(
-              AppAssets.homeHero,
-              fit: BoxFit.cover,
-              semanticLabel: 'Junior Boy Boxing',
-            ),
+            (imageUrl ?? '').isNotEmpty
+                ? CachedNetworkImage(
+                    imageUrl: imageUrl!,
+                    fit: BoxFit.cover,
+                  )
+                : Image.asset(
+                    AppAssets.homeHero,
+                    fit: BoxFit.cover,
+                    semanticLabel: 'Junior Boy Boxing',
+                  ),
             Positioned(
               left: 0,
               right: 0,

@@ -43,6 +43,7 @@
 - إضافة Hive cache، مؤشرات offline، FCM، App Check، Crashlytics، Analytics، Performance، Storage للصور، وStripe PaymentSheet.
 - `flutter analyze` نجح. اختبارات Flutter نجحت (اختبار التحقق واختبار شاشة الترحيب على مقاس هاتف صغير).
 - محاولة APK debug وصلت إلى مرحلة Gradle ثم توقفت بسبب Kotlin daemon/cache على بيئة الجهاز؛ لا يوجد مفتاح Firebase أو signing key في المشروع، لذلك لا يوجد APK إنتاجي موقع.
+- تم تحديث منطق شاشة `ProgramScreen` لضمان اختيار الخطة الصحيح وعدم تغيير الحالة داخل `build`، مع حماية null عند عدم وجود خطة محددة.
 
 ### المرحلة 3 — 2026-09-21
 - إنشاء موقع Next.js 14.2.35 (إصدار أمان حديث من فرع 14.x) مع صفحات التسويق والجدول والتسعير والأسئلة والتواصل والحساب والبوابة والدفع.

@@ -7,6 +7,7 @@ import '../../../core/widgets/jbb_card.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/utils/nav_debounce.dart';
 import '../../../core/utils/snackbar_utils.dart';
+import '../../../core/theme/theme_provider.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../providers/profile_provider.dart';
 
@@ -15,6 +16,7 @@ class MoreScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(profileProvider).value;
+    final useBlackBackground = ref.watch(useBlackBackgroundProvider);
     return PageContent(
       title: 'More',
       children: [
@@ -83,6 +85,14 @@ class MoreScreen extends ConsumerWidget {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.safePush(item.$3),
           ),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          title: const Text('Black Background'),
+          subtitle: const Text('Switch between black and the app\'s teal background.'),
+          value: useBlackBackground,
+          onChanged: (value) =>
+              ref.read(useBlackBackgroundProvider.notifier).toggle(value),
+        ),
         const SizedBox(height: 20),
         OutlinedButton(
           onPressed: () async {
