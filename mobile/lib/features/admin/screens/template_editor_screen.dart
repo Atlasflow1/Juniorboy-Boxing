@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../core/utils/snackbar_utils.dart';
 import '../../../core/widgets/jbb_button.dart';
 import '../../schedule/providers/schedule_provider.dart';
@@ -46,7 +47,12 @@ class _TemplateEditorState extends ConsumerState<TemplateEditorScreen> {
   Future<void> save() async {
     if (!form.currentState!.validate() || classId == null) return;
     setState(() => busy = true);
-    final id = widget.template?['id'] ?? '${classId}_$dayOfWeek';
+    // A random id (not classId_dayOfWeek) so the admin can add more than one
+    // session for the same program — or different programs/categories — on
+    // the same day without one silently overwriting another.
+    final id =
+        widget.template?['id'] ??
+        FirebaseFirestore.instance.collection('recurringTemplates').doc().id;
     try {
       await ref.read(adminRepositoryProvider).saveTemplate(id, {
         'classId': classId,

@@ -3,7 +3,7 @@ import { HttpsError } from 'firebase-functions/v2/https';
 import { onDocumentUpdated } from 'firebase-functions/v2/firestore';
 import { z } from 'zod';
 import { audit, callable, db, id, notify, now } from './platform';
-import { canCancel, overlaps, reservationAvailable } from './domain';
+import { canCancel, overlaps, reservationAvailable, trainingTypeLabel, type TrainingType } from './domain';
 
 export async function reserveBooking(uid: string, scheduleId: string) {
   const ref = db.doc(`bookings/${uid}_${scheduleId}`);
@@ -21,7 +21,9 @@ export async function reserveBooking(uid: string, scheduleId: string) {
     const classSnap = await tx.get(db.doc(`classes/${session.classId}`));
     if (!classSnap.data()?.isActive) throw new HttpsError('failed-precondition', 'This program is not active.');
     if (session.bookedSpots >= session.maxSpots) throw new HttpsError('resource-exhausted', 'This class is full.');
-    if (reservationAvailable(user.sessionsRemaining, user.sessionsReserved ?? 0) < 1) throw new HttpsError('failed-precondition', 'Purchase session credits before booking.');
+    const trainingType: TrainingType = classSnap.data()?.trainingType || 'private';
+    const remainingField = `${trainingType}SessionsRemaining`, reservedField = `${trainingType}SessionsReserved`;
+    if (reservationAvailable(user[remainingField] ?? 0, user[reservedField] ?? 0) < 1) throw new HttpsError('failed-precondition', `You have 0 remaining ${trainingTypeLabel(trainingType)} sessions. Purchase a ${trainingTypeLabel(trainingType)} package to book this class.`);
     const existing = await tx.get(db.collection('bookings').where('userId', '==', uid).where('status', '==', 'confirmed'));
     for (const b of existing.docs) {
       const data = b.data();
@@ -30,12 +32,17 @@ export async function reserveBooking(uid: string, scheduleId: string) {
     const revision = (old?.revision ?? 0) + 1;
     tx.set(ref, {
       userId: uid, scheduleId, classId: session.classId, className: classSnap.data()!.className,
+      category: classSnap.data()!.category || '', trainingType,
       date: session.date, endAt: session.endAt, startTime: session.startTime, endTime: session.endTime,
       status: 'confirmed', bookedAt: now(), cancelledAt: null, cancelReason: null,
       creditDeducted: false, creditRefunded: false, revision,
     });
     tx.update(scheduleSnap.ref, { bookedSpots: session.bookedSpots + 1, updatedAt: now() });
-    tx.update(userSnap.ref, { sessionsReserved: (user.sessionsReserved ?? 0) + 1, updatedAt: now() });
+    tx.update(userSnap.ref, {
+      [reservedField]: (user[reservedField] ?? 0) + 1,
+      sessionsReserved: (user.sessionsReserved ?? 0) + 1,
+      updatedAt: now(),
+    });
     notify(tx, `booking_${ref.id}_${revision}`, uid, 'Booking confirmed', `Your ${classSnap.data()!.className} session is booked.`, 'booking_confirmed', { bookingId: ref.id });
     return { bookingId: ref.id, alreadyBooked: false };
   });
@@ -57,7 +64,15 @@ export async function releaseBooking(actor: string, bookingId: string, reason = 
     const [session, user] = await Promise.all([tx.get(db.doc(`schedule/${booking.scheduleId}`)), tx.get(db.doc(`users/${booking.userId}`))]);
     tx.update(bookingSnap.ref, { status: 'cancelled', cancelledAt: now(), cancelReason: reason, cancelledBy: actor });
     if (session.exists) tx.update(session.ref, { bookedSpots: Math.max(0, session.data()!.bookedSpots - 1), updatedAt: now() });
-    if (user.exists) tx.update(user.ref, { sessionsReserved: Math.max(0, (user.data()!.sessionsReserved ?? 0) - 1), updatedAt: now() });
+    if (user.exists) {
+      const trainingType: TrainingType = booking.trainingType || 'private';
+      const reservedField = `${trainingType}SessionsReserved`;
+      tx.update(user.ref, {
+        [reservedField]: Math.max(0, (user.data()![reservedField] ?? 0) - 1),
+        sessionsReserved: Math.max(0, (user.data()!.sessionsReserved ?? 0) - 1),
+        updatedAt: now(),
+      });
+    }
     notify(tx, `cancel_${bookingId}_${booking.revision}`, booking.userId, 'Booking cancelled', 'Your reserved session credit is available again.', 'booking_cancelled', { bookingId });
     audit(tx, actor, 'cancelBooking', bookingId, { reason });
     return { cancelled: true };
@@ -88,11 +103,17 @@ export async function settleBooking(bookingId: string) {
     const user = await tx.get(db.doc(`users/${b.userId}`));
     if (!user.exists) { tx.update(snapshot.ref, { creditDeducted: true }); return; }
     const u = user.data()!;
-    if (u.sessionsRemaining < 1 || u.sessionsReserved < 1) throw new Error(`Invalid credit ledger for booking ${bookingId}`);
-    const remaining = u.sessionsRemaining - 1;
-    tx.update(user.ref, { sessionsRemaining: remaining, sessionsReserved: u.sessionsReserved - 1, updatedAt: now() });
+    const trainingType: TrainingType = b.trainingType || 'private';
+    const remainingField = `${trainingType}SessionsRemaining`, reservedField = `${trainingType}SessionsReserved`;
+    if ((u[remainingField] ?? 0) < 1 || (u[reservedField] ?? 0) < 1 || u.sessionsRemaining < 1 || u.sessionsReserved < 1) throw new Error(`Invalid credit ledger for booking ${bookingId}`);
+    const remaining = u[remainingField] - 1;
+    tx.update(user.ref, {
+      [remainingField]: remaining, [reservedField]: u[reservedField] - 1,
+      sessionsRemaining: u.sessionsRemaining - 1, sessionsReserved: u.sessionsReserved - 1,
+      updatedAt: now(),
+    });
     tx.update(snapshot.ref, { creditDeducted: true, creditDeductedAt: now() });
-    if (remaining <= 2) notify(tx, `low_${bookingId}`, b.userId, remaining === 0 ? 'Sessions used' : 'Sessions running low', `You have ${remaining} session credits remaining.`, remaining === 0 ? 'membership_expired' : 'membership_expiring');
+    if (remaining <= 2) notify(tx, `low_${bookingId}`, b.userId, remaining === 0 ? 'Sessions used' : 'Sessions running low', `You have ${remaining} ${trainingTypeLabel(trainingType)} session credits remaining.`, remaining === 0 ? 'membership_expired' : 'membership_expiring');
   });
 }
 

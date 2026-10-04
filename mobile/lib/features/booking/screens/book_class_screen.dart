@@ -33,8 +33,18 @@ class _BookClassState extends ConsumerState<BookClassScreen> {
       context.safePush('/waiver');
       return;
     }
-    if ((user?['sessionsRemaining'] ?? 0) - (user?['sessionsReserved'] ?? 0) <
-        1) {
+    final session = ref.read(sessionProvider(widget.scheduleId)).value;
+    final program = ref
+        .read(classesProvider)
+        .value
+        ?.firstWhere(
+          (c) => c['id'] == session?['classId'],
+          orElse: () => <String, dynamic>{},
+        );
+    final trainingType = (program?['trainingType'] as String?) ?? 'private';
+    final remaining = (user?['${trainingType}SessionsRemaining'] ?? 0) as num;
+    final reserved = (user?['${trainingType}SessionsReserved'] ?? 0) as num;
+    if (remaining - reserved < 1) {
       context.go('/membership');
       return;
     }
@@ -64,6 +74,16 @@ class _BookClassState extends ConsumerState<BookClassScreen> {
                     orElse: () => <String, dynamic>{},
                   );
               final spots = session['maxSpots'] - session['bookedSpots'];
+              final trainingType = (program['trainingType'] as String?) ?? 'private';
+              final trainingTypeLabel = trainingType == 'private'
+                  ? 'Private'
+                  : trainingType == 'group'
+                  ? 'Group'
+                  : 'Duo';
+              final user = ref.watch(profileProvider).value;
+              final remaining =
+                  ((user?['${trainingType}SessionsRemaining'] ?? 0) as num) -
+                  ((user?['${trainingType}SessionsReserved'] ?? 0) as num);
               return ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
@@ -84,6 +104,19 @@ class _BookClassState extends ConsumerState<BookClassScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        if ((program['category'] ?? '').toString().isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 4),
+                            child: Text(
+                              program['category'].toString().toUpperCase(),
+                              style: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ),
                         Text(
                           program['className'] ?? 'Boxing class',
                           style: Theme.of(context).textTheme.headlineMedium,
@@ -97,6 +130,10 @@ class _BookClassState extends ConsumerState<BookClassScreen> {
                             '${timeLabel(readDate(session['date']))} – ${timeLabel(readDate(session['endAt']))} PT',
                           ),
                           ('AVAILABILITY', '$spots spots'),
+                          (
+                            '$trainingTypeLabel SESSIONS REMAINING',
+                            '$remaining remaining',
+                          ),
                         ])
                           Padding(
                             padding: const EdgeInsets.only(bottom: 18),
@@ -120,7 +157,9 @@ class _BookClassState extends ConsumerState<BookClassScreen> {
                     ),
                   ),
                   JbbButton(
-                    label: 'Confirm Booking  ›',
+                    label: remaining < 1
+                        ? 'Purchase a $trainingTypeLabel Package'
+                        : 'Confirm Booking  ›',
                     busy: busy,
                     onPressed:
                         spots > 0 &&

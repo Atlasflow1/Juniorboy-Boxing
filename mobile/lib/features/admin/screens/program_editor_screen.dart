@@ -46,6 +46,12 @@ class _ProgramEditorState extends ConsumerState<ProgramEditorScreen> {
   late final durationMinutes = TextEditingController(
     text: '${widget.program?['durationMinutes'] ?? 60}',
   );
+  late String category = widget.program?['category']?.toString().isNotEmpty == true
+      ? widget.program!['category']
+      : 'Individual';
+  late String trainingType = widget.program?['trainingType']?.toString().isNotEmpty == true
+      ? widget.program!['trainingType']
+      : 'private';
   late String imageUrl = widget.program?['imageUrl'] ?? '';
   late List<String> adImages = List<String>.from(
     widget.program?['adImages'] ?? const [],
@@ -131,6 +137,8 @@ class _ProgramEditorState extends ConsumerState<ProgramEditorScreen> {
         'description': description.text.trim(),
         'ageGroup': ageGroup.text.trim(),
         'coachName': coachName.text.trim(),
+        'category': category,
+        'trainingType': trainingType,
         'price': cents,
         'priceLabel': cents != null ? '\$${(cents / 100).toStringAsFixed(2)}' : '',
         'discountActive': discountActive,
@@ -243,6 +251,28 @@ class _ProgramEditorState extends ConsumerState<ProgramEditorScreen> {
               controller: coachName,
               decoration: const InputDecoration(labelText: 'Coach'),
               validator: Validators.required,
+            ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String>(
+              initialValue: category,
+              decoration: const InputDecoration(labelText: 'Category'),
+              items: const [
+                DropdownMenuItem(value: 'Team', child: Text('Team')),
+                DropdownMenuItem(value: 'Individual', child: Text('Individual')),
+                DropdownMenuItem(value: 'Weight Loss', child: Text('Weight Loss')),
+              ],
+              onChanged: (v) => setState(() => category = v ?? category),
+            ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String>(
+              initialValue: trainingType,
+              decoration: const InputDecoration(labelText: 'Training Type'),
+              items: const [
+                DropdownMenuItem(value: 'private', child: Text('Private')),
+                DropdownMenuItem(value: 'group', child: Text('Group')),
+                DropdownMenuItem(value: 'duo', child: Text('Duo')),
+              ],
+              onChanged: (v) => setState(() => trainingType = v ?? trainingType),
             ),
             const SizedBox(height: 16),
             TextFormField(

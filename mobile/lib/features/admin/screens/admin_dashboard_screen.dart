@@ -345,7 +345,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                                   ),
                                 ),
                                 Text(
-                                  '${t['classId']} · ${t['maxSpots']} spots · ${t['isActive'] == true ? 'Active' : 'Paused'}',
+                                  '${programs.value?.cast<Map<String, dynamic>?>().firstWhere((p) => p?['id'] == t['classId'], orElse: () => null)?['className'] ?? t['classId']} · ${t['maxSpots']} spots · ${t['isActive'] == true ? 'Active' : 'Paused'}',
                                   style: const TextStyle(
                                     color: AppColors.muted,
                                     fontSize: 12,

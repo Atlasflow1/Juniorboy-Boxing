@@ -69,6 +69,21 @@ class PlanCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Text(
+                          switch (plan['trainingType']) {
+                            'group' => 'GROUP TRAINING',
+                            'duo' => 'DUO TRAINING',
+                            _ => 'PRIVATE TRAINING',
+                          },
+                          style: const TextStyle(
+                            color: AppColors.muted,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.2,
+                            shadows: [Shadow(color: Colors.black54, blurRadius: 6)],
+                          ),
+                        ),
+                        const SizedBox(height: 6),
                         Row(
                           children: [
                             if (plan['isRecommended'] == true)

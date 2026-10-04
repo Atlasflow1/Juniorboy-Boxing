@@ -6,7 +6,7 @@ import '../theme/app_colors.dart';
 class JbbBottomNav extends StatelessWidget {
   const JbbBottomNav({super.key, required this.location});
   final String location;
-  static const routes = ['/home', '/schedule', '/book', '/membership', '/more'];
+  static const routes = ['/home', '/schedule', '/bookings', '/more'];
   @override
   Widget build(BuildContext context) {
     final index = routes.indexWhere(
@@ -16,14 +16,13 @@ class JbbBottomNav extends StatelessWidget {
       height: 64,
       backgroundColor: AppColors.background,
       indicatorColor: Colors.transparent,
-      selectedIndex: index < 0 ? 4 : index,
+      selectedIndex: index < 0 ? 3 : index,
       onDestinationSelected: (i) => context.go(routes[i]),
       destinations: [
         for (final item in [
           ('Home', 'home'),
           ('Schedule', 'schedule'),
-          ('Book', 'book'),
-          ('Membership', 'membership'),
+          ('Bookings', 'log'),
           ('More', 'more'),
         ])
           NavigationDestination(

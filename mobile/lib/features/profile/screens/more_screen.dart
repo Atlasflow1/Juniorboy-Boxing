@@ -8,7 +8,6 @@ import '../../../core/widgets/social_links_row.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/utils/nav_debounce.dart';
 import '../../../core/utils/snackbar_utils.dart';
-import '../../../core/theme/theme_provider.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../providers/profile_provider.dart';
 
@@ -17,7 +16,6 @@ class MoreScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(profileProvider).value;
-    final useBlackBackground = ref.watch(useBlackBackgroundProvider);
     return PageContent(
       title: 'More',
       children: [
@@ -63,41 +61,18 @@ class MoreScreen extends ConsumerWidget {
             ],
           ),
         ),
-        for (final item in [
-          ('My Bookings', Icons.calendar_month, '/bookings'),
-          ('Membership', Icons.workspace_premium, '/membership'),
-          ('Gym Store', Icons.shopping_bag_outlined, '/store'),
-          ('Reviews & Ratings', Icons.star_outline, '/reviews'),
-          ('My Account', Icons.receipt_long, '/payments'),
-          ('Notifications', Icons.notifications_outlined, '/notifications'),
-          ('Contact Us', Icons.mail_outline, '/contact'),
-          ('About Us', Icons.info_outline, '/about'),
-          ('Blog', Icons.article_outlined, '/blog'),
-          ('Privacy Policy', Icons.shield_outlined, '/privacy'),
-          ('Terms of Service', Icons.description_outlined, '/terms'),
-          ('Waiver & Disclaimer', Icons.gavel_outlined, '/waiver'),
-          if (user?['role'] == 'admin')
-            ('Admin Dashboard', Icons.admin_panel_settings_outlined, '/admin'),
-        ])
+        const SizedBox(height: 24),
+        const Center(child: SocialLinksRow()),
+        if (user?['role'] == 'admin') ...[
+          const SizedBox(height: 24),
           ListTile(
             contentPadding: EdgeInsets.zero,
-            leading: Icon(item.$2, color: Colors.red),
-            title: Text(item.$1),
+            leading: const Icon(Icons.admin_panel_settings_outlined, color: Colors.red),
+            title: const Text('Admin Dashboard'),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.safePush(item.$3),
+            onTap: () => context.safePush('/admin'),
           ),
-        const Padding(
-          padding: EdgeInsets.only(bottom: 20),
-          child: SocialLinksRow(),
-        ),
-        SwitchListTile(
-          contentPadding: EdgeInsets.zero,
-          title: const Text('Black Background'),
-          subtitle: const Text('Switch between black and the app\'s teal background.'),
-          value: useBlackBackground,
-          onChanged: (value) =>
-              ref.read(useBlackBackgroundProvider.notifier).toggle(value),
-        ),
+        ],
         const SizedBox(height: 20),
         OutlinedButton(
           onPressed: () async {

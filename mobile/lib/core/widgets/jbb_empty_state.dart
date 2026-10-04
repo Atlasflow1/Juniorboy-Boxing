@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 
 class JbbEmptyState extends StatelessWidget {
-  const JbbEmptyState({super.key, required this.message, this.onRetry});
+  const JbbEmptyState({
+    super.key,
+    required this.message,
+    this.onRetry,
+    this.actionLabel = 'Retry',
+  });
   final String message;
   final VoidCallback? onRetry;
+  final String actionLabel;
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.symmetric(vertical: 32),
@@ -13,7 +19,7 @@ class JbbEmptyState extends StatelessWidget {
         const SizedBox(height: 14),
         Text(message, textAlign: TextAlign.center),
         if (onRetry != null)
-          TextButton(onPressed: onRetry, child: const Text('Retry')),
+          TextButton(onPressed: onRetry, child: Text(actionLabel)),
       ],
     ),
   );

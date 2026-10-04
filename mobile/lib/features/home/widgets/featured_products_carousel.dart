@@ -27,6 +27,8 @@ class _FeaturedProductsCarouselState
     if (itemCount <= 1) return;
     timer = Timer.periodic(const Duration(seconds: 5), (_) {
       if (!controller.hasClients) return;
+      // Paging to a higher index slides new content in from the right —
+      // the right-to-left motion this carousel is supposed to have.
       final next = (page + 1) % itemCount;
       controller.animateToPage(
         next,

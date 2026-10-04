@@ -48,6 +48,7 @@ class _PlanEditorState extends ConsumerState<PlanEditorScreen> {
         : '',
   );
   late String category = widget.plan?['category'] ?? 'general';
+  late String trainingType = widget.plan?['trainingType'] ?? 'private';
   late String imageUrl = widget.plan?['imageUrl'] ?? '';
   bool busy = false, photoBusy = false;
 
@@ -98,6 +99,7 @@ class _PlanEditorState extends ConsumerState<PlanEditorScreen> {
         'priceLabel': '\$${(cents / 100).toStringAsFixed(2)}',
         'sessionCount': int.parse(sessionCount.text),
         'category': category,
+        'trainingType': trainingType,
         'isActive': isActive,
         'isRecommended': isRecommended,
         'discountActive': discountActive,
@@ -273,6 +275,17 @@ class _PlanEditorState extends ConsumerState<PlanEditorScreen> {
                   DropdownMenuItem(value: entry.key, child: Text(entry.value)),
               ],
               onChanged: (v) => setState(() => category = v ?? 'general'),
+            ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String>(
+              initialValue: trainingType,
+              decoration: const InputDecoration(labelText: 'Training Type'),
+              items: const [
+                DropdownMenuItem(value: 'private', child: Text('Private')),
+                DropdownMenuItem(value: 'group', child: Text('Group')),
+                DropdownMenuItem(value: 'duo', child: Text('Duo')),
+              ],
+              onChanged: (v) => setState(() => trainingType = v ?? trainingType),
             ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,

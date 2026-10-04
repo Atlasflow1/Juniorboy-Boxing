@@ -78,13 +78,13 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (c, s) =>
                 ScheduleScreen(programId: s.uri.queryParameters['program']),
           ),
-          GoRoute(path: '/book', builder: (c, s) => const ScheduleScreen()),
           GoRoute(
             path: '/membership',
             builder: (c, s) => const MembershipScreen(),
           ),
           GoRoute(path: '/more', builder: (c, s) => const MoreScreen()),
           GoRoute(path: '/store', builder: (c, s) => const StoreScreen()),
+          GoRoute(path: '/bookings', builder: (c, s) => const MyBookingsScreen()),
         ],
       ),
       GoRoute(
@@ -95,7 +95,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/booking-confirmed',
         builder: (c, s) => const BookingConfirmationScreen(),
       ),
-      GoRoute(path: '/bookings', builder: (c, s) => const MyBookingsScreen()),
       GoRoute(path: '/profile', builder: (c, s) => const EditProfileScreen()),
       GoRoute(
         path: '/complete-profile',
@@ -161,6 +160,12 @@ class _Shell extends ConsumerWidget {
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
+        // Back from any other main tab goes to Home first, like Android's
+        // usual bottom-nav pattern — only Home itself asks to exit.
+        if (location != '/home') {
+          context.go('/home');
+          return;
+        }
         final confirmed = await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
