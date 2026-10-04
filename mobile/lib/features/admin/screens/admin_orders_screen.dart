@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../core/constants/app_icons.dart';
+import '../../../core/widgets/app_icon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/date_utils.dart';
@@ -25,7 +27,8 @@ class AdminOrdersScreen extends ConsumerWidget {
           final products = rows.where((p) => p['productId'] != null).toList();
           if (products.isEmpty) {
             return const JbbEmptyState(
-              message: 'No store orders yet. They will appear here once a customer buys something.',
+              message:
+                  'No store orders yet. They will appear here once a customer buys something.',
             );
           }
           return ListView(
@@ -84,12 +87,17 @@ class AdminOrdersScreen extends ConsumerWidget {
                           children: [
                             Text(
                               '\$${(order['amount'] / 100).toStringAsFixed(2)}',
-                              style: const TextStyle(fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               order['status'] ?? '',
-                              style: const TextStyle(fontSize: 12, color: Colors.grey),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
                             ),
                           ],
                         ),
@@ -136,10 +144,11 @@ class _OrderDetailSheetState extends ConsumerState<_OrderDetailSheet> {
         .read(adminRepositoryProvider)
         .buyer(widget.order['userId'])
         .then((value) {
-      if (mounted) setState(() => buyer = value);
-    }).whenComplete(() {
-      if (mounted) setState(() => loading = false);
-    });
+          if (mounted) setState(() => buyer = value);
+        })
+        .whenComplete(() {
+          if (mounted) setState(() => loading = false);
+        });
   }
 
   @override
@@ -155,7 +164,9 @@ class _OrderDetailSheetState extends ConsumerState<_OrderDetailSheet> {
     }
     setState(() => busy = true);
     try {
-      await ref.read(adminRepositoryProvider).setOrderDelivery(
+      await ref
+          .read(adminRepositoryProvider)
+          .setOrderDelivery(
             widget.order['id'],
             deliveryDate!,
             note.text.trim(),
@@ -235,7 +246,7 @@ class _OrderDetailSheetState extends ConsumerState<_OrderDetailSheet> {
               ),
               IconButton(
                 onPressed: busy ? null : delete,
-                icon: const Icon(Icons.delete_outline),
+                icon: const AppIcon(AppIcons.trash),
               ),
             ],
           ),
@@ -285,7 +296,7 @@ class _OrderDetailSheetState extends ConsumerState<_OrderDetailSheet> {
                   ? 'Set expected delivery / pickup date'
                   : 'Expected ${dateLabel(deliveryDate!)}',
             ),
-            trailing: const Icon(Icons.calendar_month),
+            trailing: const AppIcon(AppIcons.calendar),
             onTap: () async {
               final picked = await showDatePicker(
                 context: context,

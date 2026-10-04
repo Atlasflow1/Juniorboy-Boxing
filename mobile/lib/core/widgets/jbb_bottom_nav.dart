@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import '../constants/app_icons.dart';
 import '../theme/app_colors.dart';
+import 'app_icon.dart';
 
 class JbbBottomNav extends StatelessWidget {
   const JbbBottomNav({super.key, required this.location});
@@ -20,28 +21,15 @@ class JbbBottomNav extends StatelessWidget {
       onDestinationSelected: (i) => context.go(routes[i]),
       destinations: [
         for (final item in [
-          ('Home', 'home'),
-          ('Schedule', 'schedule'),
-          ('Book', 'book'),
-          ('Membership', 'membership'),
-          ('More', 'more'),
+          ('Home', AppIcons.navHome),
+          ('Schedule', AppIcons.navSchedule),
+          ('Book', AppIcons.navBook),
+          ('Membership', AppIcons.navMembership),
+          ('More', AppIcons.navMore),
         ])
           NavigationDestination(
-            icon: SvgPicture.asset(
-              'assets/icons/ic_nav_${item.$2}.svg',
-              width: 24,
-              height: 24,
-              colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.srcIn),
-            ),
-            selectedIcon: SvgPicture.asset(
-              'assets/icons/ic_nav_${item.$2}.svg',
-              width: 24,
-              height: 24,
-              colorFilter: const ColorFilter.mode(
-                AppColors.red,
-                BlendMode.srcIn,
-              ),
-            ),
+            icon: AppIcon(item.$2, color: Colors.grey),
+            selectedIcon: AppIcon(item.$2, color: AppColors.red),
             label: item.$1,
           ),
       ],

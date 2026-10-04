@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../core/constants/app_icons.dart';
+import '../../../core/widgets/app_icon.dart';
 import 'package:intl/intl.dart';
 import '../../../core/theme/app_colors.dart';
 
@@ -16,7 +18,7 @@ class DaySelector extends StatelessWidget {
             IconButton(
               onPressed: () => onChange(date.subtract(const Duration(days: 7))),
               tooltip: 'Previous week',
-              icon: const Icon(Icons.chevron_left),
+              icon: const AppIcon(AppIcons.chevronLeft),
             ),
             const Spacer(),
             const Text('Choose your training day'),
@@ -24,7 +26,7 @@ class DaySelector extends StatelessWidget {
             IconButton(
               onPressed: () => onChange(date.add(const Duration(days: 7))),
               tooltip: 'Next week',
-              icon: const Icon(Icons.chevron_right),
+              icon: const AppIcon(AppIcons.chevronRight),
             ),
           ],
         ),

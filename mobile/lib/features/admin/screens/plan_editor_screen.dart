@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../core/constants/app_icons.dart';
+import '../../../core/widgets/app_icon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../core/constants/programs.dart';
@@ -110,12 +112,16 @@ class _PlanEditorState extends ConsumerState<PlanEditorScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      title: Text(widget.plan == null ? 'Add Plan' : 'Edit ${widget.plan!['name'] ?? 'Plan'}'),
+      title: Text(
+        widget.plan == null
+            ? 'Add Plan'
+            : 'Edit ${widget.plan!['name'] ?? 'Plan'}',
+      ),
       actions: [
         if (widget.plan != null)
           IconButton(
             onPressed: busy ? null : delete,
-            icon: const Icon(Icons.delete_outline),
+            icon: const AppIcon(AppIcons.trash),
           ),
       ],
     ),

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../core/constants/app_icons.dart';
+import '../../../core/widgets/app_icon.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/nav_debounce.dart';
@@ -13,8 +15,10 @@ class ProductAdBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final imageUrl = (product['imageUrl'] as String?) ?? '';
-    final discountPercent = (product['discountPercent'] as num?)?.toDouble() ?? 0;
-    final hasDiscount = product['discountActive'] == true && discountPercent > 0;
+    final discountPercent =
+        (product['discountPercent'] as num?)?.toDouble() ?? 0;
+    final hasDiscount =
+        product['discountActive'] == true && discountPercent > 0;
     final priceCents = (product['price'] as num?) ?? 0;
     final saleCents = hasDiscount
         ? (priceCents * (1 - discountPercent / 100)).round()
@@ -45,8 +49,8 @@ class ProductAdBanner extends StatelessWidget {
                           )
                         : Container(
                             color: Colors.white10,
-                            child: const Icon(
-                              Icons.shopping_bag_outlined,
+                            child: const AppIcon(
+                              AppIcons.shoppingBag,
                               color: Colors.grey,
                             ),
                           ),
@@ -110,7 +114,7 @@ class ProductAdBanner extends StatelessWidget {
                     ],
                   ),
                 ),
-                const Icon(Icons.chevron_right, color: Colors.grey),
+                const AppIcon(AppIcons.chevronRight, color: Colors.grey),
               ],
             ),
           ),

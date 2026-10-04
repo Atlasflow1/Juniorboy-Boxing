@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../core/constants/app_icons.dart';
+import '../../../core/widgets/app_icon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/widgets/jbb_card.dart';
 import '../../../core/widgets/jbb_loading.dart';
@@ -75,7 +77,7 @@ class _BookingsState extends ConsumerState<MyBookingsScreen> {
                 }).toList();
                 if (items.isEmpty) {
                   return const JbbEmptyState(message: 'No bookings here yet.');
-}
+                }
                 return Column(
                   children: items.map((b) {
                     final hours =
@@ -99,7 +101,7 @@ class _BookingsState extends ConsumerState<MyBookingsScreen> {
                         color: Colors.red,
                         alignment: Alignment.centerRight,
                         padding: const EdgeInsets.all(20),
-                        child: const Icon(Icons.cancel),
+                        child: const AppIcon(AppIcons.circleX),
                       ),
                       child: JbbCard(
                         child: Column(

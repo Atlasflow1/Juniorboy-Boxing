@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../core/constants/app_icons.dart';
+import '../../../core/widgets/app_icon.dart';
 import '../../../core/theme/app_colors.dart';
 
 /// Renders 1-5 stars. Pass [onChanged] to make it a tappable input (used in
@@ -27,10 +29,10 @@ class StarRating extends StatelessWidget {
           padding: const EdgeInsets.only(right: 2),
           child: GestureDetector(
             onTap: _interactive ? () => onChanged!(star) : null,
-            child: Icon(
+            child: AppIcon(
               rating >= star
-                  ? Icons.star
-                  : (rating >= star - 0.5 ? Icons.star_half : Icons.star_border),
+                  ? AppIcons.starFilled
+                  : (rating >= star - 0.5 ? AppIcons.starHalf : AppIcons.star),
               color: AppColors.red,
               size: size,
             ),

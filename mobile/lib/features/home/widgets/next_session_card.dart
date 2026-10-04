@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../core/constants/app_icons.dart';
+import '../../../core/widgets/app_icon.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/utils/nav_debounce.dart';
 import '../../../core/widgets/jbb_card.dart';
@@ -14,7 +16,7 @@ class NextSessionCard extends StatelessWidget {
       children: [
         const Row(
           children: [
-            Icon(Icons.calendar_month, color: Colors.red),
+            AppIcon(AppIcons.calendar, color: Colors.red),
             SizedBox(width: 8),
             Text('Next Session'),
           ],

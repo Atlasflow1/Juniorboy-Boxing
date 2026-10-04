@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../core/constants/app_icons.dart';
+import '../../../core/widgets/app_icon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -29,7 +31,7 @@ class MoreScreen extends ConsumerWidget {
                     ? CachedNetworkImageProvider(user!['avatarUrl'])
                     : null,
                 child: (user?['avatarUrl'] ?? '').isEmpty
-                    ? const Icon(Icons.person)
+                    ? const AppIcon(AppIcons.user)
                     : null,
               ),
               const SizedBox(width: 16),
@@ -63,32 +65,34 @@ class MoreScreen extends ConsumerWidget {
           ),
         ),
         for (final item in [
-          ('My Bookings', Icons.calendar_month, '/bookings'),
-          ('Membership', Icons.workspace_premium, '/membership'),
-          ('Gym Store', Icons.shopping_bag_outlined, '/store'),
-          ('Reviews & Ratings', Icons.star_outline, '/reviews'),
-          ('My Account', Icons.receipt_long, '/payments'),
-          ('Notifications', Icons.notifications_outlined, '/notifications'),
-          ('Contact Us', Icons.phone_outlined, '/contact'),
-          ('Location', Icons.location_on_outlined, '/contact'),
-          ('About Us', Icons.info_outline, '/about'),
-          ('Privacy Policy', Icons.shield_outlined, '/privacy'),
-          ('Terms of Service', Icons.description_outlined, '/terms'),
-          ('Waiver & Disclaimer', Icons.gavel_outlined, '/waiver'),
+          ('My Bookings', AppIcons.calendar, '/bookings'),
+          ('Membership', AppIcons.crown, '/membership'),
+          ('Gym Store', AppIcons.shoppingBag, '/store'),
+          ('Reviews & Ratings', AppIcons.star, '/reviews'),
+          ('My Account', AppIcons.receipt, '/payments'),
+          ('Notifications', AppIcons.notification, '/notifications'),
+          ('Contact Us', AppIcons.phone, '/contact'),
+          ('Location', AppIcons.location, '/contact'),
+          ('About Us', AppIcons.info, '/about'),
+          ('Privacy Policy', AppIcons.shield, '/privacy'),
+          ('Terms of Service', AppIcons.document, '/terms'),
+          ('Waiver & Disclaimer', AppIcons.gavel, '/waiver'),
           if (user?['role'] == 'admin')
-            ('Admin Dashboard', Icons.admin_panel_settings_outlined, '/admin'),
+            ('Admin Dashboard', AppIcons.admin, '/admin'),
         ])
           ListTile(
             contentPadding: EdgeInsets.zero,
-            leading: Icon(item.$2, color: Colors.red),
+            leading: AppIcon(item.$2, color: Colors.red),
             title: Text(item.$1),
-            trailing: const Icon(Icons.chevron_right),
+            trailing: const AppIcon(AppIcons.chevronRight),
             onTap: () => context.safePush(item.$3),
           ),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
           title: const Text('Black Background'),
-          subtitle: const Text('Switch between black and the app\'s teal background.'),
+          subtitle: const Text(
+            'Switch between black and the app\'s teal background.',
+          ),
           value: useBlackBackground,
           onChanged: (value) =>
               ref.read(useBlackBackgroundProvider.notifier).toggle(value),

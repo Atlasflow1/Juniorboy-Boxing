@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../core/constants/app_icons.dart';
+import '../../../core/widgets/app_icon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/utils/snackbar_utils.dart';
@@ -71,9 +73,7 @@ class _AdminSubscriptionsScreenState
               .where((p) => p['membershipPlanId'] != null)
               .toList();
           if (subs.isEmpty) {
-            return const JbbEmptyState(
-              message: 'No membership purchases yet.',
-            );
+            return const JbbEmptyState(message: 'No membership purchases yet.');
           }
           return ListView(
             padding: const EdgeInsets.all(16),
@@ -136,7 +136,9 @@ class _AdminSubscriptionsScreenState
                           ],
                         ),
                         IconButton(
-                          onPressed: busyId != null ? null : () => delete(order),
+                          onPressed: busyId != null
+                              ? null
+                              : () => delete(order),
                           icon: busyId == order['id']
                               ? const SizedBox(
                                   width: 18,
@@ -145,8 +147,8 @@ class _AdminSubscriptionsScreenState
                                     strokeWidth: 2,
                                   ),
                                 )
-                              : const Icon(
-                                  Icons.delete_outline,
+                              : const AppIcon(
+                                  AppIcons.trash,
                                   color: Colors.grey,
                                   size: 20,
                                 ),

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../core/constants/app_icons.dart';
+import '../../../core/widgets/app_icon.dart';
 import 'package:go_router/go_router.dart';
 
 class BookingConfirmationScreen extends StatelessWidget {
@@ -11,11 +13,7 @@ class BookingConfirmationScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.check_circle_outline,
-              color: Colors.green,
-              size: 88,
-            ),
+            const AppIcon(AppIcons.checkCircle, color: Colors.green, size: 88),
             const SizedBox(height: 24),
             Text(
               "You’re booked in.",

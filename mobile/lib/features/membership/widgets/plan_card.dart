@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../core/constants/app_icons.dart';
+import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/jbb_card.dart';
 
 class PlanCard extends StatelessWidget {
@@ -36,8 +38,8 @@ class PlanCard extends StatelessWidget {
             ),
           Row(
             children: [
-              Icon(
-                selected ? Icons.check_circle : Icons.circle_outlined,
+              AppIcon(
+                selected ? AppIcons.checkCircle : AppIcons.circle,
                 color: selected ? Colors.red : Colors.grey,
               ),
               const SizedBox(width: 12),

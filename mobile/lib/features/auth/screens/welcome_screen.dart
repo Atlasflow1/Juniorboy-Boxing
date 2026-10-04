@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../core/constants/app_icons.dart';
+import '../../../core/widgets/app_icon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_assets.dart';
@@ -75,7 +77,7 @@ class _WelcomeState extends ConsumerState<WelcomeScreen> {
                         height: 18,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Icon(Icons.login),
+                    : const AppIcon(AppIcons.logIn),
                 label: const Text(
                   'Continue with Google',
                   style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
@@ -105,7 +107,7 @@ class _WelcomeState extends ConsumerState<WelcomeScreen> {
                           color: Colors.black,
                         ),
                       )
-                    : const Icon(Icons.fast_forward),
+                    : const AppIcon(AppIcons.fastForward),
                 label: const Text(
                   'Skip',
                   style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),

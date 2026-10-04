@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../core/constants/app_icons.dart';
+import '../../../core/widgets/app_icon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/constants/app_strings.dart';
@@ -15,7 +17,7 @@ class ContactScreen extends ConsumerWidget {
         if (!await launchUrl(uri, mode: LaunchMode.externalApplication) &&
             context.mounted) {
           showMessage(context, 'Could not open this link.');
-}
+        }
       } catch (e) {
         if (context.mounted) showMessage(context, friendlyError(e));
       }
@@ -35,13 +37,13 @@ class ContactScreen extends ConsumerWidget {
           const SizedBox(height: 24),
           if ((settings['phone'] ?? '').isNotEmpty)
             ListTile(
-              leading: const Icon(Icons.phone, color: Colors.red),
+              leading: const AppIcon(AppIcons.phone, color: Colors.red),
               title: Text(settings['phone']),
               onTap: () => open(Uri(scheme: 'tel', path: settings['phone'])),
             ),
           if ((settings['email'] ?? '').isNotEmpty)
             ListTile(
-              leading: const Icon(Icons.mail, color: Colors.red),
+              leading: const AppIcon(AppIcons.mail, color: Colors.red),
               title: Text(settings['email']),
               onTap: () => open(Uri(scheme: 'mailto', path: settings['email'])),
             ),

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../core/constants/app_icons.dart';
+import '../../../core/widgets/app_icon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/utils/snackbar_utils.dart';
 import '../../../core/widgets/jbb_button.dart';
@@ -19,8 +21,7 @@ class TemplateEditorScreen extends ConsumerStatefulWidget {
   const TemplateEditorScreen({super.key, this.template});
   final Map<String, dynamic>? template;
   @override
-  ConsumerState<TemplateEditorScreen> createState() =>
-      _TemplateEditorState();
+  ConsumerState<TemplateEditorScreen> createState() => _TemplateEditorState();
 }
 
 class _TemplateEditorState extends ConsumerState<TemplateEditorScreen> {
@@ -101,12 +102,14 @@ class _TemplateEditorState extends ConsumerState<TemplateEditorScreen> {
     final classes = ref.watch(classesProvider).value ?? [];
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.template == null ? 'Add Class Time' : 'Edit Class Time'),
+        title: Text(
+          widget.template == null ? 'Add Class Time' : 'Edit Class Time',
+        ),
         actions: [
           if (widget.template != null)
             IconButton(
               onPressed: busy ? null : delete,
-              icon: const Icon(Icons.delete_outline),
+              icon: const AppIcon(AppIcons.trash),
             ),
         ],
       ),
@@ -169,7 +172,9 @@ class _TemplateEditorState extends ConsumerState<TemplateEditorScreen> {
               ),
               const SizedBox(height: 16),
               JbbButton(
-                label: widget.template == null ? 'Add Class Time' : 'Save Changes',
+                label: widget.template == null
+                    ? 'Add Class Time'
+                    : 'Save Changes',
                 busy: busy,
                 onPressed: save,
               ),

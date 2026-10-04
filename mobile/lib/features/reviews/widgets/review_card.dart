@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../core/constants/app_icons.dart';
+import '../../../core/widgets/app_icon.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/date_utils.dart';
@@ -36,7 +38,11 @@ class ReviewCard extends StatelessWidget {
                   ? CachedNetworkImageProvider(review.userAvatarUrl)
                   : null,
               child: review.userAvatarUrl.isEmpty
-                  ? const Icon(Icons.person, color: AppColors.muted, size: 20)
+                  ? const AppIcon(
+                      AppIcons.user,
+                      color: AppColors.muted,
+                      size: 20,
+                    )
                   : null,
             ),
             const SizedBox(width: 12),
@@ -70,8 +76,8 @@ class ReviewCard extends StatelessWidget {
             ),
             if (onDelete != null)
               IconButton(
-                icon: const Icon(
-                  Icons.delete_outline,
+                icon: const AppIcon(
+                  AppIcons.trash,
                   size: 20,
                   color: AppColors.muted,
                 ),

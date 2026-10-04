@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../core/constants/app_icons.dart';
+import '../../../core/widgets/app_icon.dart';
 import '../../../core/utils/nav_debounce.dart';
 import '../../../core/widgets/jbb_card.dart';
 
@@ -14,19 +16,19 @@ class QuickActionsGrid extends StatelessWidget {
     physics: const NeverScrollableScrollPhysics(),
     children: [
       for (final item in [
-        ('Book Class', Icons.sports_mma, '/book'),
-        ('Class Schedule', Icons.calendar_month, '/schedule'),
-        ('Membership', Icons.workspace_premium, '/membership'),
-        ('Gym Store', Icons.shopping_bag_outlined, '/store'),
-        ('Reviews', Icons.star_outline, '/reviews'),
-        ('Contact', Icons.phone_outlined, '/contact'),
+        ('Book Class', AppIcons.boxingGlove, '/book'),
+        ('Class Schedule', AppIcons.calendar, '/schedule'),
+        ('Membership', AppIcons.crown, '/membership'),
+        ('Gym Store', AppIcons.shoppingBag, '/store'),
+        ('Reviews', AppIcons.star, '/reviews'),
+        ('Contact', AppIcons.phone, '/contact'),
       ])
         JbbCard(
           onTap: () => context.safePush(item.$3),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(item.$2, color: Colors.red),
+              AppIcon(item.$2, color: Colors.red),
               const SizedBox(height: 8),
               Text(
                 item.$1,

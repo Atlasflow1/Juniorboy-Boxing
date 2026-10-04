@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../core/constants/app_icons.dart';
+import '../../../core/widgets/app_icon.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/models/review_model.dart';
 import 'star_rating.dart';
@@ -94,7 +96,7 @@ class _DistributionBar extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 4),
-          const Icon(Icons.star, size: 10, color: AppColors.red),
+          const AppIcon(AppIcons.starFilled, size: 10, color: AppColors.red),
           const SizedBox(width: 6),
           Expanded(
             child: ClipRRect(

@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import '../../../core/constants/app_icons.dart';
+import '../../../core/widgets/app_icon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -110,7 +112,8 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
         'discountActive': discountActive,
         'discountPercent': double.tryParse(discountPercent.text) ?? 0,
         'sortOrder': widget.product?['sortOrder'] ?? 0,
-        'createdAt': widget.product?['createdAt'] ?? FieldValue.serverTimestamp(),
+        'createdAt':
+            widget.product?['createdAt'] ?? FieldValue.serverTimestamp(),
       });
       if (mounted) Navigator.of(context).pop();
     } catch (e) {
@@ -157,7 +160,7 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
         if (widget.product != null)
           IconButton(
             onPressed: busy ? null : delete,
-            icon: const Icon(Icons.delete_outline),
+            icon: const AppIcon(AppIcons.trash),
           ),
       ],
     ),
@@ -187,7 +190,7 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
                                   child: Wrap(
                                     children: [
                                       ListTile(
-                                        leading: const Icon(Icons.swap_horiz),
+                                        leading: const AppIcon(AppIcons.swap),
                                         title: const Text('Replace photo'),
                                         onTap: () {
                                           Navigator.pop(context);
@@ -195,7 +198,7 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
                                         },
                                       ),
                                       ListTile(
-                                        leading: const Icon(Icons.delete_outline),
+                                        leading: const AppIcon(AppIcons.trash),
                                         title: const Text('Remove photo'),
                                         onTap: () {
                                           Navigator.pop(context);
@@ -215,8 +218,8 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
                       color: Colors.white10,
                       child: url.isNotEmpty
                           ? CachedNetworkImage(imageUrl: url, fit: BoxFit.cover)
-                          : const Icon(
-                              Icons.add_a_photo_outlined,
+                          : const AppIcon(
+                              AppIcons.imagePlus,
                               size: 28,
                               color: Colors.grey,
                             ),
@@ -265,8 +268,9 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
               ],
               onChanged: (v) => setState(() {
                 category = v ?? 'other';
-                selectedSizes = selectedSizes
-                    .intersection(ProductSizes.forCategory(category).toSet());
+                selectedSizes = selectedSizes.intersection(
+                  ProductSizes.forCategory(category).toSet(),
+                );
               }),
             ),
             if (category != 'other') ...[
@@ -322,9 +326,7 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
               validator: (v) {
                 if ((v ?? '').trim().isEmpty) return null;
                 final n = double.tryParse(v!);
-                return n != null && n > 0 && n <= 100
-                    ? null
-                    : 'Enter 1-100';
+                return n != null && n > 0 && n <= 100 ? null : 'Enter 1-100';
               },
             ),
             SwitchListTile(

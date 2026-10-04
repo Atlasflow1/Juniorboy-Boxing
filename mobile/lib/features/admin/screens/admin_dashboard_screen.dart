@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import '../../../core/constants/app_icons.dart';
+import '../../../core/widgets/app_icon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../core/constants/programs.dart';
@@ -39,12 +41,12 @@ class AdminDashboardScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(20),
         children: [
           JbbCard(
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const StoreScreen()),
-            ),
+            onTap: () => Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const StoreScreen())),
             child: const Row(
               children: [
-                Icon(Icons.shopping_bag_outlined, color: AppColors.red),
+                AppIcon(AppIcons.shoppingBag, color: AppColors.red),
                 SizedBox(width: 14),
                 Expanded(
                   child: Text(
@@ -52,7 +54,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
-                Icon(Icons.chevron_right, color: AppColors.muted),
+                AppIcon(AppIcons.chevronRight, color: AppColors.muted),
               ],
             ),
           ),
@@ -63,7 +65,7 @@ class AdminDashboardScreen extends ConsumerWidget {
             ),
             child: const Row(
               children: [
-                Icon(Icons.local_shipping_outlined, color: AppColors.red),
+                AppIcon(AppIcons.truck, color: AppColors.red),
                 SizedBox(width: 14),
                 Expanded(
                   child: Text(
@@ -71,7 +73,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
-                Icon(Icons.chevron_right, color: AppColors.muted),
+                AppIcon(AppIcons.chevronRight, color: AppColors.muted),
               ],
             ),
           ),
@@ -84,7 +86,7 @@ class AdminDashboardScreen extends ConsumerWidget {
             ),
             child: const Row(
               children: [
-                Icon(Icons.workspace_premium_outlined, color: AppColors.red),
+                AppIcon(AppIcons.crown, color: AppColors.red),
                 SizedBox(width: 14),
                 Expanded(
                   child: Text(
@@ -92,7 +94,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
-                Icon(Icons.chevron_right, color: AppColors.muted),
+                AppIcon(AppIcons.chevronRight, color: AppColors.muted),
               ],
             ),
           ),
@@ -103,7 +105,7 @@ class AdminDashboardScreen extends ConsumerWidget {
             ),
             child: const Row(
               children: [
-                Icon(Icons.event_available_outlined, color: AppColors.red),
+                AppIcon(AppIcons.calendarCheck, color: AppColors.red),
                 SizedBox(width: 14),
                 Expanded(
                   child: Text(
@@ -111,7 +113,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
-                Icon(Icons.chevron_right, color: AppColors.muted),
+                AppIcon(AppIcons.chevronRight, color: AppColors.muted),
               ],
             ),
           ),
@@ -132,7 +134,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const PlanEditorScreen()),
                 ),
-                icon: const Icon(Icons.add, size: 18),
+                icon: const AppIcon(AppIcons.plus, size: 18),
                 label: const Text('Add'),
               ),
             ],
@@ -177,8 +179,8 @@ class AdminDashboardScreen extends ConsumerWidget {
                               ],
                             ),
                           ),
-                          const Icon(
-                            Icons.chevron_right,
+                          const AppIcon(
+                            AppIcons.chevronRight,
                             color: AppColors.muted,
                           ),
                         ],
@@ -205,7 +207,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                     builder: (_) => const TemplateEditorScreen(),
                   ),
                 ),
-                icon: const Icon(Icons.add, size: 18),
+                icon: const AppIcon(AppIcons.plus, size: 18),
                 label: const Text('Add'),
               ),
             ],
@@ -213,16 +215,17 @@ class AdminDashboardScreen extends ConsumerWidget {
           const SizedBox(height: 8),
           templates.when(
             data: (rows) {
-              final sorted = [...rows]..sort((a, b) {
-                final dayCompare = (a['dayOfWeek'] as num).compareTo(
-                  b['dayOfWeek'] as num,
-                );
-                return dayCompare != 0
-                    ? dayCompare
-                    : (a['startTime'] as String).compareTo(
-                        b['startTime'] as String,
-                      );
-              });
+              final sorted = [...rows]
+                ..sort((a, b) {
+                  final dayCompare = (a['dayOfWeek'] as num).compareTo(
+                    b['dayOfWeek'] as num,
+                  );
+                  return dayCompare != 0
+                      ? dayCompare
+                      : (a['startTime'] as String).compareTo(
+                          b['startTime'] as String,
+                        );
+                });
               if (sorted.isEmpty) {
                 return const Text(
                   'No class times set up yet.',
@@ -235,8 +238,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                     JbbCard(
                       onTap: () => Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (_) =>
-                              TemplateEditorScreen(template: t),
+                          builder: (_) => TemplateEditorScreen(template: t),
                         ),
                       ),
                       child: Row(
@@ -261,8 +263,8 @@ class AdminDashboardScreen extends ConsumerWidget {
                               ],
                             ),
                           ),
-                          const Icon(
-                            Icons.chevron_right,
+                          const AppIcon(
+                            AppIcons.chevronRight,
                             color: AppColors.muted,
                           ),
                         ],
@@ -456,7 +458,8 @@ class _PromoVideoSectionState extends ConsumerState<_PromoVideoSection> {
             controller: url,
             decoration: const InputDecoration(
               labelText: 'Video link',
-              hintText: 'https://www.youtube.com/watch?v=... or https://.../video.mp4',
+              hintText:
+                  'https://www.youtube.com/watch?v=... or https://.../video.mp4',
             ),
           ),
           const SizedBox(height: 12),

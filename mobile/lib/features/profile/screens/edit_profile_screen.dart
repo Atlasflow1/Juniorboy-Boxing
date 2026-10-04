@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import '../../../core/constants/app_icons.dart';
+import '../../../core/widgets/app_icon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -49,7 +51,7 @@ class _EditState extends ConsumerState<EditProfileScreen> {
             context,
             'Profile saved. Verify the new email to complete the email change.',
           );
-}
+        }
       } else if (mounted) {
         showMessage(context, 'Profile saved.');
       }
@@ -104,11 +106,11 @@ class _EditState extends ConsumerState<EditProfileScreen> {
                               .uploadAvatar(File(image.path));
                           if (context.mounted) {
                             showMessage(context, 'Profile photo updated.');
-}
+                          }
                         } catch (e) {
                           if (context.mounted) {
                             showMessage(context, friendlyError(e));
-}
+                          }
                         }
                       },
                 child: Stack(
@@ -120,12 +122,12 @@ class _EditState extends ConsumerState<EditProfileScreen> {
                           ? CachedNetworkImageProvider(user!['avatarUrl'])
                           : null,
                       child: (user?['avatarUrl'] ?? '').isEmpty
-                          ? const Icon(Icons.person_outline, size: 40)
+                          ? const AppIcon(AppIcons.user, size: 40)
                           : null,
                     ),
                     const CircleAvatar(
                       radius: 15,
-                      child: Icon(Icons.add_a_photo_outlined, size: 16),
+                      child: AppIcon(AppIcons.imagePlus, size: 16),
                     ),
                   ],
                 ),

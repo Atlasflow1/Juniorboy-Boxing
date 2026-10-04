@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../core/constants/app_icons.dart';
+import '../../../core/widgets/app_icon.dart';
 import '../../../core/utils/nav_debounce.dart';
 import '../../../core/widgets/jbb_card.dart';
 
@@ -21,7 +23,7 @@ class MembershipSummaryCard extends StatelessWidget {
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Icon(Icons.workspace_premium, color: Colors.red),
+        const AppIcon(AppIcons.crown, color: Colors.red),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -44,7 +46,7 @@ class MembershipSummaryCard extends StatelessWidget {
             ],
           ),
         ),
-        const Icon(Icons.chevron_right, color: Colors.grey),
+        const AppIcon(AppIcons.chevronRight, color: Colors.grey),
       ],
     ),
   );

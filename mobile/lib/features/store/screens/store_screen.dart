@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../core/constants/app_icons.dart';
+import '../../../core/widgets/app_icon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -39,14 +41,21 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
       final authUser = FirebaseAuth.instance.currentUser;
       if (authUser == null || authUser.isAnonymous) {
         await ref.read(authRepositoryProvider).googleSignIn();
-        if (mounted) showMessage(context, 'Signed in. Tap Buy Now again to complete your order.');
+        if (mounted)
+          showMessage(
+            context,
+            'Signed in. Tap Buy Now again to complete your order.',
+          );
         return;
       }
       final message = await stripe.purchaseProduct(id, size: selectedSize[id]);
       if (mounted) showMessage(context, message);
     } catch (e) {
       if (mounted) {
-        showMessage(context, e is FormatException ? e.message : friendlyError(e));
+        showMessage(
+          context,
+          e is FormatException ? e.message : friendlyError(e),
+        );
       }
     } finally {
       if (mounted) setState(() => busyProductId = null);
@@ -56,7 +65,8 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
   Widget productCard(Map<String, dynamic> product, bool isAdmin) {
     final discountPercent =
         (product['discountPercent'] as num?)?.toDouble() ?? 0;
-    final hasDiscount = product['discountActive'] == true && discountPercent > 0;
+    final hasDiscount =
+        product['discountActive'] == true && discountPercent > 0;
     final priceCents = (product['price'] as num?) ?? 0;
     final saleCents = hasDiscount
         ? (priceCents * (1 - discountPercent / 100)).round()
@@ -213,8 +223,7 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
               ],
             ),
           ),
-          if (isAdmin)
-            const Icon(Icons.chevron_right, color: Colors.grey),
+          if (isAdmin) const AppIcon(AppIcons.chevronRight, color: Colors.grey),
         ],
       ),
     );
@@ -231,11 +240,9 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
       floatingActionButton: isAdmin
           ? FloatingActionButton.extended(
               onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => const ProductEditorScreen(),
-                ),
+                MaterialPageRoute(builder: (_) => const ProductEditorScreen()),
               ),
-              icon: const Icon(Icons.add),
+              icon: const AppIcon(AppIcons.plus),
               label: const Text('Add Product'),
             )
           : null,
@@ -263,7 +270,9 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
                     const SizedBox(height: 8),
                     TextButton(
                       onPressed: () => context.safePush('/contact'),
-                      child: const Text('Question about an order? Contact the gym'),
+                      child: const Text(
+                        'Question about an order? Contact the gym',
+                      ),
                     ),
                   ],
                 ],
@@ -290,6 +299,6 @@ class _ProductPlaceholder extends StatelessWidget {
     width: 72,
     height: 72,
     color: Colors.white10,
-    child: const Icon(Icons.shopping_bag_outlined, color: Colors.grey),
+    child: const AppIcon(AppIcons.shoppingBag, color: Colors.grey),
   );
 }
