@@ -48,6 +48,8 @@ class _AdEditorState extends ConsumerState<AdEditorScreen> {
     super.dispose();
   }
 
+  void removePhoto() => setState(() => imageUrl = '');
+
   Future<void> pickPhoto() async {
     final image = await ImagePicker().pickImage(
       source: ImageSource.gallery,
@@ -181,6 +183,19 @@ class _AdEditorState extends ConsumerState<AdEditorScreen> {
                             : const Icon(Icons.add_a_photo_outlined, size: 16),
                       ),
                     ),
+                    if (imageUrl.isNotEmpty)
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: GestureDetector(
+                          onTap: removePhoto,
+                          child: const CircleAvatar(
+                            radius: 13,
+                            backgroundColor: Colors.red,
+                            child: Icon(Icons.close, size: 16, color: Colors.white),
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),

@@ -235,6 +235,19 @@ class AdminDashboardScreen extends ConsumerWidget {
                       ),
                       child: Row(
                         children: [
+                          if ((plan['imageUrl'] ?? '').isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(right: 12),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: CachedNetworkImage(
+                                  imageUrl: plan['imageUrl'],
+                                  width: 44,
+                                  height: 44,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,

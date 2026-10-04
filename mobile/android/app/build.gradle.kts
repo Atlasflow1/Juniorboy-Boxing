@@ -24,8 +24,8 @@ android {
         applicationId = "com.box.sharif.app"
         minSdk = 24
         targetSdk = flutter.targetSdkVersion
-        versionCode = 203
-        versionName = "1.0.5"
+        versionCode = 204
+        versionName = "1.0.6"
     }
     signingConfigs {
         if (keyFile.exists()) create("release") {

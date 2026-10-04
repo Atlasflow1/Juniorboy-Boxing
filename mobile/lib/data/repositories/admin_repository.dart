@@ -26,6 +26,17 @@ class AdminRepository extends CachedRepository {
 
   Future<void> deletePlan(String id) => db.doc('membershipPlans/$id').delete();
 
+  /// Shares the same `gym/plans/{id}` Storage path the web admin panel
+  /// uploads to, so a photo added from either platform shows on both.
+  Future<String> uploadPlanImage(String planId, File file) async {
+    if (await file.length() > 5 * 1024 * 1024) {
+      throw const FormatException('Image must be smaller than 5 MB');
+    }
+    final ref = FirebaseStorage.instance.ref('gym/plans/$planId');
+    await ref.putFile(file, SettableMetadata(contentType: 'image/jpeg'));
+    return ref.getDownloadURL();
+  }
+
   Future<void> saveProgram(String id, Map<String, dynamic> values) =>
       db.doc('classes/$id').set({
         ...values,

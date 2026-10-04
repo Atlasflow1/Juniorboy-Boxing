@@ -1,6 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/constants/programs.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/utils/snackbar_utils.dart';
@@ -45,7 +48,8 @@ class _PlanEditorState extends ConsumerState<PlanEditorScreen> {
         : '',
   );
   late String category = widget.plan?['category'] ?? 'general';
-  bool busy = false;
+  late String imageUrl = widget.plan?['imageUrl'] ?? '';
+  bool busy = false, photoBusy = false;
 
   @override
   void dispose() {
@@ -58,6 +62,28 @@ class _PlanEditorState extends ConsumerState<PlanEditorScreen> {
     super.dispose();
   }
 
+  Future<void> pickPhoto() async {
+    final image = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1600,
+      imageQuality: 85,
+    );
+    if (image == null) return;
+    setState(() => photoBusy = true);
+    try {
+      final url = await ref
+          .read(adminRepositoryProvider)
+          .uploadPlanImage(id, File(image.path));
+      if (mounted) setState(() => imageUrl = url);
+    } catch (e) {
+      if (mounted) showMessage(context, friendlyError(e));
+    } finally {
+      if (mounted) setState(() => photoBusy = false);
+    }
+  }
+
+  void removePhoto() => setState(() => imageUrl = '');
+
   Future<void> save() async {
     if (!form.currentState!.validate()) return;
     setState(() => busy = true);
@@ -68,6 +94,7 @@ class _PlanEditorState extends ConsumerState<PlanEditorScreen> {
         'description': description.text.trim(),
         'perSessionLabel': perSessionLabel.text.trim(),
         'price': cents,
+        'imageUrl': imageUrl,
         'priceLabel': '\$${(cents / 100).toStringAsFixed(2)}',
         'sessionCount': int.parse(sessionCount.text),
         'category': category,
@@ -135,6 +162,62 @@ class _PlanEditorState extends ConsumerState<PlanEditorScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            Center(
+              child: GestureDetector(
+                onTap: photoBusy ? null : pickPhoto,
+                child: Stack(
+                  alignment: Alignment.bottomRight,
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      height: 140,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        color: Colors.black12,
+                        image: imageUrl.isNotEmpty
+                            ? DecorationImage(
+                                image: CachedNetworkImageProvider(imageUrl),
+                                fit: BoxFit.cover,
+                              )
+                            : null,
+                      ),
+                      child: imageUrl.isEmpty
+                          ? const Center(
+                              child: Icon(Icons.add_photo_alternate_outlined, size: 36),
+                            )
+                          : null,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: CircleAvatar(
+                        radius: 15,
+                        child: photoBusy
+                            ? const SizedBox(
+                                width: 14,
+                                height: 14,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Icon(Icons.add_a_photo_outlined, size: 16),
+                      ),
+                    ),
+                    if (imageUrl.isNotEmpty)
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: GestureDetector(
+                          onTap: removePhoto,
+                          child: const CircleAvatar(
+                            radius: 13,
+                            backgroundColor: Colors.red,
+                            child: Icon(Icons.close, size: 16, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
             TextFormField(
               controller: name,
               decoration: const InputDecoration(labelText: 'Plan name'),

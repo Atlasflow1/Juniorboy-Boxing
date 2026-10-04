@@ -117,6 +117,8 @@ class _ProgramEditorState extends ConsumerState<ProgramEditorScreen> {
     if (index < adImages.length) setState(() => adImages[index] = '');
   }
 
+  void removePhoto() => setState(() => imageUrl = '');
+
   Future<void> save() async {
     if (!form.currentState!.validate()) return;
     setState(() => busy = true);
@@ -200,6 +202,19 @@ class _ProgramEditorState extends ConsumerState<ProgramEditorScreen> {
                             : const Icon(Icons.add_a_photo_outlined, size: 16),
                       ),
                     ),
+                    if (imageUrl.isNotEmpty)
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: GestureDetector(
+                          onTap: removePhoto,
+                          child: const CircleAvatar(
+                            radius: 13,
+                            backgroundColor: Colors.red,
+                            child: Icon(Icons.close, size: 16, color: Colors.white),
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),
