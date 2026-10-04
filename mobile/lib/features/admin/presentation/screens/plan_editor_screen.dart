@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/programs.dart';
@@ -8,6 +11,7 @@ import '../../../../core/utils/snackbar_utils.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_icon.dart';
 import '../../../../core/widgets/jbb_button.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../providers/admin_provider.dart';
 import '../../../membership/domain/membership_plan.dart';
 
@@ -41,7 +45,15 @@ class _PlanEditorState extends ConsumerState<PlanEditorScreen> {
   late bool isActive = widget.plan?.isActive ?? true;
   late bool isRecommended = widget.plan?.isRecommended ?? false;
   late String category = widget.plan?.category ?? 'general';
-  bool busy = false;
+  late String trainingType = widget.plan?.trainingType ?? 'private';
+  late String imageUrl = widget.plan?.imageUrl ?? '';
+  late bool discountActive = widget.plan?.discountActive ?? false;
+  late final discountPercent = TextEditingController(
+    text: (widget.plan?.discountPercent ?? 0) > 0
+        ? '${widget.plan!.discountPercent}'
+        : '',
+  );
+  bool busy = false, photoBusy = false;
 
   @override
   void dispose() {
@@ -50,7 +62,28 @@ class _PlanEditorState extends ConsumerState<PlanEditorScreen> {
     perSessionLabel.dispose();
     price.dispose();
     sessionCount.dispose();
+    discountPercent.dispose();
     super.dispose();
+  }
+
+  Future<void> pickPhoto() async {
+    final image = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      maxWidth: AppSizes.mediaMaxWidth,
+      imageQuality: 85,
+    );
+    if (image == null) return;
+    setState(() => photoBusy = true);
+    try {
+      final url = await ref
+          .read(adminRepositoryProvider)
+          .uploadPlanImage(id, File(image.path));
+      if (mounted) setState(() => imageUrl = url);
+    } catch (e) {
+      if (mounted) showMessage(context, friendlyError(e));
+    } finally {
+      if (mounted) setState(() => photoBusy = false);
+    }
   }
 
   Future<void> save() async {
@@ -63,14 +96,17 @@ class _PlanEditorState extends ConsumerState<PlanEditorScreen> {
         'description': description.text.trim(),
         'perSessionLabel': perSessionLabel.text.trim(),
         'price': cents,
+        'imageUrl': imageUrl,
         'priceLabel': '\$${(cents / 100).toStringAsFixed(2)}',
         'sessionCount': int.parse(sessionCount.text),
         'category': category,
+        'trainingType': trainingType,
+        'discountActive': discountActive,
+        'discountPercent': double.tryParse(discountPercent.text) ?? 0,
         'isActive': isActive,
         'isRecommended': isRecommended,
         'sortOrder': widget.plan?.sortOrder ?? 0,
         'planType': widget.plan?.planType ?? 'package',
-        if (widget.plan?.createdAt != null) 'createdAt': widget.plan!.createdAt,
       });
       if (mounted) Navigator.of(context).pop();
     } catch (e) {
@@ -133,6 +169,36 @@ class _PlanEditorState extends ConsumerState<PlanEditorScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            GestureDetector(
+              onTap: photoBusy ? null : pickPhoto,
+              child: SizedBox(
+                height: 140,
+                child: imageUrl.isNotEmpty
+                    ? CachedNetworkImage(imageUrl: imageUrl, fit: BoxFit.cover)
+                    : DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: context.palette.accentTint,
+                          borderRadius: BorderRadius.circular(
+                            AppSizes.radiusCard,
+                          ),
+                        ),
+                        child: Center(
+                          child: AppIcon(
+                            AppIcons.imagePlus,
+                            size: AppSizes.iconLarge,
+                            color: context.palette.accent,
+                          ),
+                        ),
+                      ),
+              ),
+            ),
+            if (imageUrl.isNotEmpty)
+              TextButton.icon(
+                onPressed: () => setState(() => imageUrl = ''),
+                icon: const AppIcon(AppIcons.trash),
+                label: const Text(AppStrings.removePhoto),
+              ),
+            const SizedBox(height: AppSizes.s20),
             TextFormField(
               controller: name,
               decoration: const InputDecoration(labelText: AppStrings.planName),
@@ -183,7 +249,11 @@ class _PlanEditorState extends ConsumerState<PlanEditorScreen> {
             ),
             const SizedBox(height: AppSizes.s16),
             DropdownButtonFormField<String>(
-              initialValue: category,
+              initialValue:
+                  category == 'general' ||
+                      Programs.categories.containsKey(category)
+                  ? category
+                  : 'general',
               decoration: const InputDecoration(labelText: AppStrings.program),
               items: [
                 const DropdownMenuItem(
@@ -194,6 +264,20 @@ class _PlanEditorState extends ConsumerState<PlanEditorScreen> {
                   DropdownMenuItem(value: entry.key, child: Text(entry.value)),
               ],
               onChanged: (v) => setState(() => category = v ?? 'general'),
+            ),
+            const SizedBox(height: AppSizes.s16),
+            DropdownButtonFormField<String>(
+              initialValue: trainingType,
+              decoration: const InputDecoration(
+                labelText: AppStrings.trainingType,
+              ),
+              items: const [
+                DropdownMenuItem(value: 'private', child: Text('Private')),
+                DropdownMenuItem(value: 'group', child: Text('Group')),
+                DropdownMenuItem(value: 'duo', child: Text('Duo')),
+              ],
+              onChanged: (value) =>
+                  setState(() => trainingType = value ?? trainingType),
             ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
@@ -206,6 +290,22 @@ class _PlanEditorState extends ConsumerState<PlanEditorScreen> {
               title: const Text(AppStrings.recommended),
               value: isRecommended,
               onChanged: (v) => setState(() => isRecommended = v),
+            ),
+            TextFormField(
+              controller: discountPercent,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              decoration: const InputDecoration(
+                labelText: AppStrings.discountOptional,
+              ),
+              onChanged: (_) => setState(() {}),
+            ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text(AppStrings.showDiscountBadge),
+              value: discountActive,
+              onChanged: (value) => setState(() => discountActive = value),
             ),
             const SizedBox(height: AppSizes.s16),
             JbbButton(label: AppStrings.savePlan, busy: busy, onPressed: save),

@@ -22,6 +22,12 @@ class Member {
     required this.waiverParticipantAge,
     required this.pushNotifications,
     required this.emailNotifications,
+    this.privateSessionsRemaining = 0,
+    this.privateSessionsReserved = 0,
+    this.groupSessionsRemaining = 0,
+    this.groupSessionsReserved = 0,
+    this.duoSessionsRemaining = 0,
+    this.duoSessionsReserved = 0,
   });
 
   final String id;
@@ -34,6 +40,15 @@ class Member {
   final String? waiverParticipantName;
   final int? waiverParticipantAge;
   final bool pushNotifications, emailNotifications;
+  final int privateSessionsRemaining, privateSessionsReserved;
+  final int groupSessionsRemaining, groupSessionsReserved;
+  final int duoSessionsRemaining, duoSessionsReserved;
+
+  int availableSessions(String? trainingType) => switch (trainingType) {
+    'group' => groupSessionsRemaining - groupSessionsReserved,
+    'duo' => duoSessionsRemaining - duoSessionsReserved,
+    _ => privateSessionsRemaining - privateSessionsReserved,
+  };
 
   bool get isProfileComplete =>
       (phone ?? '').isNotEmpty &&

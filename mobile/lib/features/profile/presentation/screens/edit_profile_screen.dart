@@ -8,6 +8,7 @@ import '../../../../core/resources/app_icons.dart';
 import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/resources/app_strings.dart';
 import '../../../../core/utils/snackbar_utils.dart';
+import '../../../../core/utils/address_utils.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_icon.dart';
 import '../../../../core/widgets/jbb_button.dart';
@@ -22,8 +23,8 @@ class EditProfileScreen extends ConsumerStatefulWidget {
 
 class _EditState extends ConsumerState<EditProfileScreen> {
   final form = GlobalKey<FormState>();
-  final fields = List.generate(9, (_) => TextEditingController());
-  bool loaded = false, busy = false;
+  final fields = List.generate(12, (_) => TextEditingController());
+  bool loaded = false, busy = false, photoBusy = false;
   @override
   void dispose() {
     for (final c in fields) {
@@ -41,11 +42,16 @@ class _EditState extends ConsumerState<EditProfileScreen> {
         'fullName': fields[0].text.trim(),
         'lastName': fields[1].text.trim(),
         'age': int.parse(fields[3].text),
-        'address': fields[4].text.trim(),
-        'zipCode': fields[5].text.trim(),
-        'phone': fields[6].text.trim(),
-        'childName': fields[7].text.trim(),
-        'childAge': int.tryParse(fields[8].text) ?? 0,
+        'address': composeAddress(
+          houseNumber: fields[4].text.trim(),
+          streetName: fields[5].text.trim(),
+          city: fields[6].text.trim(),
+          country: fields[7].text.trim(),
+        ),
+        'zipCode': fields[8].text.trim(),
+        'phone': fields[9].text.trim(),
+        'childName': fields[10].text.trim(),
+        'childAge': int.tryParse(fields[11].text) ?? 0,
       });
       if (fields[2].text.trim() !=
           ref.read(authRepositoryProvider).currentUser?.email) {
@@ -63,16 +69,38 @@ class _EditState extends ConsumerState<EditProfileScreen> {
     }
   }
 
+  Future<void> pickPhoto() async {
+    final image = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      maxWidth: AppSizes.mediaMaxWidth,
+      imageQuality: 85,
+    );
+    if (image == null) return;
+    setState(() => photoBusy = true);
+    try {
+      await ref.read(userRepositoryProvider).uploadAvatar(File(image.path));
+      if (mounted) showMessage(context, AppStrings.profilePhotoUpdated);
+    } catch (e) {
+      if (mounted) showMessage(context, friendlyError(e));
+    } finally {
+      if (mounted) setState(() => photoBusy = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(profileProvider).value;
     if (!loaded && user != null) {
+      final address = StructuredAddress.parse(user.address);
       final values = [
         user.fullName,
         user.lastName,
         user.email,
         (user.age) > 0 ? '${user.age}' : '',
-        user.address,
+        address.houseNumber,
+        address.streetName,
+        address.city,
+        address.country,
         user.zipCode,
         user.phone,
         user.childName,
@@ -92,31 +120,7 @@ class _EditState extends ConsumerState<EditProfileScreen> {
           child: Column(
             children: [
               GestureDetector(
-                onTap: busy
-                    ? null
-                    : () async {
-                        final image = await ImagePicker().pickImage(
-                          source: ImageSource.gallery,
-                          maxWidth: AppSizes.mediaMaxWidth,
-                          imageQuality: 85,
-                        );
-                        if (image == null) return;
-                        try {
-                          await ref
-                              .read(userRepositoryProvider)
-                              .uploadAvatar(File(image.path));
-                          if (context.mounted) {
-                            showMessage(
-                              context,
-                              AppStrings.profilePhotoUpdated,
-                            );
-                          }
-                        } catch (e) {
-                          if (context.mounted) {
-                            showMessage(context, friendlyError(e));
-                          }
-                        }
-                      },
+                onTap: photoBusy ? null : pickPhoto,
                 child: Stack(
                   alignment: Alignment.bottomRight,
                   children: [
@@ -163,6 +167,9 @@ class _EditState extends ConsumerState<EditProfileScreen> {
                       TextInputType.number,
                       TextInputType.text,
                       TextInputType.text,
+                      TextInputType.text,
+                      TextInputType.text,
+                      TextInputType.text,
                       TextInputType.phone,
                       TextInputType.text,
                       TextInputType.number,
@@ -173,11 +180,14 @@ class _EditState extends ConsumerState<EditProfileScreen> {
                         AppStrings.lastName,
                         AppStrings.uiEmail,
                         AppStrings.yourAge,
-                        AppStrings.address2,
+                        AppStrings.houseNumber,
+                        AppStrings.streetName,
+                        AppStrings.city,
+                        AppStrings.country,
                         AppStrings.postalZipCode,
                         AppStrings.phone,
-                        "Child’s Name (optional)",
-                        "Child’s Age (optional)",
+                        AppStrings.participantNameYourselfOrChildOptional,
+                        AppStrings.participantAgeOptional,
                       ][i],
                     ),
                     validator: [
@@ -186,11 +196,15 @@ class _EditState extends ConsumerState<EditProfileScreen> {
                       Validators.email,
                       Validators.age,
                       Validators.required,
+                      Validators.required,
+                      Validators.required,
+                      Validators.required,
                       Validators.zip,
                       Validators.phone,
                       null,
-                      (v) =>
-                          (v ?? '').trim().isEmpty ? null : Validators.age(v),
+                      (String? value) => (value ?? '').trim().isEmpty
+                          ? null
+                          : Validators.age(value),
                     ][i],
                   ),
                 ),

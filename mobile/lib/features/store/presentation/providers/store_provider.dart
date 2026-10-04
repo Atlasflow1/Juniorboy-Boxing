@@ -23,3 +23,8 @@ final featuredProductProvider = Provider<Product?>((ref) {
   }
   return null;
 });
+final featuredProductsProvider = Provider<List<Product>>(
+  (ref) => (ref.watch(productsProvider).value ?? const <Product>[])
+      .where((p) => p.isFeatured)
+      .toList(),
+);

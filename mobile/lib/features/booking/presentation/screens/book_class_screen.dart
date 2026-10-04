@@ -1,7 +1,6 @@
 import '../../../../core/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/resources/app_strings.dart';
 import '../../../../core/router/app_routes.dart';
@@ -37,14 +36,20 @@ class _BookClassState extends ConsumerState<BookClassScreen> {
       context.safeNavigate(AppRoutes.waiver);
       return;
     }
-    if ((user?.sessionsRemaining ?? 0) - (user?.sessionsReserved ?? 0) < 1) {
+    final session = ref.read(sessionProvider(widget.scheduleId)).value;
+    final program = (ref.read(classesProvider).value ?? const <Program>[])
+        .firstWhere(
+          (p) => p.id == session?.classId,
+          orElse: () => Program.empty,
+        );
+    if ((user?.availableSessions(program.trainingType) ?? 0) < 1) {
       context.safeNavigate(AppRoutes.membership);
       return;
     }
     setState(() => busy = true);
     try {
       await ref.read(bookingRepositoryProvider).create(widget.scheduleId);
-      if (mounted) context.go(AppRoutes.bookingConfirmed);
+      if (mounted) context.safeNavigate(AppRoutes.bookingConfirmed);
     } catch (e) {
       if (mounted) showMessage(context, friendlyError(e));
     } finally {
@@ -67,6 +72,18 @@ class _BookClassState extends ConsumerState<BookClassScreen> {
                     orElse: () => Program.empty,
                   );
               final spots = session.maxSpots - session.bookedSpots;
+              final trainingType = program.trainingType ?? 'private';
+              final typeLabel = switch (trainingType) {
+                'group' => 'Group',
+                'duo' => 'Duo',
+                _ => 'Private',
+              };
+              final remaining =
+                  ref
+                      .watch(profileProvider)
+                      .value
+                      ?.availableSessions(trainingType) ??
+                  0;
               return ListView(
                 padding: const EdgeInsets.all(AppSizes.s16),
                 children: [
@@ -87,6 +104,14 @@ class _BookClassState extends ConsumerState<BookClassScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        if (program.category != null)
+                          Text(
+                            program.category!.toUpperCase(),
+                            style: TextStyle(
+                              color: context.palette.accent,
+                              fontSize: AppSizes.font11,
+                            ),
+                          ),
                         Text(
                           program.className ?? AppStrings.uiBoxingClass,
                           style: Theme.of(context).textTheme.headlineMedium,
@@ -99,11 +124,23 @@ class _BookClassState extends ConsumerState<BookClassScreen> {
                             AppStrings.uiTime,
                             '${timeLabel(session.date)} – ${timeLabel(session.endAt)} PT',
                           ),
+                          (AppStrings.trainingType, typeLabel),
                           (
                             AppStrings.uiLocation2,
-                            program.address ?? '3200 Naglee Rd, Tracy, CA',
+                            program.address ??
+                                ref.watch(settingsProvider).value?.address ??
+                                AppStrings.gymName,
                           ),
-                          (AppStrings.uiAvailability, '$spots spots'),
+                          (
+                            AppStrings.uiAvailability,
+                            '$spots of ${session.maxSpots} spots',
+                          ),
+                          (
+                            AppStrings.sessionsRemainingLabel,
+                            '$remaining remaining',
+                          ),
+                          if (program.priceLabel != null)
+                            (AppStrings.priceLabel, program.priceLabel!),
                         ])
                           Padding(
                             padding: const EdgeInsets.only(
@@ -129,7 +166,9 @@ class _BookClassState extends ConsumerState<BookClassScreen> {
                     ),
                   ),
                   JbbButton(
-                    label: AppStrings.confirmBooking,
+                    label: remaining < 1
+                        ? AppStrings.purchasePackage(typeLabel)
+                        : AppStrings.confirmBooking,
                     busy: busy,
                     onPressed:
                         spots > 0 &&

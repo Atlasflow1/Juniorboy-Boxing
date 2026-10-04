@@ -50,7 +50,11 @@ test('notification recipients can mark read but cannot alter contents', async ()
 test('waivers are public to read, but publication and acceptance cannot be forged', async () => {
   const member = env.authenticatedContext('alice').firestore();
   await assertSucceeds(getDoc(doc(env.unauthenticatedContext().firestore(),'legalDocuments','waiver')));
+  await assertSucceeds(getDoc(doc(env.unauthenticatedContext().firestore(),'legalDocuments','terms')));
+  await assertSucceeds(getDoc(doc(env.unauthenticatedContext().firestore(),'legalDocuments','privacy')));
+  await assertFails(getDoc(doc(env.unauthenticatedContext().firestore(),'legalDocuments','other')));
   await assertFails(setDoc(doc(member,'legalDocuments','waiver'),{published:true}));
+  await assertFails(setDoc(doc(member,'legalDocuments','terms'),{published:true}));
   await assertFails(setDoc(doc(member,'waiverAcceptances','forged'),{userId:'alice',acceptedAt:serverTimestamp()}));
   await assertFails(updateDoc(doc(member,'users','alice'),{waiverVersion:'forged'}));
   await env.withSecurityRulesDisabled(async context => {

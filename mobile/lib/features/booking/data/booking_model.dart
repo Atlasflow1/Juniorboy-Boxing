@@ -9,6 +9,8 @@ class BookingModel extends Booking {
     required super.date,
     required super.endAt,
     required super.status,
+    super.category,
+    super.trainingType,
   });
 
   factory BookingModel.fromMap(Map<String, dynamic> map) => BookingModel(
@@ -18,5 +20,7 @@ class BookingModel extends Booking {
     date: readDate(map['date']),
     endAt: readDate(map['endAt']),
     status: map['status'] as String? ?? '',
+    category: map['category'] as String?,
+    trainingType: map['trainingType'] as String?,
   );
 }

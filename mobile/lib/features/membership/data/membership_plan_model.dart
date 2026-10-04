@@ -16,6 +16,10 @@ class MembershipPlanModel extends MembershipPlan {
     required super.isRecommended,
     required super.sessionCount,
     required super.category,
+    super.trainingType,
+    super.imageUrl,
+    super.discountActive,
+    super.discountPercent,
   });
 
   factory MembershipPlanModel.fromMap(Map<String, dynamic> map) =>
@@ -33,5 +37,9 @@ class MembershipPlanModel extends MembershipPlan {
         isRecommended: map['isRecommended'] == true,
         sessionCount: (map['sessionCount'] as num?)?.toInt(),
         category: nonEmpty(map['category'] as String?),
+        trainingType: nonEmpty(map['trainingType'] as String?),
+        imageUrl: nonEmpty(map['imageUrl'] as String?),
+        discountActive: map['discountActive'] == true,
+        discountPercent: map['discountPercent'] as num? ?? 0,
       );
 }

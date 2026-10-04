@@ -27,7 +27,8 @@ class YoutubeBackgroundPlayer extends StatefulWidget {
       _YoutubeBackgroundPlayerState();
 }
 
-class _YoutubeBackgroundPlayerState extends State<YoutubeBackgroundPlayer> {
+class _YoutubeBackgroundPlayerState extends State<YoutubeBackgroundPlayer>
+    with WidgetsBindingObserver {
   late final controller = YoutubePlayerController.fromVideoId(
     videoId: widget.videoId,
     autoPlay: true,
@@ -44,7 +45,23 @@ class _YoutubeBackgroundPlayerState extends State<YoutubeBackgroundPlayer> {
   );
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // A locked screen or a quick app switch pauses the embedded webview's
+    // playback — without this, the banner stays frozen on return.
+    if (state == AppLifecycleState.resumed) {
+      controller.playVideo();
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     controller.close();
     super.dispose();
   }

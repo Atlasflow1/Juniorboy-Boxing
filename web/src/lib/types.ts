@@ -7,4 +7,4 @@ export const plans: Plan[] = [
   { id:'group', name:'Small Group Training', price:3500, priceLabel:'$35', perSessionLabel:'/ hour per person', sessionCount:null, planType:'hourly', isRecommended:false, sortOrder:3, isActive:true },
   { id:'partner', name:'Partner Training', price:6000, priceLabel:'$60', perSessionLabel:'/ hour per person', sessionCount:null, planType:'hourly', isRecommended:false, sortOrder:4, isActive:true },
 ];
-export const gym = { gymName:'Junior Boy Boxing', address:'3200 Naglee Rd, Tracy, CA', coachName:'Coach Sharif', aboutText:'We help kids and teens grow through boxing. Every session builds skills, confidence and the discipline to keep going.', phone:'', email:'', cancellationPolicyHours:24, operatingHours:{}, socialLinks:{instagram:'',facebook:'',tiktok:''} };
+export const gym = { gymName:'Junior Boy Boxing', address:'', coachName:'Coach Sharif', aboutText:'We help kids and teens grow through boxing. Every session builds skills, confidence and the discipline to keep going.', phone:'', email:'email@juniorboyboxing.com', cancellationPolicyHours:24, operatingHours:{}, socialLinks:{instagram:'',facebook:'',tiktok:'',youtube:''} };

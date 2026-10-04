@@ -9,10 +9,14 @@ class GymSettings {
     required this.cancellationPolicyHours,
     required this.promoVideoUrl,
     required this.heroImageUrl,
+    this.zipCode,
+    this.socialLinks = const {},
   }) : operatingHours = Map.unmodifiable(operatingHours);
 
   final String? coachName, address, phone, email, aboutText;
   final String? promoVideoUrl, heroImageUrl;
+  final String? zipCode;
+  final Map<String, String> socialLinks;
   final num cancellationPolicyHours;
   final Map<String, Object?> operatingHours;
 
@@ -26,5 +30,6 @@ class GymSettings {
     cancellationPolicyHours: 24,
     promoVideoUrl: null,
     heroImageUrl: null,
+    zipCode: null,
   );
 }

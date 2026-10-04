@@ -12,8 +12,7 @@ extension SafeNavigation on BuildContext {
   static const _tabRoots = {
     AppRoutes.home,
     AppRoutes.schedulePath,
-    AppRoutes.book,
-    AppRoutes.membership,
+    AppRoutes.bookings,
     AppRoutes.more,
   };
 

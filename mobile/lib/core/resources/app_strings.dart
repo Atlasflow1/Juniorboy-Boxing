@@ -1,13 +1,72 @@
 abstract final class AppStrings {
+  static const followUs = 'Follow Us';
+  static const programs = 'Programs';
+  static const homeAds = 'Home Ads';
+  static const createAd = 'Create Ad';
+  static const editAd = 'Edit Ad';
+  static const saveAd = 'Save Ad';
+  static const deleteAd = 'Delete ad?';
+  static String removeAd(String title) => 'Remove "$title" from the home page.';
+  static const title = 'Title';
+  static const timeScheduleNote = 'Time / schedule note (optional)';
+  static const timeScheduleHint = 'e.g. Tonight · 6:00 PM';
+  static const linksTo = 'Links to';
+  static const activeOnHome = 'Active (visible on the home page)';
+  static const addProgram = 'Add Program';
+  static const editProgram = 'Edit Program';
+  static const saveProgram = 'Save Program';
+  static const programName = 'Program name';
+  static const ageGroup = 'Age group';
+  static const coach = 'Coach';
+  static const durationMinutes = 'Duration in minutes';
+  static const adPhotos = 'Ad photos for home page (optional, up to 3)';
+  static const priceOptional = 'Price in USD (optional)';
+  static const chooseDate = 'Choose a date';
+  static const chooseStartTime = 'Choose a start time';
+  static const chooseEndTime = 'Choose an end time';
+  static const endTime = 'End time';
+  static const startTime = 'Start time';
+  static const fillSessionFields = 'Fill in the program, date, start and end time.';
+  static const validNumber = 'Enter a valid number';
+  static const addSession = 'Add Session';
+  static const generateNextWeek = 'Generate Next Week';
+  static const sessionsGenerated = 'Next week\'s sessions generated.';
+  static const gymAddressHelp = 'Address appears on Home and the website.';
+  static const houseNumber = 'House / Building Number';
+  static const streetName = 'Street Name';
+  static const city = 'City';
+  static const country = 'Country';
+  static const socialLinks = 'Social Links';
+  static const saveSocialLinks = 'Save Social Links';
+  static const socialLinksSaved = 'Social links saved.';
+  static const noSessionCredits =
+      'You do not have session credits yet. Choose a plan to see bookable classes.';
+  static const groupTraining = 'GROUP TRAINING';
+  static const duoTraining = 'DUO TRAINING';
+  static const privateTraining = 'PRIVATE TRAINING';
+  static const private = 'Private';
+  static const group = 'Group';
+  static const duo = 'Duo';
+  static const blog = 'Blog';
+  static const membershipPurchases = 'Membership Purchases';
+  static const programNoLongerExists =
+      'The selected program no longer exists. Choose another.';
+  static String capacityLocked(int spots) =>
+      'Locked to $spots for this training type';
+  static const trainingType = 'TRAINING TYPE';
+  static const sessionsRemainingLabel = 'SESSIONS REMAINING';
+  static const priceLabel = 'PRICE';
+  static String purchasePackage(String type) => 'Purchase a $type Package';
   static const gymName = 'Junior Boy Boxing';
+  static const contactEmail = 'email@juniorboyboxing.com';
   static const tagline = 'DISCIPLINE BUILDS CHAMPIONS';
-  static const address = '3200 Naglee Rd, Tracy, CA';
+  static const address = '';
   static const privacy =
       'Your account information is used to manage gym memberships, bookings and communication. Card information is handled by Stripe and is not stored by the gym application. Parents and guardians manage accounts for children. Contact the gym to request access to or deletion of your information. Payment records may be retained for accounting obligations. The gym must review and publish its final privacy policy before public launch.';
   static const terms =
       'A session credit is reserved when you book and used after attendance or a recorded no-show. Cancel at least 24 hours before your class, unless the gym has published a different cancellation window. For late changes, contact the gym. Training requires appropriate supervision and compliance with coach instructions. A parent or guardian must register children. These terms must be reviewed by the gym before public launch.';
   static const waiver =
-      'DRAFT — pending gym approval. Boxing, fitness, strength and conditioning, weight loss and self defense training involve risks, including strains, falls, concussion and serious injury. Follow coach instructions, use appropriate protective equipment, and stop if unwell or injured. Training does not guarantee weight loss, fitness or personal safety and does not replace medical advice. Participation is voluntary. A parent or legal guardian must sign for a minor. This draft does not release liability or waive rights that cannot legally be waived. Payments, cancellations and privacy are covered separately. Photo and marketing consent are separate. Contact Junior Boy Boxing at 415-290-0559 with questions. The approved full document will appear here when published.';
+      'DRAFT — pending gym approval. Boxing, fitness, strength and conditioning, weight loss and self defense training involve risks, including strains, falls, concussion and serious injury. Follow coach instructions, use appropriate protective equipment, and stop if unwell or injured. Training does not guarantee weight loss, fitness or personal safety and does not replace medical advice. Participation is voluntary. A parent or legal guardian must sign for a minor. This draft does not release liability or waive rights that cannot legally be waived. Payments, cancellations and privacy are covered separately. Photo and marketing consent are separate. Contact Junior Boy Boxing at email@juniorboyboxing.com with questions. The approved full document will appear here when published.';
   static const reviewsRatings = 'Reviews & Ratings';
   static const deleteYourReview = 'Delete your review';
   static const shareYourExperienceOptional = 'Share your experience (optional)';

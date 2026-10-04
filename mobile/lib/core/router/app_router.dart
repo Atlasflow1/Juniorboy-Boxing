@@ -2,6 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/admin/presentation/screens/admin_dashboard_screen.dart';
+import '../../features/admin/presentation/screens/program_editor_screen.dart';
+import '../../features/admin/presentation/screens/ad_editor_screen.dart';
+import '../../features/admin/presentation/screens/session_editor_screen.dart';
+import '../../features/blog/presentation/screens/blog_screen.dart';
+import '../../features/home/domain/home_ad.dart';
+import '../../features/schedule/domain/program.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
 import '../../features/auth/presentation/screens/welcome_screen.dart';
 import '../../features/booking/presentation/screens/book_class_screen.dart';
@@ -54,7 +60,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         return AppRoutes.completeProfile;
       }
       if (user != null && isAuth) return AppRoutes.home;
-      if (state.uri.path == AppRoutes.admin && profile.value?.role != 'admin') {
+      if (state.uri.path.startsWith(AppRoutes.admin) &&
+          profile.value?.role != 'admin') {
         return AppRoutes.home;
       }
       return null;
@@ -90,18 +97,9 @@ final routerProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: AppRoutes.book,
-                name: 'book',
-                builder: (c, s) => const ScheduleScreen(),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: AppRoutes.membership,
-                name: 'membership',
-                builder: (c, s) => const MembershipScreen(),
+                path: AppRoutes.bookings,
+                name: 'bookings',
+                builder: (c, s) => const MyBookingsScreen(),
               ),
             ],
           ),
@@ -129,9 +127,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.bookingConfirmed,
         builder: (c, s) => const BookingConfirmationScreen(),
       ),
+      GoRoute(path: AppRoutes.book, builder: (c, s) => const ScheduleScreen()),
       GoRoute(
-        path: AppRoutes.bookings,
-        builder: (c, s) => const MyBookingsScreen(),
+        path: AppRoutes.membership,
+        builder: (c, s) => const MembershipScreen(),
       ),
       GoRoute(
         path: AppRoutes.profile,
@@ -157,6 +156,22 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.admin,
         builder: (c, s) => const AdminDashboardScreen(),
       ),
+      GoRoute(
+        path: AppRoutes.adminProgramEditor,
+        builder: (c, s) => ProgramEditorScreen(
+          program: s.extra is Program ? s.extra as Program : null,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.adminAdEditor,
+        builder: (c, s) =>
+            AdEditorScreen(ad: s.extra is HomeAd ? s.extra as HomeAd : null),
+      ),
+      GoRoute(
+        path: AppRoutes.adminSessionEditor,
+        builder: (c, s) => const SessionEditorScreen(),
+      ),
+      GoRoute(path: AppRoutes.blog, builder: (c, s) => const BlogScreen()),
       GoRoute(
         path: AppRoutes.contact,
         builder: (c, s) => const ContactScreen(),

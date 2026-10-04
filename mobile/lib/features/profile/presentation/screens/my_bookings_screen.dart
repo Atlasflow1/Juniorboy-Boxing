@@ -13,6 +13,9 @@ import '../../../../core/widgets/jbb_loading.dart';
 import '../../../booking/presentation/providers/booking_provider.dart';
 import '../../../booking/domain/booking.dart';
 import '../../../booking/domain/booking_eligibility.dart';
+import '../../../membership/presentation/providers/membership_provider.dart';
+import '../../../payments/presentation/providers/payments_provider.dart';
+import '../../../payments/domain/payment.dart';
 import '../providers/profile_provider.dart';
 
 class MyBookingsScreen extends ConsumerStatefulWidget {
@@ -62,6 +65,8 @@ class _BookingsState extends ConsumerState<MyBookingsScreen> {
     body: ListView(
       padding: const EdgeInsets.all(AppSizes.s16),
       children: [
+        const _MembershipPurchases(),
+        SizedBox(height: AppSizes.s24),
         SegmentedButton<int>(
           showSelectedIcon: false,
           segments: [
@@ -117,6 +122,15 @@ class _BookingsState extends ConsumerState<MyBookingsScreen> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
+                            if ((b.category ?? '').isNotEmpty)
+                              Text(
+                                b.category!.toUpperCase(),
+                                style: TextStyle(
+                                  color: context.palette.accent,
+                                  fontSize: AppSizes.font11,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             SizedBox(height: AppSizes.s8),
                             Text(
                               '${dateLabel(b.date)} · ${timeLabel(b.date)} PT',
@@ -164,4 +178,84 @@ class _BookingsState extends ConsumerState<MyBookingsScreen> {
       ],
     ),
   );
+}
+
+class _MembershipPurchases extends ConsumerWidget {
+  const _MembershipPurchases();
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(profileProvider).value;
+    final plans = ref.watch(plansProvider).value ?? const [];
+    final purchases =
+        (ref.watch(paymentsProvider).value ?? const <Payment>[])
+            .where((p) => p.membershipPlanId != null && p.status == 'completed')
+            .toList()
+          ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    if (user == null || purchases.isEmpty) return const SizedBox.shrink();
+    final used = <String, int>{};
+    for (final type in ['private', 'group', 'duo']) {
+      final sameType = purchases.where(
+        (p) => (p.trainingType ?? 'private') == type,
+      );
+      final total = sameType.fold<int>(0, (sum, p) => sum + (p.credits ?? 0));
+      final remaining = switch (type) {
+        'group' => user.groupSessionsRemaining,
+        'duo' => user.duoSessionsRemaining,
+        _ => user.privateSessionsRemaining,
+      };
+      var toAllocate = (total - remaining).clamp(0, total);
+      for (final p in sameType) {
+        final count = p.credits ?? 0;
+        used[p.id] = toAllocate.clamp(0, count);
+        toAllocate -= used[p.id]!;
+      }
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          AppStrings.membershipPurchases,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: AppSizes.font18,
+          ),
+        ),
+        SizedBox(height: AppSizes.s12),
+        for (final payment in purchases.reversed)
+          JbbCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        plans
+                                .where((p) => p.id == payment.membershipPlanId)
+                                .firstOrNull
+                                ?.name ??
+                            '${payment.credits ?? 0}-Session Pack',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Text('\$${(payment.amount / 100).toStringAsFixed(2)}'),
+                  ],
+                ),
+                Text(
+                  '${payment.credits ?? 0} sessions · ${payment.trainingType ?? 'private'}',
+                ),
+                Text(
+                  '${used[payment.id] ?? 0} of ${payment.credits ?? 0} used',
+                  style: TextStyle(color: context.palette.textSecondary),
+                ),
+                Text(
+                  dateLabel(payment.createdAt),
+                  style: TextStyle(color: context.palette.textSecondary),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
 }

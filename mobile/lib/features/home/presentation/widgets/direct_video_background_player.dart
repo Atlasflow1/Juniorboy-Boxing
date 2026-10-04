@@ -18,7 +18,8 @@ class DirectVideoBackgroundPlayer extends StatefulWidget {
 }
 
 class _DirectVideoBackgroundPlayerState
-    extends State<DirectVideoBackgroundPlayer> {
+    extends State<DirectVideoBackgroundPlayer>
+    with WidgetsBindingObserver {
   late final controller = VideoPlayerController.networkUrl(
     Uri.parse(widget.url),
   );
@@ -27,6 +28,7 @@ class _DirectVideoBackgroundPlayerState
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     controller.initialize().then((_) {
       if (!mounted) return;
       controller
@@ -38,7 +40,19 @@ class _DirectVideoBackgroundPlayerState
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // A locked screen or a quick app switch pauses playback — without this,
+    // the banner would stay frozen on whatever frame it paused on until the
+    // widget rebuilds from scratch.
+    if (!ready) return;
+    if (state == AppLifecycleState.resumed) {
+      controller.play();
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     controller.dispose();
     super.dispose();
   }

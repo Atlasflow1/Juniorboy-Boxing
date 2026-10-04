@@ -15,6 +15,7 @@ import '../../../../core/widgets/app_icon.dart';
 import '../../../../core/widgets/jbb_card.dart';
 import '../../../../core/widgets/page_content.dart';
 import '../../../../core/widgets/settings_group.dart';
+import '../../../../core/widgets/social_links_row.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../providers/profile_provider.dart';
 
@@ -71,6 +72,7 @@ class MoreScreen extends ConsumerWidget {
             ],
           ),
         ),
+        const Center(child: SocialLinksRow()),
         SettingsGroup(
           children: [
             for (final item in [
@@ -87,6 +89,7 @@ class MoreScreen extends ConsumerWidget {
               (AppStrings.contactUs, AppIcons.phone, AppRoutes.contact),
               (AppStrings.uiLocation, AppIcons.location, AppRoutes.contact),
               (AppStrings.uiAboutUs, AppIcons.info, AppRoutes.about),
+              (AppStrings.blog, AppIcons.document, AppRoutes.blog),
               (AppStrings.uiPrivacyPolicy, AppIcons.shield, AppRoutes.privacy),
               (AppStrings.uiTermsOfService, AppIcons.document, AppRoutes.terms),
               (AppStrings.waiverDisclaimer, AppIcons.gavel, AppRoutes.waiver),

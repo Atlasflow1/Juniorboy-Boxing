@@ -21,3 +21,7 @@ export function nextWeekOccurrence(now: DateTime, weekday: number, time: string,
 export function reservationAvailable(remaining: number, reserved: number): number {
   return Math.max(0, remaining - reserved);
 }
+export type TrainingType = 'private' | 'group' | 'duo';
+export function trainingTypeLabel(type: TrainingType): string {
+  return type === 'private' ? 'Private' : type === 'group' ? 'Group' : 'Duo';
+}

@@ -4,10 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../core/constants/programs.dart';
+import '../../../../core/router/app_routes.dart';
+import '../../../../core/utils/nav_debounce.dart';
+import '../../../home/domain/home_ad.dart';
+import '../../../schedule/domain/program.dart';
 import '../../../../core/resources/app_icons.dart';
 import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/resources/app_strings.dart';
 import '../../../../core/utils/snackbar_utils.dart';
+import '../../../../core/utils/address_utils.dart';
 import '../../../../core/widgets/app_icon.dart';
 import '../../../../core/widgets/jbb_button.dart';
 import '../../../../core/widgets/jbb_card.dart';
@@ -80,7 +85,11 @@ class AdminDashboardScreen extends ConsumerWidget {
             ],
           ),
           SizedBox(height: AppSizes.s24),
+          const _CatalogSection(),
+          SizedBox(height: AppSizes.s24),
           const _GymInfoSection(),
+          SizedBox(height: AppSizes.s24),
+          const _SocialLinksSection(),
           SizedBox(height: AppSizes.s24),
           const _PromoVideoSection(),
           SizedBox(height: AppSizes.s24),
@@ -236,6 +245,129 @@ class AdminDashboardScreen extends ConsumerWidget {
   }
 }
 
+class _CatalogSection extends ConsumerWidget {
+  const _CatalogSection();
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final programs = ref.watch(adminProgramsProvider);
+    final ads = ref.watch(adminAdsProvider);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _CatalogHeading(
+          title: AppStrings.programs,
+          onAdd: () => context.safeNavigate(AppRoutes.adminProgramEditor),
+        ),
+        programs.when(
+          data: (rows) => Column(
+            children: [
+              for (final Program p in rows)
+                JbbCard(
+                  onTap: () => context.safeNavigate(
+                    AppRoutes.adminProgramEditor,
+                    extra: p,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(child: Text(p.className ?? p.id)),
+                      AppIcon(
+                        AppIcons.chevronRight,
+                        color: context.palette.textSecondary,
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+          loading: () => const JbbLoading(),
+          error: (e, _) => Text(friendlyError(e)),
+        ),
+        SizedBox(height: AppSizes.s20),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                AppStrings.uiClassScheduleTimes,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            TextButton(
+              onPressed: () =>
+                  context.safeNavigate(AppRoutes.adminSessionEditor),
+              child: const Text(AppStrings.addSession),
+            ),
+          ],
+        ),
+        TextButton.icon(
+          onPressed: () async {
+            try {
+              await ref.read(adminRepositoryProvider).generateScheduleNow();
+              if (context.mounted) {
+                showMessage(context, AppStrings.sessionsGenerated);
+              }
+            } catch (e) {
+              if (context.mounted) showMessage(context, friendlyError(e));
+            }
+          },
+          icon: const AppIcon(AppIcons.calendarCheck),
+          label: const Text(AppStrings.generateNextWeek),
+        ),
+        SizedBox(height: AppSizes.s20),
+        _CatalogHeading(
+          title: AppStrings.homeAds,
+          onAdd: () => context.safeNavigate(AppRoutes.adminAdEditor),
+        ),
+        ads.when(
+          data: (rows) => Column(
+            children: [
+              for (final HomeAd ad in rows)
+                JbbCard(
+                  onTap: () =>
+                      context.safeNavigate(AppRoutes.adminAdEditor, extra: ad),
+                  child: Row(
+                    children: [
+                      Expanded(child: Text(ad.title)),
+                      Text(
+                        ad.isActive
+                            ? AppStrings.uiActive
+                            : AppStrings.uiHidden2,
+                      ),
+                      AppIcon(
+                        AppIcons.chevronRight,
+                        color: context.palette.textSecondary,
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+          loading: () => const JbbLoading(),
+          error: (e, _) => Text(friendlyError(e)),
+        ),
+      ],
+    );
+  }
+}
+
+class _CatalogHeading extends StatelessWidget {
+  const _CatalogHeading({required this.title, required this.onAdd});
+  final String title;
+  final VoidCallback onAdd;
+  @override
+  Widget build(BuildContext context) => Row(
+    children: [
+      Expanded(
+        child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+      ),
+      TextButton.icon(
+        onPressed: onAdd,
+        icon: const AppIcon(AppIcons.plus),
+        label: const Text(AppStrings.add),
+      ),
+    ],
+  );
+}
+
 /// Lets the admin edit the gym's public address and phone number, shown
 /// on the Contact screen and the website.
 class _GymInfoSection extends ConsumerStatefulWidget {
@@ -245,13 +377,18 @@ class _GymInfoSection extends ConsumerStatefulWidget {
 }
 
 class _GymInfoSectionState extends ConsumerState<_GymInfoSection> {
-  final address = TextEditingController(), phone = TextEditingController();
+  final houseNumber = TextEditingController(),
+      streetName = TextEditingController(),
+      city = TextEditingController(),
+      country = TextEditingController(),
+      zipCode = TextEditingController(),
+      phone = TextEditingController();
   bool loaded = false, busy = false;
-
   @override
   void dispose() {
-    address.dispose();
-    phone.dispose();
+    for (final c in [houseNumber, streetName, city, country, zipCode, phone]) {
+      c.dispose();
+    }
     super.dispose();
   }
 
@@ -260,10 +397,17 @@ class _GymInfoSectionState extends ConsumerState<_GymInfoSection> {
     try {
       await ref
           .read(adminRepositoryProvider)
-          .saveGymInfo(address.text.trim(), phone.text.trim());
+          .saveGymInfo(
+            houseNumber: houseNumber.text.trim(),
+            streetName: streetName.text.trim(),
+            city: city.text.trim(),
+            country: country.text.trim(),
+            zipCode: zipCode.text.trim(),
+            phone: phone.text.trim(),
+          );
       if (mounted) showMessage(context, AppStrings.gymInfoSaved);
-    } catch (e) {
-      if (mounted) showMessage(context, friendlyError(e));
+    } catch (error) {
+      if (mounted) showMessage(context, friendlyError(error));
     } finally {
       if (mounted) setState(() => busy = false);
     }
@@ -273,7 +417,13 @@ class _GymInfoSectionState extends ConsumerState<_GymInfoSection> {
   Widget build(BuildContext context) {
     final settings = ref.watch(settingsProvider).value;
     if (!loaded && settings != null) {
-      address.text = settings.address ?? '';
+      final parsed = StructuredAddress.parse(settings.address);
+      houseNumber.text = parsed.houseNumber;
+      streetName.text = parsed.streetName;
+      city.text = parsed.city;
+      country.text = parsed.country;
+      final parts = (settings.address ?? '').split(',').map((s) => s.trim()).toList();
+      zipCode.text = settings.zipCode ?? (parts.length > 3 ? parts[2] : '');
       phone.text = settings.phone ?? '';
       loaded = true;
     }
@@ -283,32 +433,102 @@ class _GymInfoSectionState extends ConsumerState<_GymInfoSection> {
         children: [
           Text(
             AppStrings.uiGymInfo,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: AppSizes.font15,
-            ),
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: AppSizes.s4),
           Text(
-            AppStrings.uiShownOnTheContactScreenAndTheWebsite,
-            style: TextStyle(
-              color: context.palette.textSecondary,
-              fontSize: AppSizes.font12,
+            AppStrings.gymAddressHelp,
+            style: TextStyle(color: context.palette.textSecondary),
+          ),
+          for (final field in [
+            (houseNumber, AppStrings.houseNumber),
+            (streetName, AppStrings.streetName),
+            (city, AppStrings.city),
+            (country, AppStrings.country),
+            (zipCode, AppStrings.postalZipCode),
+            (phone, AppStrings.phone),
+          ]) ...[
+            SizedBox(height: AppSizes.s12),
+            TextField(
+              controller: field.$1,
+              decoration: InputDecoration(labelText: field.$2),
             ),
-          ),
-          SizedBox(height: AppSizes.s12),
-          TextField(
-            controller: address,
-            decoration: InputDecoration(labelText: AppStrings.address2),
-          ),
-          SizedBox(height: AppSizes.s12),
-          TextField(
-            controller: phone,
-            keyboardType: TextInputType.phone,
-            decoration: InputDecoration(labelText: AppStrings.phone),
-          ),
+          ],
           SizedBox(height: AppSizes.s12),
           JbbButton(label: AppStrings.saveGymInfo, busy: busy, onPressed: save),
+        ],
+      ),
+    );
+  }
+}
+
+class _SocialLinksSection extends ConsumerStatefulWidget {
+  const _SocialLinksSection();
+  @override
+  ConsumerState<_SocialLinksSection> createState() =>
+      _SocialLinksSectionState();
+}
+
+class _SocialLinksSectionState extends ConsumerState<_SocialLinksSection> {
+  final fields = {
+    for (final key in ['instagram', 'facebook', 'tiktok', 'youtube'])
+      key: TextEditingController(),
+  };
+  bool loaded = false, busy = false;
+  @override
+  void dispose() {
+    for (final field in fields.values) {
+      field.dispose();
+    }
+    super.dispose();
+  }
+
+  Future<void> save() async {
+    setState(() => busy = true);
+    try {
+      await ref
+          .read(adminRepositoryProvider)
+          .saveSocialLinks(
+            fields.map((key, value) => MapEntry(key, value.text.trim())),
+          );
+      if (mounted) showMessage(context, AppStrings.socialLinksSaved);
+    } catch (error) {
+      if (mounted) showMessage(context, friendlyError(error));
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final settings = ref.watch(settingsProvider).value;
+    if (!loaded && settings != null) {
+      for (final entry in fields.entries) {
+        entry.value.text = settings.socialLinks[entry.key] ?? '';
+      }
+      loaded = true;
+    }
+    return JbbCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            AppStrings.socialLinks,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          for (final entry in fields.entries) ...[
+            SizedBox(height: AppSizes.s12),
+            TextField(
+              controller: entry.value,
+              keyboardType: TextInputType.url,
+              decoration: InputDecoration(labelText: entry.key),
+            ),
+          ],
+          SizedBox(height: AppSizes.s12),
+          JbbButton(
+            label: AppStrings.saveSocialLinks,
+            busy: busy,
+            onPressed: save,
+          ),
         ],
       ),
     );

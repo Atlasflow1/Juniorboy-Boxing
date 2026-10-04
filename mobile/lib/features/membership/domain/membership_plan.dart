@@ -13,6 +13,10 @@ class MembershipPlan {
     required this.isRecommended,
     required this.sessionCount,
     required this.category,
+    this.trainingType,
+    this.imageUrl,
+    this.discountActive = false,
+    this.discountPercent = 0,
   });
 
   final String id;
@@ -27,4 +31,7 @@ class MembershipPlan {
   final bool isRecommended;
   final int? sessionCount;
   final String? category;
+  final String? trainingType, imageUrl;
+  final bool discountActive;
+  final num discountPercent;
 }

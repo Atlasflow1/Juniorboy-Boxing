@@ -5,6 +5,7 @@ import { HttpsError, onCall, onRequest } from 'firebase-functions/v2/https';
 import { logger } from 'firebase-functions';
 import { z } from 'zod';
 import { audit, callable, db, emulator, enforceAppCheck, id, notify, now, rateLimit, requireAuth, requireRegistered, requireMember } from './platform';
+import type { TrainingType } from './domain';
 
 const STRIPE_SECRET_KEY = defineSecret('STRIPE_SECRET_KEY');
 const STRIPE_WEBHOOK_SECRET = defineSecret('STRIPE_WEBHOOK_SECRET');
@@ -39,7 +40,10 @@ export const createPaymentIntent = onCall({ secrets: [STRIPE_SECRET_KEY], enforc
     if (!plan?.isActive || !Number.isInteger(plan.price) || plan.price <= 0) throw new HttpsError('failed-precondition', 'Plan is not available.');
     const credits = plan.sessionCount ?? plan.creditsPerPurchase;
     if (!Number.isInteger(credits) || credits <= 0) throw new HttpsError('failed-precondition', 'This plan requires a credit configuration.');
-    const data = { userId: uid, membershipPlanId: planId, amount: plan.price, credits, currency: 'usd', status: 'pending', paymentMethod: 'stripe', stripePaymentIntentId: null, receiptUrl: null, createdAt: now(), updatedAt: now() };
+    const trainingType: TrainingType = plan.trainingType || 'private';
+    const discountPercent = plan.discountActive && typeof plan.discountPercent === 'number' && plan.discountPercent > 0 && plan.discountPercent <= 100 ? plan.discountPercent : 0;
+    const amount = discountPercent > 0 ? Math.round(plan.price * (1 - discountPercent / 100)) : plan.price;
+    const data = { userId: uid, membershipPlanId: planId, trainingType, amount, credits, currency: 'usd', status: 'pending', paymentMethod: 'stripe', stripePaymentIntentId: null, receiptUrl: null, createdAt: now(), updatedAt: now() };
     tx.create(ref, data);
     return data;
   });
@@ -94,7 +98,14 @@ export async function applySuccessfulPayment(paymentId: string, intent: { id: st
       const label = payment.size ? `${payment.productName} (size ${payment.size})` : payment.productName;
       notify(tx, `payment_${paymentId}`, payment.userId, 'Order confirmed', `Your order for ${label} is ready to pick up at the gym.`, 'product_purchased', { paymentId });
     } else {
-      tx.update(user.ref, { membershipPlanId: payment.membershipPlanId, sessionsRemaining: user.data()!.sessionsRemaining + payment.credits, updatedAt: now() });
+      const trainingType: TrainingType = payment.trainingType || 'private';
+      const remainingField = `${trainingType}SessionsRemaining`;
+      tx.update(user.ref, {
+        membershipPlanId: payment.membershipPlanId,
+        [remainingField]: (user.data()![remainingField] ?? 0) + payment.credits,
+        sessionsRemaining: user.data()!.sessionsRemaining + payment.credits,
+        updatedAt: now(),
+      });
       notify(tx, `payment_${paymentId}`, payment.userId, 'Membership purchased', `${payment.credits} session credits have been added to your account.`, 'membership_purchased', { paymentId });
     }
   });
@@ -138,7 +149,15 @@ async function settleRefund(refund: Stripe.Refund) {
     if (refund.status === 'succeeded') tx.update(ref, { status: 'refunded', stripeRefundId: refund.id, updatedAt: now() });
     else if (refund.status === 'failed' || refund.status === 'canceled') {
       tx.update(ref, { status: 'completed', refundError: refund.failure_reason ?? refund.status, updatedAt: now() });
-      if (!p.productId && user.exists) tx.update(user.ref, { sessionsRemaining: user.data()!.sessionsRemaining + p.credits, updatedAt: now() });
+      if (!p.productId && user.exists) {
+        const trainingType: TrainingType = p.trainingType || 'private';
+        const remainingField = `${trainingType}SessionsRemaining`;
+        tx.update(user.ref, {
+          [remainingField]: (user.data()![remainingField] ?? 0) + p.credits,
+          sessionsRemaining: user.data()!.sessionsRemaining + p.credits,
+          updatedAt: now(),
+        });
+      }
     }
   });
 }
@@ -154,8 +173,14 @@ export const createRefund = onCall({ secrets: [STRIPE_SECRET_KEY], enforceAppChe
     if (payment.status !== 'completed' || payment.refundError) throw new HttpsError('failed-precondition', 'Payment is not eligible for an automatic refund.');
     const user = await tx.get(db.doc(`users/${payment.userId}`));
     const isProduct = !!payment.productId;
-    if (!isProduct && user.exists && user.data()!.sessionsRemaining - (user.data()!.sessionsReserved ?? 0) < payment.credits) throw new HttpsError('failed-precondition', 'Cancel reservations or resolve used credits before refunding.');
-    if (!isProduct && user.exists) tx.update(user.ref, { sessionsRemaining: user.data()!.sessionsRemaining - payment.credits, updatedAt: now() });
+    const trainingType: TrainingType = payment.trainingType || 'private';
+    const remainingField = `${trainingType}SessionsRemaining`, reservedField = `${trainingType}SessionsReserved`;
+    if (!isProduct && user.exists && (user.data()![remainingField] ?? 0) - (user.data()![reservedField] ?? 0) < payment.credits) throw new HttpsError('failed-precondition', 'Cancel reservations or resolve used credits before refunding.');
+    if (!isProduct && user.exists) tx.update(user.ref, {
+      [remainingField]: (user.data()![remainingField] ?? 0) - payment.credits,
+      sessionsRemaining: user.data()!.sessionsRemaining - payment.credits,
+      updatedAt: now(),
+    });
     tx.update(ref, { status: 'refund_pending', updatedAt: now() });
     audit(tx, uid, 'refund', ref.id);
     return payment;
@@ -177,8 +202,15 @@ export const recordManualPayment = callable(z.object({ userId: id, planId: id, r
     }
     const p = plan.data(), u = user.data(), credits = p?.sessionCount ?? p?.creditsPerPurchase;
     if (!p?.isActive || !u?.isActive || !Number.isInteger(credits) || credits <= 0 || !Number.isInteger(p.price) || p.price <= 0) throw new HttpsError('failed-precondition', 'Select an active member and plan with a valid price.');
-    tx.create(ref, { userId: input.userId, membershipPlanId: input.planId, amount: p.price, currency: 'usd', credits, status: 'completed', paymentMethod: input.method, stripePaymentIntentId: null, receiptUrl: null, note: input.note, createdAt: now(), updatedAt: now(), paidAt: now() });
-    tx.update(user.ref, { sessionsRemaining: u.sessionsRemaining + credits, membershipPlanId: input.planId, updatedAt: now() });
+    const trainingType: TrainingType = p.trainingType || 'private';
+    const remainingField = `${trainingType}SessionsRemaining`;
+    tx.create(ref, { userId: input.userId, membershipPlanId: input.planId, trainingType, amount: p.price, currency: 'usd', credits, status: 'completed', paymentMethod: input.method, stripePaymentIntentId: null, receiptUrl: null, note: input.note, createdAt: now(), updatedAt: now(), paidAt: now() });
+    tx.update(user.ref, {
+      [remainingField]: (u[remainingField] ?? 0) + credits,
+      sessionsRemaining: u.sessionsRemaining + credits,
+      membershipPlanId: input.planId,
+      updatedAt: now(),
+    });
     notify(tx, `payment_${ref.id}`, input.userId, 'Payment recorded', `${credits} session credits were added to your account.`, 'membership_purchased');
     audit(tx, uid, 'manualPayment', ref.id);
   });

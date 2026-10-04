@@ -1,6 +1,14 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import '../../../../core/theme/app_palette.dart';
+import '../../../../core/resources/app_icons.dart';
+import '../../../../core/resources/app_colors.dart';
+import '../../../../core/utils/address_utils.dart';
+import '../../../../core/widgets/app_icon.dart';
 import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/resources/app_strings.dart';
 import '../../../../core/router/app_routes.dart';
@@ -19,22 +27,46 @@ class _CompleteProfileState extends ConsumerState<CompleteProfileScreen> {
   final form = GlobalKey<FormState>(),
       lastName = TextEditingController(),
       age = TextEditingController(),
-      address = TextEditingController(),
+      houseNumber = TextEditingController(),
+      streetName = TextEditingController(),
+      city = TextEditingController(),
+      country = TextEditingController(),
       zipCode = TextEditingController(),
       phone = TextEditingController(),
       childName = TextEditingController(),
       childAge = TextEditingController();
-  bool busy = false, loaded = false;
+  bool busy = false, loaded = false, photoBusy = false;
   @override
   void dispose() {
     lastName.dispose();
     age.dispose();
-    address.dispose();
+    houseNumber.dispose();
+    streetName.dispose();
+    city.dispose();
+    country.dispose();
     zipCode.dispose();
     phone.dispose();
     childName.dispose();
     childAge.dispose();
     super.dispose();
+  }
+
+  Future<void> pickPhoto() async {
+    final image = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      maxWidth: AppSizes.mediaMaxWidth,
+      imageQuality: 85,
+    );
+    if (image == null) return;
+    setState(() => photoBusy = true);
+    try {
+      await ref.read(userRepositoryProvider).uploadAvatar(File(image.path));
+      if (mounted) showMessage(context, AppStrings.profilePhotoUpdated);
+    } catch (e) {
+      if (mounted) showMessage(context, friendlyError(e));
+    } finally {
+      if (mounted) setState(() => photoBusy = false);
+    }
   }
 
   Future<void> save() async {
@@ -44,7 +76,12 @@ class _CompleteProfileState extends ConsumerState<CompleteProfileScreen> {
       await ref.read(userRepositoryProvider).save({
         'lastName': lastName.text.trim(),
         'age': int.parse(age.text),
-        'address': address.text.trim(),
+        'address': composeAddress(
+          houseNumber: houseNumber.text.trim(),
+          streetName: streetName.text.trim(),
+          city: city.text.trim(),
+          country: country.text.trim(),
+        ),
         'zipCode': zipCode.text.trim(),
         'phone': phone.text.trim(),
         'childName': childName.text.trim(),
@@ -73,7 +110,11 @@ class _CompleteProfileState extends ConsumerState<CompleteProfileScreen> {
       if (age.text.isEmpty && (user.age) > 0) {
         age.text = '${user.age}';
       }
-      if (address.text.isEmpty) address.text = user.address ?? '';
+      final parsed = StructuredAddress.parse(user.address);
+      houseNumber.text = parsed.houseNumber;
+      streetName.text = parsed.streetName;
+      city.text = parsed.city;
+      country.text = parsed.country;
       if (zipCode.text.isEmpty) zipCode.text = user.zipCode ?? '';
       if (phone.text.isEmpty) phone.text = user.phone ?? '';
       if (childName.text.isEmpty) childName.text = user.childName;
@@ -97,7 +138,43 @@ class _CompleteProfileState extends ConsumerState<CompleteProfileScreen> {
               ),
               const SizedBox(height: AppSizes.s10),
               const Text(AppStrings.uiWeNeedAFewAccountDetailsPlusWho),
-              const SizedBox(height: AppSizes.s32),
+              const SizedBox(height: AppSizes.s24),
+              Center(
+                child: GestureDetector(
+                  onTap: photoBusy ? null : pickPhoto,
+                  child: Stack(
+                    alignment: Alignment.bottomRight,
+                    children: [
+                      CircleAvatar(
+                        radius: AppSizes.avatarRadiusProfile,
+                        backgroundColor: context.palette.accentTint,
+                        backgroundImage: user?.avatarUrl != null
+                            ? CachedNetworkImageProvider(user!.avatarUrl!)
+                            : null,
+                        child: user?.avatarUrl == null
+                            ? AppIcon(
+                                AppIcons.user,
+                                size: AppSizes.s40,
+                                color: context.palette.accent,
+                              )
+                            : null,
+                      ),
+                      CircleAvatar(
+                        radius: AppSizes.avatarRadiusSmall,
+                        backgroundColor: context.palette.accent,
+                        child: photoBusy
+                            ? const CircularProgressIndicator()
+                            : const AppIcon(
+                                AppIcons.imagePlus,
+                                size: AppSizes.s16,
+                                color: AppColors.onAccent,
+                              ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppSizes.s24),
               TextFormField(
                 controller: lastName,
                 decoration: const InputDecoration(
@@ -115,13 +192,19 @@ class _CompleteProfileState extends ConsumerState<CompleteProfileScreen> {
                 validator: Validators.age,
               ),
               const SizedBox(height: AppSizes.s16),
-              TextFormField(
-                controller: address,
-                decoration: const InputDecoration(
-                  labelText: AppStrings.address2,
+              for (final field in [
+                (houseNumber, AppStrings.houseNumber),
+                (streetName, AppStrings.streetName),
+                (city, AppStrings.city),
+                (country, AppStrings.country),
+              ]) ...[
+                TextFormField(
+                  controller: field.$1,
+                  decoration: InputDecoration(labelText: field.$2),
+                  validator: Validators.required,
                 ),
-                validator: Validators.required,
-              ),
+                const SizedBox(height: AppSizes.s16),
+              ],
               const SizedBox(height: AppSizes.s16),
               TextFormField(
                 controller: zipCode,

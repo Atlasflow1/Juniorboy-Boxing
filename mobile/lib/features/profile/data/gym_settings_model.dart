@@ -12,6 +12,8 @@ class GymSettingsModel extends GymSettings {
     required super.cancellationPolicyHours,
     required super.promoVideoUrl,
     required super.heroImageUrl,
+    super.zipCode,
+    super.socialLinks,
   });
 
   factory GymSettingsModel.fromMap(Map<String, dynamic> map) =>
@@ -29,5 +31,11 @@ class GymSettingsModel extends GymSettings {
         cancellationPolicyHours: map['cancellationPolicyHours'] as num? ?? 24,
         promoVideoUrl: nonEmpty(map['promoVideoUrl'] as String?),
         heroImageUrl: nonEmpty(map['heroImageUrl'] as String?),
+        zipCode: nonEmpty(map['zipCode'] as String?),
+        socialLinks:
+            (map['socialLinks'] as Map?)?.map(
+              (key, value) => MapEntry(key.toString(), value.toString()),
+            ) ??
+            const {},
       );
 }

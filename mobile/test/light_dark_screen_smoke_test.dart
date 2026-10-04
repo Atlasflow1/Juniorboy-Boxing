@@ -12,6 +12,18 @@ import 'package:junior_boy_boxing/features/admin/presentation/screens/admin_dash
 import 'package:junior_boy_boxing/features/admin/presentation/screens/admin_orders_screen.dart';
 import 'package:junior_boy_boxing/features/admin/presentation/screens/admin_subscriptions_screen.dart';
 import 'package:junior_boy_boxing/features/admin/presentation/screens/plan_editor_screen.dart';
+import 'package:junior_boy_boxing/features/admin/presentation/screens/ad_editor_screen.dart';
+import 'package:junior_boy_boxing/features/admin/presentation/screens/program_editor_screen.dart';
+import 'package:junior_boy_boxing/features/admin/presentation/screens/session_editor_screen.dart';
+import 'package:junior_boy_boxing/features/blog/presentation/screens/blog_screen.dart';
+import 'package:junior_boy_boxing/features/home/presentation/screens/home_screen.dart';
+import 'package:junior_boy_boxing/features/home/presentation/providers/home_provider.dart';
+import 'package:junior_boy_boxing/features/home/presentation/widgets/home_ads_section.dart';
+import 'package:junior_boy_boxing/features/home/data/home_ad_model.dart';
+import 'package:junior_boy_boxing/features/membership/data/membership_plan_model.dart';
+import 'package:junior_boy_boxing/features/membership/presentation/widgets/membership_plans_section.dart';
+import 'package:junior_boy_boxing/features/membership/presentation/providers/membership_provider.dart';
+import 'package:junior_boy_boxing/features/payments/presentation/providers/payments_provider.dart';
 import 'package:junior_boy_boxing/features/admin/presentation/screens/template_editor_screen.dart';
 import 'package:junior_boy_boxing/features/booking/presentation/screens/book_class_screen.dart';
 import 'package:junior_boy_boxing/features/booking/presentation/screens/booking_confirmation_screen.dart';
@@ -31,6 +43,7 @@ import 'package:junior_boy_boxing/features/reviews/presentation/providers/review
 import 'package:junior_boy_boxing/features/reviews/domain/review.dart';
 import 'package:junior_boy_boxing/features/reviews/presentation/screens/reviews_screen.dart';
 import 'package:junior_boy_boxing/features/schedule/data/session_model.dart';
+import 'package:junior_boy_boxing/features/schedule/data/program_model.dart';
 import 'package:junior_boy_boxing/features/schedule/domain/program.dart';
 import 'package:junior_boy_boxing/features/schedule/presentation/providers/schedule_provider.dart';
 import 'package:junior_boy_boxing/features/store/domain/product_repository.dart';
@@ -56,6 +69,9 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   tz_data.initializeTimeZones();
   GoogleFonts.config.allowRuntimeFetching = false;
+  final sampleProgram = ProgramModel.fromMap({'id': 'boxing', 'className': 'Boxing', 'trainingType': 'private'});
+  final sampleAd = HomeAdModel.fromMap({'id': 'ad', 'title': 'Train this week', 'linkHref': '/pricing'});
+  final samplePlan = MembershipPlanModel.fromMap({'id': 'ten', 'name': 'Ten Sessions', 'price': 60000, 'priceLabel': '\$600', 'perSessionLabel': '\$60 per session', 'sessionCount': 10});
 
   final screens = <String, Widget>{
     'admin dashboard': const AdminDashboardScreen(),
@@ -63,6 +79,13 @@ void main() {
     'admin subscriptions': const AdminSubscriptionsScreen(),
     'admin bookings': const AdminBookingsScreen(),
     'plan editor': const PlanEditorScreen(),
+    'program editor': const ProgramEditorScreen(),
+    'ad editor': const AdEditorScreen(),
+    'session editor': const SessionEditorScreen(),
+    'blog': const BlogScreen(),
+    'home': const Scaffold(body: HomeScreen()),
+    'home ads': const Scaffold(body: HomeAdsSection()),
+    'membership plans': const Scaffold(body: MembershipPlansSection()),
     'template editor': const TemplateEditorScreen(),
     'book class': const BookClassScreen(scheduleId: 'test-session'),
     'booking confirmation': const BookingConfirmationScreen(),
@@ -93,6 +116,11 @@ void main() {
               adminTemplatesProvider.overrideWith((ref) => Stream.value([])),
               adminOrdersProvider.overrideWith((ref) => Stream.value([])),
               adminBookingsProvider.overrideWith((ref) => Stream.value([])),
+              adminProgramsProvider.overrideWith((ref) => Stream.value([sampleProgram])),
+              adminAdsProvider.overrideWith((ref) => Stream.value([sampleAd])),
+              homeAdsProvider.overrideWith((ref) => Stream.value([sampleAd])),
+              plansProvider.overrideWith((ref) => Stream.value([samplePlan])),
+              paymentsProvider.overrideWith((ref) => Stream.value([])),
               productsProvider.overrideWith((ref) => Stream.value([])),
               productsAdminProvider.overrideWith((ref) => Stream.value([])),
               bookingsProvider.overrideWith((ref) => Stream.value([])),
@@ -123,7 +151,7 @@ void main() {
                   ),
                 ),
               ),
-              classesProvider.overrideWith((ref) => Stream.value(<Program>[])),
+              classesProvider.overrideWith((ref) => Stream.value(<Program>[sampleProgram])),
               sessionProvider.overrideWith(
                 (ref, id) => Stream.value(
                   SessionModel.fromMap({

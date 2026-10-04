@@ -14,8 +14,7 @@ class JbbBottomNav extends StatelessWidget {
     final items = [
       (AppStrings.navHome, AppIcons.navHome),
       (AppStrings.navSchedule, AppIcons.navSchedule),
-      (AppStrings.navBook, AppIcons.navBook),
-      (AppStrings.navMembership, AppIcons.navMembership),
+      (AppStrings.myBookings, AppIcons.navLog),
       (AppStrings.navMore, AppIcons.navMore),
     ];
     return Container(

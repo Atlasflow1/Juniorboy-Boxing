@@ -6,6 +6,9 @@ import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/resources/app_strings.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/utils/snackbar_utils.dart';
+import '../../../../core/utils/nav_debounce.dart';
+import '../../../../core/router/app_routes.dart';
+import '../../../profile/presentation/providers/profile_provider.dart';
 import '../../../../core/widgets/jbb_empty_state.dart';
 import '../../../../core/widgets/jbb_loading.dart';
 import '../../../../core/widgets/page_content.dart';
@@ -39,6 +42,11 @@ class _ScheduleState extends ConsumerState<ScheduleScreen> {
     final key = DateFormat('yyyy-MM-dd').format(day),
         programs = ref.watch(classesProvider).value ?? [];
     final sessions = ref.watch(scheduleProvider(key));
+    final member = ref.watch(profileProvider).value;
+    final ownedTypes = <String>{
+      for (final type in ['private', 'group', 'duo'])
+        if ((member?.availableSessions(type) ?? 0) > 0) type,
+    };
     return PageContent(
       title: AppStrings.classSchedule,
       children: [
@@ -52,12 +60,23 @@ class _ScheduleState extends ConsumerState<ScheduleScreen> {
         SizedBox(height: AppSizes.s14),
         sessions.when(
           data: (allRows) {
-            final rows = allRows
-                .where(
-                  (s) =>
-                      widget.programId == null || s.classId == widget.programId,
-                )
-                .toList();
+            final rows = allRows.where((s) {
+              if (widget.programId != null && s.classId != widget.programId) {
+                return false;
+              }
+              final program = programs.firstWhere(
+                (p) => p.id == s.classId,
+                orElse: () => Program.empty,
+              );
+              return ownedTypes.contains(program.trainingType ?? 'private');
+            }).toList();
+            if (ownedTypes.isEmpty) {
+              return JbbEmptyState(
+                message: AppStrings.noSessionCredits,
+                actionLabel: AppStrings.chooseYourPlan,
+                onRetry: () => context.safeNavigate(AppRoutes.membership),
+              );
+            }
             return rows.isEmpty
                 ? JbbEmptyState(
                     message: AppStrings

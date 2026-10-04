@@ -26,6 +26,12 @@ class MemberModel extends Member {
     required super.waiverParticipantAge,
     required super.pushNotifications,
     required super.emailNotifications,
+    super.privateSessionsRemaining,
+    super.privateSessionsReserved,
+    super.groupSessionsRemaining,
+    super.groupSessionsReserved,
+    super.duoSessionsRemaining,
+    super.duoSessionsReserved,
   });
 
   factory MemberModel.fromMap(Map<String, dynamic> map) {
@@ -53,6 +59,16 @@ class MemberModel extends Member {
       waiverParticipantAge: (map['waiverParticipantAge'] as num?)?.toInt(),
       pushNotifications: preferences?['push'] as bool? ?? true,
       emailNotifications: preferences?['email'] as bool? ?? true,
+      privateSessionsRemaining:
+          (map['privateSessionsRemaining'] as num?)?.toInt() ?? 0,
+      privateSessionsReserved:
+          (map['privateSessionsReserved'] as num?)?.toInt() ?? 0,
+      groupSessionsRemaining:
+          (map['groupSessionsRemaining'] as num?)?.toInt() ?? 0,
+      groupSessionsReserved:
+          (map['groupSessionsReserved'] as num?)?.toInt() ?? 0,
+      duoSessionsRemaining: (map['duoSessionsRemaining'] as num?)?.toInt() ?? 0,
+      duoSessionsReserved: (map['duoSessionsReserved'] as num?)?.toInt() ?? 0,
     );
   }
 }

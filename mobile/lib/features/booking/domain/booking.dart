@@ -6,6 +6,8 @@ class Booking {
     required this.date,
     required this.endAt,
     required this.status,
+    this.category,
+    this.trainingType,
   });
 
   final String id;
@@ -14,4 +16,5 @@ class Booking {
   final DateTime date;
   final DateTime endAt;
   final String status;
+  final String? category, trainingType;
 }

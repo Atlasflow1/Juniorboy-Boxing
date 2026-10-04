@@ -21,4 +21,4 @@ Payments and privacy
 Membership packs purchase the session credits described at checkout. There is no automatic monthly renewal for these packs. Booking cancellation and refund policies are stated separately. Contact the gym with questions before purchase. Acceptance records include the document version, participant details, signer's name and server timestamp. Photo or marketing consent is separate and is not granted by this document.
 
 Questions
-Junior Boy Boxing, 3200 Naglee Rd, Tracy, CA. Phone: 415-290-0559. Email: juniorboyboxing@gmail.com.`;
+Junior Boy Boxing. Email: email@juniorboyboxing.com.`;

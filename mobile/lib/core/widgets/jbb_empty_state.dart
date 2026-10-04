@@ -6,9 +6,15 @@ import '../resources/app_strings.dart';
 import 'app_icon.dart';
 
 class JbbEmptyState extends StatelessWidget {
-  const JbbEmptyState({super.key, required this.message, this.onRetry});
+  const JbbEmptyState({
+    super.key,
+    required this.message,
+    this.onRetry,
+    this.actionLabel,
+  });
   final String message;
   final VoidCallback? onRetry;
+  final String? actionLabel;
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.symmetric(vertical: AppSizes.s32),
@@ -22,7 +28,10 @@ class JbbEmptyState extends StatelessWidget {
         SizedBox(height: AppSizes.s14),
         Text(message, textAlign: TextAlign.center),
         if (onRetry != null)
-          TextButton(onPressed: onRetry, child: Text(AppStrings.retry)),
+          TextButton(
+            onPressed: onRetry,
+            child: Text(actionLabel ?? AppStrings.retry),
+          ),
       ],
     ),
   );

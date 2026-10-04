@@ -5,7 +5,11 @@ abstract final class AppIcons {
 
   static const navHome = '$_dir/ic_nav_home.svg';
   static const navSchedule = '$_dir/ic_nav_schedule.svg';
-  static const navBook = '$_dir/ic_nav_book.svg';
+  static const navLog = '$_dir/ic_nav_log.svg';
+  static const instagram = '$_dir/ic_instagram.svg';
+  static const facebook = '$_dir/ic_facebook.svg';
+  static const tiktok = '$_dir/ic_tiktok.svg';
+  static const youtube = '$_dir/ic_youtube.svg';
   static const navMembership = '$_dir/ic_nav_membership.svg';
   static const navMore = '$_dir/ic_nav_more.svg';
 
@@ -13,6 +17,7 @@ abstract final class AppIcons {
   static const appearance = '$_dir/ic_appearance.svg';
   static const boxingGlove = '$_dir/ic_boxing_glove.svg';
   static const calendar = '$_dir/ic_calendar.svg';
+  static const clock = '$_dir/ic_clock.svg';
   static const calendarCheck = '$_dir/ic_calendar_check.svg';
   static const checkCircle = '$_dir/ic_checkmark_circle.svg';
   static const chevronLeft = '$_dir/ic_chevron_left.svg';

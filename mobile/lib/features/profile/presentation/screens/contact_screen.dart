@@ -34,35 +34,20 @@ class ContactScreen extends ConsumerWidget {
             settings.coachName ?? AppStrings.uiCoachSharif,
             style: Theme.of(context).textTheme.headlineMedium,
           ),
-          SizedBox(height: AppSizes.s16),
-          Text(settings.address ?? AppStrings.address),
           SizedBox(height: AppSizes.s24),
           SettingsGroup(
             children: [
-              if ((settings.phone ?? '').isNotEmpty)
-                SettingsRow(
-                  icon: AppIcons.phone,
-                  title: settings.phone!,
-                  onTap: () => open(Uri(scheme: 'tel', path: settings.phone!)),
+              SettingsRow(
+                icon: AppIcons.mail,
+                title: settings.email ?? AppStrings.contactEmail,
+                onTap: () => open(
+                  Uri(
+                    scheme: 'mailto',
+                    path: settings.email ?? AppStrings.contactEmail,
+                  ),
                 ),
-              if ((settings.email ?? '').isNotEmpty)
-                SettingsRow(
-                  icon: AppIcons.mail,
-                  title: settings.email!,
-                  onTap: () =>
-                      open(Uri(scheme: 'mailto', path: settings.email!)),
-                ),
+              ),
             ],
-          ),
-          const SizedBox(height: AppSizes.s16),
-          FilledButton(
-            onPressed: () => open(
-              Uri.https('www.google.com', '/maps/search/', {
-                'api': '1',
-                'query': settings.address ?? AppStrings.address,
-              }),
-            ),
-            child: Text(AppStrings.getDirections),
           ),
           SizedBox(height: AppSizes.s24),
           Text(

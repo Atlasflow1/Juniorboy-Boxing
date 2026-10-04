@@ -35,12 +35,35 @@ class JbbClassCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  '${session.startTime} – ${session.endTime}',
-                  style: TextStyle(
-                    color: context.palette.accent,
-                    fontSize: AppSizes.font12,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      '${session.startTime} – ${session.endTime}',
+                      style: TextStyle(
+                        color: context.palette.accent,
+                        fontSize: AppSizes.font12,
+                      ),
+                    ),
+                    SizedBox(width: AppSizes.s8),
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: context.palette.accent),
+                        borderRadius: BorderRadius.circular(AppSizes.radius4),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSizes.s6,
+                        ),
+                        child: Text(
+                          (program.trainingType ?? 'private').toUpperCase(),
+                          style: TextStyle(
+                            color: context.palette.accent,
+                            fontSize: AppSizes.font10,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 SizedBox(height: AppSizes.s5),
                 Text(
@@ -58,7 +81,7 @@ class JbbClassCard extends StatelessWidget {
                 SizedBox(height: AppSizes.s6),
                 Text(
                   spots > 0
-                      ? '$spots spots available'
+                      ? '$spots of ${session.maxSpots} spots available'
                       : AppStrings.uiFullyBooked,
                   style: TextStyle(
                     color: spots > 0
@@ -66,6 +89,14 @@ class JbbClassCard extends StatelessWidget {
                         : context.palette.accent,
                   ),
                 ),
+                if (program.priceLabel != null)
+                  Text(
+                    program.priceLabel!,
+                    style: TextStyle(
+                      color: context.palette.textSecondary,
+                      fontSize: AppSizes.font12,
+                    ),
+                  ),
               ],
             ),
           ),

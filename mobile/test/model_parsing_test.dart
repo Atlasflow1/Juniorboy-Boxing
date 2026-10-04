@@ -3,6 +3,8 @@ import 'package:junior_boy_boxing/features/booking/data/booking_model.dart';
 import 'package:junior_boy_boxing/features/booking/domain/booking_eligibility.dart';
 import 'package:junior_boy_boxing/features/membership/data/membership_plan_model.dart';
 import 'package:junior_boy_boxing/features/home/data/home_repository_impl.dart';
+import 'package:junior_boy_boxing/features/home/data/home_ad_model.dart';
+import 'package:junior_boy_boxing/core/utils/address_utils.dart';
 import 'package:junior_boy_boxing/features/profile/data/member_model.dart';
 import 'package:junior_boy_boxing/features/schedule/data/session_model.dart';
 import 'package:junior_boy_boxing/features/schedule/data/program_model.dart';
@@ -49,6 +51,59 @@ void main() {
     expect(session.isCancelled, false);
     expect(session.date.millisecondsSinceEpoch, 0);
     expect(SessionModel.fromMap({}).maxSpots, 0);
+  });
+
+  test('one-off session slot keeps date, times, and capacity', () {
+    final slot = SessionModel.fromMap({
+      'id': 'slot-1',
+      'classId': 'boxing',
+      'date': '2026-10-10T17:00:00.000Z',
+      'endAt': '2026-10-10T18:00:00.000Z',
+      'startTime': '10:00',
+      'endTime': '11:00',
+      'maxSpots': 2,
+      'bookedSpots': 1,
+    });
+    expect(slot.classId, 'boxing');
+    expect(slot.startTime, '10:00');
+    expect(slot.endTime, '11:00');
+    expect(slot.maxSpots - slot.bookedSpots, 1);
+  });
+
+  test('program and ad parse admin fields', () {
+    final program = ProgramModel.fromMap({
+      'id': 'p',
+      'trainingType': 'duo',
+      'category': 'Team',
+      'price': 6000,
+      'adImages': ['one', '', 'two'],
+      'discountActive': true,
+      'discountPercent': 15,
+    });
+    final ad = HomeAdModel.fromMap({
+      'id': 'a',
+      'title': 'Special',
+      'price': 3000,
+      'linkHref': '/pricing',
+      'sortOrder': 2,
+      'isActive': false,
+    });
+    expect(program.trainingType, 'duo');
+    expect(program.adImages, ['one', 'two']);
+    expect(program.discountPercent, 15);
+    expect(ad.linkHref, '/pricing');
+    expect(ad.sortOrder, 2);
+    expect(ad.isActive, false);
+  });
+
+  test('structured address parses and composes the Firestore string', () {
+    final address = StructuredAddress.parse('3200 Naglee Rd, Tracy, CA');
+    expect(address.houseNumber, '3200');
+    expect(address.streetName, 'Naglee Rd');
+    expect(address.city, 'Tracy');
+    expect(address.country, 'CA');
+    expect(address.formatted, '3200 Naglee Rd, Tracy, CA');
+    expect(StructuredAddress.parse('3200 Naglee Rd, Tracy, 95376, USA').country, 'USA');
   });
 
   test('membership plan parses nullable count and defaults', () {

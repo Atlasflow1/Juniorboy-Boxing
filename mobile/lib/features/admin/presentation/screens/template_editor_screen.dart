@@ -9,6 +9,7 @@ import '../../../../core/widgets/jbb_button.dart';
 import '../../../schedule/presentation/providers/schedule_provider.dart';
 import '../providers/admin_provider.dart';
 import '../../domain/recurring_template.dart';
+import '../../../schedule/domain/program.dart';
 
 const _weekdays = [
   (1, AppStrings.uiMonday),
@@ -47,10 +48,28 @@ class _TemplateEditorState extends ConsumerState<TemplateEditorScreen> {
     super.dispose();
   }
 
+  int? requiredCapacity(List<Program> classes) {
+    final program = classes.firstWhere(
+      (p) => p.id == classId,
+      orElse: () => Program.empty,
+    );
+    return switch (program.trainingType) {
+      'private' => 1,
+      'duo' => 2,
+      _ => null,
+    };
+  }
+
+  void pickClass(String? id, List<Program> classes) {
+    setState(() => classId = id);
+    final capacity = requiredCapacity(classes);
+    if (capacity != null) maxSpots.text = '$capacity';
+  }
+
   Future<void> save() async {
     if (!form.currentState!.validate() || classId == null) return;
     setState(() => busy = true);
-    final id = widget.template?.id ?? '${classId}_$dayOfWeek';
+    final id = widget.template?.id ?? ref.read(adminRepositoryProvider).newId();
     try {
       await ref.read(adminRepositoryProvider).saveTemplate(id, {
         'classId': classId,
@@ -104,6 +123,7 @@ class _TemplateEditorState extends ConsumerState<TemplateEditorScreen> {
   @override
   Widget build(BuildContext context) {
     final classes = ref.watch(classesProvider).value ?? [];
+    final capacity = requiredCapacity(classes);
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -127,9 +147,15 @@ class _TemplateEditorState extends ConsumerState<TemplateEditorScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               DropdownButtonFormField<String>(
-                initialValue: classId,
-                decoration: const InputDecoration(
+                initialValue: classes.any((p) => p.id == classId)
+                    ? classId
+                    : null,
+                decoration: InputDecoration(
                   labelText: AppStrings.program,
+                  helperText:
+                      classId != null && !classes.any((p) => p.id == classId)
+                      ? AppStrings.programNoLongerExists
+                      : null,
                 ),
                 items: [
                   for (final c in classes)
@@ -138,7 +164,7 @@ class _TemplateEditorState extends ConsumerState<TemplateEditorScreen> {
                       child: Text(c.className ?? c.id),
                     ),
                 ],
-                onChanged: (v) => setState(() => classId = v),
+                onChanged: (v) => pickClass(v, classes),
                 validator: (v) =>
                     v == null ? AppStrings.uiChooseAProgram : null,
               ),
@@ -169,8 +195,12 @@ class _TemplateEditorState extends ConsumerState<TemplateEditorScreen> {
               TextFormField(
                 controller: maxSpots,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
+                readOnly: capacity != null,
+                decoration: InputDecoration(
                   labelText: AppStrings.maxSpots,
+                  helperText: capacity == null
+                      ? null
+                      : AppStrings.capacityLocked(capacity),
                 ),
                 validator: (v) =>
                     int.tryParse(v ?? '') != null && int.parse(v!) > 0

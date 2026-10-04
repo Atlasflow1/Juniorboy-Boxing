@@ -13,6 +13,7 @@ class Payment {
     required this.size,
     required this.estimatedDeliveryDate,
     required this.deliveryNote,
+    this.trainingType,
   });
 
   final String id;
@@ -22,6 +23,7 @@ class Payment {
   final num amount;
   final String status;
   final String? paymentMethod, productName, size, deliveryNote;
+  final String? trainingType;
   final DateTime createdAt;
   final DateTime? estimatedDeliveryDate;
 }
