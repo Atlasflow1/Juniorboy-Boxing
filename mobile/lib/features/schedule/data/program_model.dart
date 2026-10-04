@@ -1,4 +1,5 @@
 import '../domain/program.dart';
+import '../../../core/utils/non_empty.dart';
 
 class ProgramModel extends Program {
   const ProgramModel({
@@ -10,8 +11,8 @@ class ProgramModel extends Program {
 
   factory ProgramModel.fromMap(Map<String, dynamic> map) => ProgramModel(
     id: map['id'] as String? ?? '',
-    className: map['className'] as String?,
-    ageGroup: map['ageGroup'] as String?,
-    address: map['address'] as String?,
+    className: nonEmpty(map['className'] as String?),
+    ageGroup: nonEmpty(map['ageGroup'] as String?),
+    address: nonEmpty(map['address'] as String?),
   );
 }

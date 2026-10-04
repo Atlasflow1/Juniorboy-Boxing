@@ -50,10 +50,11 @@ class JbbClassCard extends StatelessWidget {
                     fontSize: AppSizes.font17,
                   ),
                 ),
-                Text(
-                  program.ageGroup ?? '',
-                  style: TextStyle(color: context.palette.textSecondary),
-                ),
+                if (program.ageGroup != null)
+                  Text(
+                    program.ageGroup!,
+                    style: TextStyle(color: context.palette.textSecondary),
+                  ),
                 SizedBox(height: AppSizes.s6),
                 Text(
                   spots > 0

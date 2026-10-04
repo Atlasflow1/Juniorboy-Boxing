@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/resources/app_icons.dart';
 import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/resources/app_strings.dart';
@@ -121,20 +122,35 @@ class _EditState extends ConsumerState<EditProfileScreen> {
                   children: [
                     CircleAvatar(
                       radius: AppSizes.avatarRadiusProfile,
+                      backgroundColor: context.palette.accentTint,
                       backgroundImage: (user?.avatarUrl ?? '').isNotEmpty
                           ? CachedNetworkImageProvider(user!.avatarUrl!)
                           : null,
                       child: (user?.avatarUrl ?? '').isEmpty
-                          ? const AppIcon(AppIcons.user, size: AppSizes.s40)
+                          ? AppIcon(
+                              AppIcons.user,
+                              size: AppSizes.s40,
+                              color: context.palette.accent,
+                            )
                           : null,
                     ),
-                    const CircleAvatar(
-                      radius: AppSizes.avatarRadiusSmall,
-                      child: AppIcon(AppIcons.imagePlus, size: AppSizes.s16),
+                    CircleAvatar(
+                      radius: AppSizes.avatarRadiusSmall + AppSizes.s2,
+                      backgroundColor: context.palette.surface,
+                      child: CircleAvatar(
+                        radius: AppSizes.avatarRadiusSmall,
+                        backgroundColor: context.palette.accent,
+                        child: const AppIcon(
+                          AppIcons.imagePlus,
+                          size: AppSizes.s16,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ),
+              const SizedBox(height: AppSizes.s24),
               for (var i = 0; i < fields.length; i++)
                 Padding(
                   padding: const EdgeInsets.only(bottom: AppSizes.s14),

@@ -26,18 +26,42 @@ ThemeData buildTheme(AppPalette p, Brightness brightness) {
   return base.copyWith(
     extensions: [p],
     scaffoldBackgroundColor: p.background,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: p.accent,
+    colorScheme: ColorScheme(
       brightness: brightness,
       primary: p.accent,
       onPrimary: Colors.white,
+      primaryContainer: p.accentTint,
+      onPrimaryContainer: p.accent,
       secondary: p.accent,
       onSecondary: Colors.white,
+      secondaryContainer: p.accentTint,
+      onSecondaryContainer: p.accent,
+      tertiary: p.accent,
+      onTertiary: Colors.white,
+      tertiaryContainer: p.accentTint,
+      onTertiaryContainer: p.accent,
       surface: p.surface,
       onSurface: p.textPrimary,
+      onSurfaceVariant: p.textSecondary,
+      surfaceDim: p.background,
+      surfaceBright: p.elevated,
+      surfaceContainerLowest: p.background,
+      surfaceContainerLow: p.surface,
+      surfaceContainer: p.surface,
+      surfaceContainerHigh: p.elevated,
+      surfaceContainerHighest: p.elevated,
       error: p.accent,
       onError: Colors.white,
+      errorContainer: p.accentTint,
+      onErrorContainer: p.accent,
       outline: p.separator,
+      outlineVariant: p.separator,
+      shadow: Colors.black,
+      scrim: Colors.black,
+      inverseSurface: p.textPrimary,
+      onInverseSurface: p.surface,
+      inversePrimary: p.accent,
+      surfaceTint: Colors.transparent,
     ),
     textTheme: body.copyWith(
       headlineMedium: GoogleFonts.oswald(
@@ -89,6 +113,9 @@ ThemeData buildTheme(AppPalette p, Brightness brightness) {
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: p.surface,
+      hintStyle: TextStyle(color: p.textSecondary),
+      labelStyle: TextStyle(color: p.textSecondary),
+      floatingLabelStyle: TextStyle(color: p.textSecondary),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AppSizes.radiusInput),
       ),
@@ -100,6 +127,16 @@ ThemeData buildTheme(AppPalette p, Brightness brightness) {
         borderRadius: BorderRadius.circular(AppSizes.radiusInput),
         borderSide: BorderSide(color: p.accent),
       ),
+    ),
+    chipTheme: ChipThemeData(
+      backgroundColor: p.surface,
+      selectedColor: p.accentTint,
+      disabledColor: p.elevated,
+      side: BorderSide(color: p.separator, width: AppSizes.separatorWidth),
+      labelStyle: TextStyle(color: p.textPrimary),
+      secondaryLabelStyle: TextStyle(color: p.accent),
+      showCheckmark: false,
+      surfaceTintColor: Colors.transparent,
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
@@ -138,6 +175,105 @@ ThemeData buildTheme(AppPalette p, Brightness brightness) {
         ),
         side: WidgetStatePropertyAll(BorderSide(color: p.separator)),
       ),
+    ),
+    switchTheme: SwitchThemeData(
+      thumbColor: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.selected)
+            ? Colors.white
+            : p.textSecondary,
+      ),
+      trackColor: WidgetStateProperty.resolveWith(
+        (states) =>
+            states.contains(WidgetState.selected) ? p.accent : p.elevated,
+      ),
+      trackOutlineColor: WidgetStatePropertyAll(p.separator),
+    ),
+    checkboxTheme: CheckboxThemeData(
+      fillColor: WidgetStateProperty.resolveWith(
+        (states) =>
+            states.contains(WidgetState.selected) ? p.accent : p.surface,
+      ),
+      checkColor: const WidgetStatePropertyAll(Colors.white),
+      side: BorderSide(color: p.separator),
+    ),
+    radioTheme: RadioThemeData(
+      fillColor: WidgetStateProperty.resolveWith(
+        (states) =>
+            states.contains(WidgetState.selected) ? p.accent : p.textSecondary,
+      ),
+    ),
+    sliderTheme: SliderThemeData(
+      activeTrackColor: p.accent,
+      inactiveTrackColor: p.separator,
+      thumbColor: p.accent,
+    ),
+    tabBarTheme: TabBarThemeData(
+      labelColor: p.accent,
+      unselectedLabelColor: p.textSecondary,
+      indicatorColor: p.accent,
+      dividerColor: p.separator,
+    ),
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      backgroundColor: p.accent,
+      foregroundColor: Colors.white,
+    ),
+    popupMenuTheme: PopupMenuThemeData(
+      color: p.elevated,
+      surfaceTintColor: Colors.transparent,
+      textStyle: TextStyle(color: p.textPrimary),
+    ),
+    datePickerTheme: DatePickerThemeData(
+      backgroundColor: p.surface,
+      surfaceTintColor: Colors.transparent,
+      headerBackgroundColor: p.accent,
+      headerForegroundColor: Colors.white,
+      dayForegroundColor: WidgetStatePropertyAll(p.textPrimary),
+      todayForegroundColor: WidgetStatePropertyAll(p.accent),
+      todayBorder: BorderSide(color: p.accent),
+    ),
+    timePickerTheme: TimePickerThemeData(
+      backgroundColor: p.surface,
+      dialBackgroundColor: p.elevated,
+      dialHandColor: p.accent,
+      hourMinuteColor: p.accentTint,
+      hourMinuteTextColor: p.accent,
+      dayPeriodColor: p.accentTint,
+      dayPeriodTextColor: p.accent,
+    ),
+    dropdownMenuTheme: DropdownMenuThemeData(
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: p.surface,
+        hintStyle: TextStyle(color: p.textSecondary),
+        labelStyle: TextStyle(color: p.textSecondary),
+      ),
+      menuStyle: MenuStyle(
+        backgroundColor: WidgetStatePropertyAll(p.elevated),
+        surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+      ),
+    ),
+    dataTableTheme: DataTableThemeData(
+      headingRowColor: WidgetStatePropertyAll(p.elevated),
+      dataRowColor: WidgetStatePropertyAll(p.surface),
+      headingTextStyle: TextStyle(
+        color: p.textPrimary,
+        fontWeight: FontWeight.w600,
+      ),
+      dataTextStyle: TextStyle(color: p.textPrimary),
+      dividerThickness: AppSizes.separatorWidth,
+    ),
+    expansionTileTheme: ExpansionTileThemeData(
+      backgroundColor: p.surface,
+      collapsedBackgroundColor: p.surface,
+      iconColor: p.accent,
+      collapsedIconColor: p.textSecondary,
+      textColor: p.textPrimary,
+      collapsedTextColor: p.textPrimary,
+    ),
+    progressIndicatorTheme: ProgressIndicatorThemeData(
+      color: p.accent,
+      linearTrackColor: p.separator,
+      circularTrackColor: p.separator,
     ),
     dialogTheme: DialogThemeData(
       backgroundColor: p.elevated,

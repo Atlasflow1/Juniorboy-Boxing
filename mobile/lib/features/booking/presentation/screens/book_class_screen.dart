@@ -91,7 +91,7 @@ class _BookClassState extends ConsumerState<BookClassScreen> {
                           program.className ?? AppStrings.uiBoxingClass,
                           style: Theme.of(context).textTheme.headlineMedium,
                         ),
-                        Text(program.ageGroup ?? ''),
+                        if (program.ageGroup != null) Text(program.ageGroup!),
                         SizedBox(height: AppSizes.s22),
                         for (final item in [
                           (AppStrings.uiDate, dateLabel(session.date)),

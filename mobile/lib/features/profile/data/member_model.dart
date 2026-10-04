@@ -1,4 +1,5 @@
 import '../../../core/utils/date_utils.dart';
+import '../../../core/utils/non_empty.dart';
 import '../domain/member.dart';
 
 class MemberModel extends Member {
@@ -31,18 +32,18 @@ class MemberModel extends Member {
     final preferences = map['notificationPreferences'] as Map?;
     return MemberModel(
       id: map['id'] as String? ?? '',
-      fullName: map['fullName'] as String?,
-      lastName: map['lastName'] as String?,
-      email: map['email'] as String?,
-      phone: map['phone'] as String?,
+      fullName: nonEmpty(map['fullName'] as String?),
+      lastName: nonEmpty(map['lastName'] as String?),
+      email: nonEmpty(map['email'] as String?),
+      phone: nonEmpty(map['phone'] as String?),
       age: (map['age'] as num?)?.toInt() ?? 0,
-      address: map['address'] as String?,
-      zipCode: map['zipCode'] as String?,
-      avatarUrl: map['avatarUrl'] as String?,
+      address: nonEmpty(map['address'] as String?),
+      zipCode: nonEmpty(map['zipCode'] as String?),
+      avatarUrl: nonEmpty(map['avatarUrl'] as String?),
       role: map['role'] as String?,
       isActive: map['isActive'] as bool?,
       memberSince: readDate(map['memberSince']),
-      membershipPlanId: map['membershipPlanId'] as String?,
+      membershipPlanId: nonEmpty(map['membershipPlanId'] as String?),
       sessionsRemaining: (map['sessionsRemaining'] as num?)?.toInt() ?? 0,
       sessionsReserved: (map['sessionsReserved'] as num?)?.toInt() ?? 0,
       childName: map['childName'] as String? ?? '',

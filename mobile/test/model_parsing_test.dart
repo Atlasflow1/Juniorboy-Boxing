@@ -5,8 +5,26 @@ import 'package:junior_boy_boxing/features/membership/data/membership_plan_model
 import 'package:junior_boy_boxing/features/home/data/home_repository_impl.dart';
 import 'package:junior_boy_boxing/features/profile/data/member_model.dart';
 import 'package:junior_boy_boxing/features/schedule/data/session_model.dart';
+import 'package:junior_boy_boxing/features/schedule/data/program_model.dart';
+import 'package:junior_boy_boxing/features/store/data/product_model.dart';
+import 'package:junior_boy_boxing/features/reviews/data/review_model.dart';
+import 'package:junior_boy_boxing/features/profile/data/gym_settings_model.dart';
 
 void main() {
+  test('blank optional presentation fields normalize to null', () {
+    final program = ProgramModel.fromMap({
+      'className': ' ',
+      'ageGroup': '',
+      'address': '  ',
+    });
+    expect(program.className, isNull);
+    expect(program.ageGroup, isNull);
+    expect(program.address, isNull);
+    expect(MemberModel.fromMap({'fullName': '  '}).fullName, isNull);
+    expect(ProductModel.fromMap({'name': ' ', 'description': ''}).name, isNull);
+    expect(GymSettingsModel.fromMap({'aboutText': ' '}).aboutText, isNull);
+    expect(ReviewModel.fromMap({'userName': ' '}).userName, 'Member');
+  });
   test('booking parses dates and missing fields', () {
     final date = DateTime.utc(2026, 10, 5, 12);
     final booking = BookingModel.fromMap({

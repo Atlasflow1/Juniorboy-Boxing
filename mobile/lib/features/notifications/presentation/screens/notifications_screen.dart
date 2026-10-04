@@ -27,7 +27,6 @@ class NotificationsScreen extends ConsumerWidget {
                       children: items
                           .map(
                             (n) => JbbCard(
-                              selected: n.isRead != true,
                               onTap: () async {
                                 try {
                                   await ref
@@ -42,11 +41,28 @@ class NotificationsScreen extends ConsumerWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    n.title,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                  Row(
+                                    children: [
+                                      if (n.isRead != true) ...[
+                                        Container(
+                                          width: AppSizes.s8,
+                                          height: AppSizes.s8,
+                                          decoration: BoxDecoration(
+                                            color: context.palette.accent,
+                                            shape: BoxShape.circle,
+                                          ),
+                                        ),
+                                        const SizedBox(width: AppSizes.s8),
+                                      ],
+                                      Expanded(
+                                        child: Text(
+                                          n.title,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                   SizedBox(height: AppSizes.s8),
                                   Text(n.body),
@@ -58,7 +74,7 @@ class NotificationsScreen extends ConsumerWidget {
                                       child: Text(
                                         AppStrings.uiTapToMarkAsRead,
                                         style: TextStyle(
-                                          color: context.palette.accent,
+                                          color: context.palette.textSecondary,
                                           fontSize: AppSizes.font12,
                                         ),
                                       ),

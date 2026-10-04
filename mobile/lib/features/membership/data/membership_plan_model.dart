@@ -1,4 +1,5 @@
 import '../domain/membership_plan.dart';
+import '../../../core/utils/non_empty.dart';
 
 class MembershipPlanModel extends MembershipPlan {
   const MembershipPlanModel({
@@ -20,10 +21,10 @@ class MembershipPlanModel extends MembershipPlan {
   factory MembershipPlanModel.fromMap(Map<String, dynamic> map) =>
       MembershipPlanModel(
         id: map['id'] as String? ?? '',
-        description: map['description'] as String?,
+        description: nonEmpty(map['description'] as String?),
         price: map['price'] as num?,
         isActive: map['isActive'] as bool?,
-        planType: map['planType'] as String?,
+        planType: nonEmpty(map['planType'] as String?),
         createdAt: map['createdAt'],
         name: map['name'] as String? ?? '',
         priceLabel: map['priceLabel'] as String? ?? '',
@@ -31,6 +32,6 @@ class MembershipPlanModel extends MembershipPlan {
         sortOrder: (map['sortOrder'] as num?)?.toInt() ?? 0,
         isRecommended: map['isRecommended'] == true,
         sessionCount: (map['sessionCount'] as num?)?.toInt(),
-        category: map['category'] as String?,
+        category: nonEmpty(map['category'] as String?),
       );
 }

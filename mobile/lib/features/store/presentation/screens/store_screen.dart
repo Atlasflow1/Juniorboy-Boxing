@@ -104,7 +104,7 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
                   children: [
                     Expanded(
                       child: Text(
-                        product.name ?? '',
+                        product.name ?? AppStrings.uiProduct,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: AppSizes.font16,
@@ -186,7 +186,8 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
                   )
                 else
                   Text(
-                    product.priceLabel ?? '',
+                    product.priceLabel ??
+                        '\$${(priceCents / 100).toStringAsFixed(2)}',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: AppSizes.font16,
@@ -204,13 +205,6 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
                           ChoiceChip(
                             label: Text(size),
                             selected: selectedSize[product.id] == size,
-                            selectedColor: context.palette.accent,
-                            backgroundColor: context.palette.elevated,
-                            labelStyle: TextStyle(
-                              color: selectedSize[product.id] == size
-                                  ? Theme.of(context).colorScheme.onPrimary
-                                  : context.palette.textPrimary,
-                            ),
                             onSelected: (_) =>
                                 setState(() => selectedSize[product.id] = size),
                           ),

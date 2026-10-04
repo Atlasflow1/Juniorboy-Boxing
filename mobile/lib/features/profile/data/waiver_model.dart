@@ -1,4 +1,5 @@
 import '../domain/waiver.dart';
+import '../../../core/utils/non_empty.dart';
 
 class WaiverModel extends Waiver {
   const WaiverModel({
@@ -9,8 +10,8 @@ class WaiverModel extends Waiver {
   });
 
   factory WaiverModel.fromMap(Map<String, dynamic>? map) => WaiverModel(
-    version: map?['version'] as String?,
-    body: map?['body'] as String?,
+    version: nonEmpty(map?['version'] as String?),
+    body: nonEmpty(map?['body'] as String?),
     published: map?['published'] == true,
     requiredOnBooking: map?['requiredOnBooking'] == true,
   );

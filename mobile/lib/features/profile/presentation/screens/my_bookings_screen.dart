@@ -63,6 +63,7 @@ class _BookingsState extends ConsumerState<MyBookingsScreen> {
       padding: const EdgeInsets.all(AppSizes.s16),
       children: [
         SegmentedButton<int>(
+          showSelectedIcon: false,
           segments: [
             ButtonSegment(value: 0, label: Text(AppStrings.upcoming)),
             ButtonSegment(value: 1, label: Text(AppStrings.past)),
@@ -108,7 +109,9 @@ class _BookingsState extends ConsumerState<MyBookingsScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              b.className,
+                              b.className.isEmpty
+                                  ? AppStrings.uiBoxingClass
+                                  : b.className,
                               style: TextStyle(
                                 fontSize: AppSizes.font18,
                                 fontWeight: FontWeight.bold,

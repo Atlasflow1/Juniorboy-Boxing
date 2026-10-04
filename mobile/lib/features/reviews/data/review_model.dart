@@ -1,4 +1,5 @@
 import '../../../core/utils/date_utils.dart';
+import '../../../core/utils/non_empty.dart';
 import '../domain/review.dart';
 
 class ReviewModel extends Review {
@@ -15,7 +16,7 @@ class ReviewModel extends Review {
   factory ReviewModel.fromMap(Map<String, dynamic> map) => ReviewModel(
     id: map['id'] as String? ?? '',
     userId: map['userId'] as String? ?? '',
-    userName: map['userName'] as String? ?? 'Member',
+    userName: nonEmpty(map['userName'] as String?) ?? 'Member',
     userAvatarUrl: map['userAvatarUrl'] as String? ?? '',
     rating: (map['rating'] as num?)?.toInt() ?? 0,
     comment: map['comment'] as String? ?? '',

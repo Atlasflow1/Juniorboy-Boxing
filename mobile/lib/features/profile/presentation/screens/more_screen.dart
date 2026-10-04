@@ -52,7 +52,8 @@ class MoreScreen extends ConsumerWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    if (user != null)
+                    if (user != null &&
+                        user.memberSince.millisecondsSinceEpoch > 0)
                       Text(
                         'Member since ${dateLabel(readDate(user.memberSince))}',
                         style: TextStyle(

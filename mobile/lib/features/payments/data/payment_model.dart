@@ -1,4 +1,5 @@
 import '../../../core/utils/date_utils.dart';
+import '../../../core/utils/non_empty.dart';
 import '../domain/payment.dart';
 
 class PaymentModel extends Payment {
@@ -21,18 +22,18 @@ class PaymentModel extends Payment {
   factory PaymentModel.fromMap(Map<String, dynamic> map) => PaymentModel(
     id: map['id'] as String? ?? '',
     userId: map['userId'] as String? ?? '',
-    productId: map['productId'] as String?,
-    membershipPlanId: map['membershipPlanId'] as String?,
+    productId: nonEmpty(map['productId'] as String?),
+    membershipPlanId: nonEmpty(map['membershipPlanId'] as String?),
     credits: (map['credits'] as num?)?.toInt(),
     amount: map['amount'] as num? ?? 0,
     status: map['status'] as String? ?? '',
-    paymentMethod: map['paymentMethod'] as String?,
+    paymentMethod: nonEmpty(map['paymentMethod'] as String?),
     createdAt: readDate(map['createdAt']),
-    productName: map['productName'] as String?,
-    size: map['size'] as String?,
+    productName: nonEmpty(map['productName'] as String?),
+    size: nonEmpty(map['size'] as String?),
     estimatedDeliveryDate: map['estimatedDeliveryDate'] == null
         ? null
         : readDate(map['estimatedDeliveryDate']),
-    deliveryNote: map['deliveryNote'] as String?,
+    deliveryNote: nonEmpty(map['deliveryNote'] as String?),
   );
 }

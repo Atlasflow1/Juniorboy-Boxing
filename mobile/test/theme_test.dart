@@ -45,6 +45,15 @@ void main() {
       expect(date.style?.color, AppColors.onAccent);
       expect(theme.bottomSheetTheme.backgroundColor, expected.surface);
       expect(theme.bottomSheetTheme.surfaceTintColor, Colors.transparent);
+      expect(theme.colorScheme.onSurfaceVariant, expected.textSecondary);
+      expect(theme.colorScheme.surfaceContainerHigh, expected.elevated);
+      expect(theme.colorScheme.outlineVariant, expected.separator);
+      expect(
+        theme.inputDecorationTheme.hintStyle?.color,
+        expected.textSecondary,
+      );
+      expect(theme.chipTheme.selectedColor, expected.accentTint);
+      expect(theme.chipTheme.showCheckmark, false);
       expect(tester.takeException(), isNull);
     });
     testWidgets('grouped settings renders in $name mode', (tester) async {

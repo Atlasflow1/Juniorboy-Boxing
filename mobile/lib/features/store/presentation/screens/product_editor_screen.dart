@@ -296,14 +296,6 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
                     FilterChip(
                       label: Text(size),
                       selected: selectedSizes.contains(size),
-                      selectedColor: context.palette.accent,
-                      backgroundColor: context.palette.elevated,
-                      checkmarkColor: Theme.of(context).colorScheme.onPrimary,
-                      labelStyle: TextStyle(
-                        color: selectedSizes.contains(size)
-                            ? Theme.of(context).colorScheme.onPrimary
-                            : context.palette.textPrimary,
-                      ),
                       onSelected: (v) => setState(
                         () => v
                             ? selectedSizes.add(size)

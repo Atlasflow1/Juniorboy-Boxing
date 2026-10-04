@@ -1,4 +1,5 @@
 import '../domain/gym_settings.dart';
+import '../../../core/utils/non_empty.dart';
 
 class GymSettingsModel extends GymSettings {
   GymSettingsModel({
@@ -15,18 +16,18 @@ class GymSettingsModel extends GymSettings {
 
   factory GymSettingsModel.fromMap(Map<String, dynamic> map) =>
       GymSettingsModel(
-        coachName: map['coachName'] as String?,
-        address: map['address'] as String?,
-        phone: map['phone'] as String?,
-        email: map['email'] as String?,
+        coachName: nonEmpty(map['coachName'] as String?),
+        address: nonEmpty(map['address'] as String?),
+        phone: nonEmpty(map['phone'] as String?),
+        email: nonEmpty(map['email'] as String?),
         operatingHours:
             (map['operatingHours'] as Map?)?.map(
               (key, value) => MapEntry(key.toString(), value),
             ) ??
             const {},
-        aboutText: map['aboutText'] as String?,
+        aboutText: nonEmpty(map['aboutText'] as String?),
         cancellationPolicyHours: map['cancellationPolicyHours'] as num? ?? 24,
-        promoVideoUrl: map['promoVideoUrl'] as String?,
-        heroImageUrl: map['heroImageUrl'] as String?,
+        promoVideoUrl: nonEmpty(map['promoVideoUrl'] as String?),
+        heroImageUrl: nonEmpty(map['heroImageUrl'] as String?),
       );
 }

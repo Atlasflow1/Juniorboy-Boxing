@@ -1,0 +1,149 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:timezone/data/latest.dart' as tz_data;
+import 'package:junior_boy_boxing/core/theme/app_theme.dart';
+import 'package:junior_boy_boxing/core/resources/app_strings.dart';
+import 'package:junior_boy_boxing/features/admin/domain/admin_repository.dart';
+import 'package:junior_boy_boxing/features/admin/presentation/providers/admin_provider.dart';
+import 'package:junior_boy_boxing/features/admin/presentation/screens/admin_bookings_screen.dart';
+import 'package:junior_boy_boxing/features/admin/presentation/screens/admin_dashboard_screen.dart';
+import 'package:junior_boy_boxing/features/admin/presentation/screens/admin_orders_screen.dart';
+import 'package:junior_boy_boxing/features/admin/presentation/screens/admin_subscriptions_screen.dart';
+import 'package:junior_boy_boxing/features/admin/presentation/screens/plan_editor_screen.dart';
+import 'package:junior_boy_boxing/features/admin/presentation/screens/template_editor_screen.dart';
+import 'package:junior_boy_boxing/features/booking/presentation/screens/book_class_screen.dart';
+import 'package:junior_boy_boxing/features/booking/presentation/screens/booking_confirmation_screen.dart';
+import 'package:junior_boy_boxing/features/booking/presentation/providers/booking_provider.dart';
+import 'package:junior_boy_boxing/features/notifications/presentation/providers/notification_provider.dart';
+import 'package:junior_boy_boxing/features/notifications/presentation/screens/notifications_screen.dart';
+import 'package:junior_boy_boxing/features/profile/presentation/providers/profile_provider.dart';
+import 'package:junior_boy_boxing/features/profile/data/member_model.dart';
+import 'package:junior_boy_boxing/features/profile/domain/gym_settings.dart';
+import 'package:junior_boy_boxing/features/profile/domain/waiver.dart';
+import 'package:junior_boy_boxing/features/profile/presentation/screens/complete_profile_screen.dart';
+import 'package:junior_boy_boxing/features/profile/presentation/screens/edit_profile_screen.dart';
+import 'package:junior_boy_boxing/features/profile/presentation/screens/information_screen.dart';
+import 'package:junior_boy_boxing/features/profile/presentation/screens/my_bookings_screen.dart';
+import 'package:junior_boy_boxing/features/profile/presentation/screens/waiver_screen.dart';
+import 'package:junior_boy_boxing/features/reviews/presentation/providers/review_provider.dart';
+import 'package:junior_boy_boxing/features/reviews/domain/review.dart';
+import 'package:junior_boy_boxing/features/reviews/presentation/screens/reviews_screen.dart';
+import 'package:junior_boy_boxing/features/schedule/data/session_model.dart';
+import 'package:junior_boy_boxing/features/schedule/domain/program.dart';
+import 'package:junior_boy_boxing/features/schedule/presentation/providers/schedule_provider.dart';
+import 'package:junior_boy_boxing/features/store/domain/product_repository.dart';
+import 'package:junior_boy_boxing/features/store/presentation/providers/store_provider.dart';
+import 'package:junior_boy_boxing/features/store/presentation/screens/product_editor_screen.dart';
+import 'package:junior_boy_boxing/features/store/presentation/screens/store_screen.dart';
+
+class _AdminFake implements AdminRepository {
+  @override
+  String newId() => 'test-plan';
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _ProductFake implements ProductRepository {
+  @override
+  String newId() => 'test-product';
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  tz_data.initializeTimeZones();
+  GoogleFonts.config.allowRuntimeFetching = false;
+
+  final screens = <String, Widget>{
+    'admin dashboard': const AdminDashboardScreen(),
+    'admin orders': const AdminOrdersScreen(),
+    'admin subscriptions': const AdminSubscriptionsScreen(),
+    'admin bookings': const AdminBookingsScreen(),
+    'plan editor': const PlanEditorScreen(),
+    'template editor': const TemplateEditorScreen(),
+    'book class': const BookClassScreen(scheduleId: 'test-session'),
+    'booking confirmation': const BookingConfirmationScreen(),
+    'notifications': const NotificationsScreen(),
+    'complete profile': const CompleteProfileScreen(),
+    'edit profile': const EditProfileScreen(),
+    'my bookings': const MyBookingsScreen(),
+    'waiver': const WaiverScreen(),
+    'information': const InformationScreen(title: 'About'),
+    'product editor': const ProductEditorScreen(),
+    'store': const StoreScreen(),
+    'reviews': const ReviewsScreen(),
+  };
+
+  for (final (mode, theme) in [('light', lightTheme), ('dark', darkTheme)]) {
+    for (final entry in screens.entries) {
+      testWidgets('${entry.key} pumps in $mode mode', (tester) async {
+        tester.view.physicalSize = const Size(900, 1800);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              adminRepositoryProvider.overrideWithValue(_AdminFake()),
+              productRepositoryProvider.overrideWithValue(_ProductFake()),
+              adminPlansProvider.overrideWith((ref) => Stream.value([])),
+              adminTemplatesProvider.overrideWith((ref) => Stream.value([])),
+              adminOrdersProvider.overrideWith((ref) => Stream.value([])),
+              adminBookingsProvider.overrideWith((ref) => Stream.value([])),
+              productsProvider.overrideWith((ref) => Stream.value([])),
+              productsAdminProvider.overrideWith((ref) => Stream.value([])),
+              bookingsProvider.overrideWith((ref) => Stream.value([])),
+              notificationsProvider.overrideWith((ref) => Stream.value([])),
+              reviewsProvider.overrideWith((ref) => Stream.value([])),
+              myReviewProvider.overrideWith((ref) => null),
+              reviewStatsProvider.overrideWith(
+                (ref) => Stream.value(ReviewStats.empty),
+              ),
+              profileProvider.overrideWith(
+                (ref) => Stream.value(
+                  MemberModel.fromMap({
+                    'id': 'test-user',
+                    'fullName': 'Test Member',
+                  }),
+                ),
+              ),
+              settingsProvider.overrideWith(
+                (ref) => Stream.value(GymSettings.empty),
+              ),
+              waiverProvider.overrideWith(
+                (ref) => Stream.value(
+                  const Waiver(
+                    version: null,
+                    body: null,
+                    published: false,
+                    requiredOnBooking: false,
+                  ),
+                ),
+              ),
+              classesProvider.overrideWith((ref) => Stream.value(<Program>[])),
+              sessionProvider.overrideWith(
+                (ref, id) => Stream.value(
+                  SessionModel.fromMap({
+                    'id': id,
+                    'date': DateTime(2026, 10, 5).toIso8601String(),
+                    'maxSpots': 12,
+                  }),
+                ),
+              ),
+            ],
+            child: MaterialApp(theme: theme, home: entry.value),
+          ),
+        );
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 20));
+        if (entry.key == 'book class') {
+          expect(find.text(AppStrings.uiBoxingClass), findsOneWidget);
+        }
+        expect(tester.takeException(), isNull);
+      });
+    }
+  }
+}
