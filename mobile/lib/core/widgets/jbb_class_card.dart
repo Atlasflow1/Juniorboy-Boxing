@@ -1,6 +1,8 @@
-import '../router/app_routes.dart';
 import 'package:flutter/material.dart';
-import '../theme/app_colors.dart';
+import '../resources/app_colors.dart';
+import '../resources/app_sizes.dart';
+import '../resources/app_strings.dart';
+import '../router/app_routes.dart';
 import '../utils/nav_debounce.dart';
 import 'jbb_card.dart';
 
@@ -15,41 +17,46 @@ class JbbClassCard extends StatelessWidget {
       child: Row(
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(AppSizes.radius8),
             child: Hero(
               tag: 'class-${session['id']}',
               child: Image.asset(
                 'assets/images/photos/photo_kid_boxing.jpg',
-                width: 66,
-                height: 90,
+                width: AppSizes.classImageWidth,
+                height: AppSizes.classImageHeight,
                 fit: BoxFit.cover,
               ),
             ),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: AppSizes.s14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   '${session['startTime']} – ${session['endTime']}',
-                  style: const TextStyle(color: AppColors.red, fontSize: 12),
+                  style: const TextStyle(
+                    color: AppColors.red,
+                    fontSize: AppSizes.font12,
+                  ),
                 ),
-                const SizedBox(height: 5),
+                const SizedBox(height: AppSizes.s5),
                 Text(
-                  program['className'] ?? 'Boxing class',
+                  program['className'] ?? AppStrings.uiBoxingClass,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 17,
+                    fontSize: AppSizes.font17,
                   ),
                 ),
                 Text(
                   program['ageGroup'] ?? '',
                   style: const TextStyle(color: AppColors.muted),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: AppSizes.s6),
                 Text(
-                  spots > 0 ? '$spots spots available' : 'Fully booked',
+                  spots > 0
+                      ? '$spots spots available'
+                      : AppStrings.uiFullyBooked,
                   style: TextStyle(
                     color: spots > 0 ? AppColors.green : AppColors.red,
                   ),
@@ -57,9 +64,9 @@ class JbbClassCard extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: AppSizes.s8),
           SizedBox(
-            width: 70,
+            width: AppSizes.classActionWidth,
             child: FilledButton(
               style: FilledButton.styleFrom(
                 minimumSize: const Size(64, 42),
@@ -70,7 +77,7 @@ class JbbClassCard extends StatelessWidget {
                       AppRoutes.booking(session['id'].toString()),
                     )
                   : null,
-              child: const Text('Book'),
+              child: const Text(AppStrings.book),
             ),
           ),
         ],

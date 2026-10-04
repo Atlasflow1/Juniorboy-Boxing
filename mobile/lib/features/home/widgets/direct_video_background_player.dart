@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
+import '../../../core/resources/app_colors.dart';
+import '../../../core/resources/app_sizes.dart';
 
 /// Plays a directly-hosted video file (e.g. an mp4 URL) as a silent,
 /// looping, chrome-free background clip. Used as the fallback for
@@ -43,12 +45,12 @@ class _DirectVideoBackgroundPlayerState
 
   @override
   Widget build(BuildContext context) => ClipRRect(
-    borderRadius: BorderRadius.circular(16),
+    borderRadius: BorderRadius.circular(AppSizes.radius16),
     child: AspectRatio(
       aspectRatio: ready ? controller.value.aspectRatio : 16 / 9,
       child: ready
           ? VideoPlayer(controller)
-          : const ColoredBox(color: Colors.black),
+          : const ColoredBox(color: AppColors.black),
     ),
   );
 }

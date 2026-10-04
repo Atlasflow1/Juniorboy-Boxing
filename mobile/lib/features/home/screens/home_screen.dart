@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/widgets/page_content.dart';
+import '../../../core/resources/app_sizes.dart';
+import '../../../core/resources/app_strings.dart';
 import '../../../core/widgets/jbb_empty_state.dart';
-import '../../profile/providers/profile_provider.dart';
+import '../../../core/widgets/page_content.dart';
 import '../../booking/providers/booking_provider.dart';
-import '../providers/home_provider.dart';
-import '../../store/providers/store_provider.dart';
 import '../../membership/providers/membership_provider.dart';
+import '../../profile/providers/profile_provider.dart';
+import '../../store/providers/store_provider.dart';
+import '../providers/home_provider.dart';
+import '../widgets/direct_video_background_player.dart';
 import '../widgets/home_hero_banner.dart';
 import '../widgets/membership_summary_card.dart';
 import '../widgets/next_session_card.dart';
 import '../widgets/product_ad_banner.dart';
-import '../widgets/quick_actions_grid.dart';
 import '../widgets/programs_section.dart';
+import '../widgets/quick_actions_grid.dart';
 import '../widgets/youtube_background_player.dart';
-import '../widgets/direct_video_background_player.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -33,9 +35,10 @@ class HomeScreen extends ConsumerWidget {
     final plans = ref.watch(plansProvider).value ?? const [];
     final planName = planId == null
         ? null
-        : plans
-              .cast<Map<String, dynamic>?>()
-              .firstWhere((p) => p?['id'] == planId, orElse: () => null)?['name']
+        : plans.cast<Map<String, dynamic>?>().firstWhere(
+                (p) => p?['id'] == planId,
+                orElse: () => null,
+              )?['name']
               as String?;
     return PageContent(
       showHeader: false,
@@ -46,37 +49,40 @@ class HomeScreen extends ConsumerWidget {
       },
       children: [
         HomeHeroBanner(
-          name: (user?['fullName'] ?? 'Champion').toString().split(' ').first,
+          name: (user?['fullName'] ?? AppStrings.uiChampion)
+              .toString()
+              .split(' ')
+              .first,
           imageUrl: heroImageUrl,
         ),
         if (videoId != null) ...[
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSizes.s16),
           YoutubeBackgroundPlayer(videoId: videoId),
         ] else if (promoVideoUrl.isNotEmpty) ...[
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSizes.s16),
           DirectVideoBackgroundPlayer(url: promoVideoUrl),
         ],
         if (featuredProduct != null) ...[
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSizes.s16),
           ProductAdBanner(product: featuredProduct),
         ],
         if (sessionsRemaining > 0 || sessionsReserved > 0) ...[
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSizes.s16),
           MembershipSummaryCard(
             planName: planName,
             sessionsRemaining: sessionsRemaining.toInt(),
             sessionsReserved: sessionsReserved.toInt(),
           ),
         ],
-        const SizedBox(height: 20),
+        const SizedBox(height: AppSizes.s20),
         if (next != null)
           NextSessionCard(booking: next)
         else
           const JbbEmptyState(
-            message: 'Your next session starts with a booking.',
+            message: AppStrings.yourNextSessionStartsWithABooking,
           ),
         const QuickActionsGrid(),
-        const SizedBox(height: 18),
+        const SizedBox(height: AppSizes.s18),
         const ProgramsSection(),
       ],
     );

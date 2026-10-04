@@ -1,41 +1,46 @@
-import '../../../core/router/app_routes.dart';
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_icons.dart';
-import '../../../core/widgets/app_icon.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '../../../core/constants/app_assets.dart';
-import '../../../core/theme/app_colors.dart';
+import '../../../core/resources/app_assets.dart';
+import '../../../core/resources/app_colors.dart';
+import '../../../core/resources/app_icons.dart';
+import '../../../core/resources/app_sizes.dart';
+import '../../../core/resources/app_strings.dart';
+import '../../../core/router/app_routes.dart';
 import '../../../core/utils/nav_debounce.dart';
+import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/jbb_card.dart';
 
 class ProgramsSection extends StatelessWidget {
   const ProgramsSection({super.key});
   static const _textPrograms = [
-    ('ic_boxing_glove', 'Boxing Training'),
-    ('ic_dumbbell', 'Fitness Training'),
-    ('ic_triple_glove', 'Strength & Conditioning'),
-    ('ic_growth_chart', 'Weight Loss Training'),
-    ('ic_shield_privacy', 'Self Defense Training'),
+    ('ic_boxing_glove', AppStrings.uiBoxingTraining),
+    ('ic_dumbbell', AppStrings.uiFitnessTraining),
+    ('ic_triple_glove', AppStrings.uiStrengthConditioning),
+    ('ic_growth_chart', AppStrings.uiWeightLossTraining),
+    ('ic_shield_privacy', AppStrings.uiSelfDefenseTraining),
   ];
   @override
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text('Our Programs', style: Theme.of(context).textTheme.titleLarge),
-      const SizedBox(height: 12),
+      Text(
+        AppStrings.ourPrograms,
+        style: Theme.of(context).textTheme.titleLarge,
+      ),
+      const SizedBox(height: AppSizes.s12),
       for (final item in [
-        (AppAssets.junior, 'Junior Boxing — Kids & Teens'),
-        (AppAssets.group, 'Group Training — 3–4 People'),
+        (AppAssets.junior, AppStrings.uiJuniorBoxingKidsTeens),
+        (AppAssets.group, AppStrings.uiGroupTraining34People),
       ])
         Padding(
-          padding: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.only(bottom: AppSizes.s12),
           child: Semantics(
             button: true,
-            label: 'View ${item.$2} schedule',
+            label: AppStrings.viewProgramSchedule(item.$2),
             child: InkWell(
               onTap: () => context.safePush(AppRoutes.schedulePath),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(AppSizes.radius12),
                 child: Image.asset(
                   item.$1,
                   fit: BoxFit.fitWidth,
@@ -62,20 +67,20 @@ class ProgramsSection extends StatelessWidget {
             children: [
               SvgPicture.asset(
                 'assets/icons/${item.$1}.svg',
-                width: 26,
-                height: 26,
+                width: AppSizes.programIconSize,
+                height: AppSizes.programIconSize,
                 colorFilter: const ColorFilter.mode(
                   AppColors.red,
                   BlendMode.srcIn,
                 ),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: AppSizes.s14),
               Expanded(
                 child: Text(
                   item.$2,
                   style: const TextStyle(
                     fontWeight: FontWeight.w600,
-                    fontSize: 15,
+                    fontSize: AppSizes.font15,
                   ),
                 ),
               ),

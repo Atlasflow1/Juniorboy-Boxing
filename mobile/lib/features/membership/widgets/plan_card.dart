@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_icons.dart';
+import '../../../core/resources/app_colors.dart';
+import '../../../core/resources/app_icons.dart';
+import '../../../core/resources/app_sizes.dart';
+import '../../../core/resources/app_strings.dart';
 import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/jbb_card.dart';
 
@@ -25,14 +28,14 @@ class PlanCard extends StatelessWidget {
         children: [
           if (plan['isRecommended'] == true)
             const Padding(
-              padding: EdgeInsets.only(bottom: 10),
+              padding: EdgeInsets.only(bottom: AppSizes.s10),
               child: Text(
-                'RECOMMENDED',
+                AppStrings.uiRecommended,
                 style: TextStyle(
-                  color: Colors.red,
-                  fontSize: 11,
+                  color: AppColors.materialRed,
+                  fontSize: AppSizes.font11,
                   fontWeight: FontWeight.bold,
-                  letterSpacing: 1.5,
+                  letterSpacing: AppSizes.labelTracking,
                 ),
               ),
             ),
@@ -40,32 +43,35 @@ class PlanCard extends StatelessWidget {
             children: [
               AppIcon(
                 selected ? AppIcons.checkCircle : AppIcons.circle,
-                color: selected ? Colors.red : Colors.grey,
+                color: selected ? AppColors.materialRed : AppColors.grey,
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSizes.s12),
               Expanded(
                 child: Text(
                   plan['name'],
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 17,
+                    fontSize: AppSizes.font17,
                   ),
                 ),
               ),
               Text(
                 plan['priceLabel'],
                 style: const TextStyle(
-                  fontSize: 22,
+                  fontSize: AppSizes.font22,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ],
           ),
           Padding(
-            padding: const EdgeInsets.only(left: 36, top: 8),
+            padding: const EdgeInsets.only(
+              left: AppSizes.s36,
+              top: AppSizes.s8,
+            ),
             child: Text(
               plan['perSessionLabel'] ?? '',
-              style: const TextStyle(color: Colors.grey),
+              style: const TextStyle(color: AppColors.grey),
             ),
           ),
         ],

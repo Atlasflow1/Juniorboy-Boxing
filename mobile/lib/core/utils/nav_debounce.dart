@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
+import '../resources/app_durations.dart';
 
 /// A tap that fires twice before the first push has finished (a fast
 /// double-tap on a card/banner, or a stray double pointer event) makes
@@ -17,7 +18,7 @@ extension SafeNavigation on BuildContext {
   void safePush(
     String location, {
     Object? extra,
-    Duration minGap = const Duration(milliseconds: 700),
+    Duration minGap = AppDurations.navigationDebounce,
   }) {
     final now = DateTime.now();
     if (_lastPushLocation == location &&

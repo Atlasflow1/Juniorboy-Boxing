@@ -1,9 +1,11 @@
-import '../../../core/router/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/utils/validators.dart';
+import '../../../core/resources/app_sizes.dart';
+import '../../../core/resources/app_strings.dart';
+import '../../../core/router/app_routes.dart';
 import '../../../core/utils/snackbar_utils.dart';
+import '../../../core/utils/validators.dart';
 import '../../../core/widgets/jbb_button.dart';
 import '../providers/profile_provider.dart';
 
@@ -80,9 +82,9 @@ class _CompleteProfileState extends ConsumerState<CompleteProfileScreen> {
       }
     }
     return Scaffold(
-      appBar: AppBar(title: const Text('Complete Your Profile')),
+      appBar: AppBar(title: const Text(AppStrings.completeYourProfile)),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(AppSizes.s24),
         child: Form(
           key: form,
           autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -90,67 +92,75 @@ class _CompleteProfileState extends ConsumerState<CompleteProfileScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Just a few more details',
+                AppStrings.uiJustAFewMoreDetails,
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
-              const SizedBox(height: 10),
-              const Text(
-                'We need a few account details, plus who will attend training.',
-              ),
-              const SizedBox(height: 32),
+              const SizedBox(height: AppSizes.s10),
+              const Text(AppStrings.uiWeNeedAFewAccountDetailsPlusWho),
+              const SizedBox(height: AppSizes.s32),
               TextFormField(
                 controller: lastName,
-                decoration: const InputDecoration(labelText: 'Last Name'),
+                decoration: const InputDecoration(
+                  labelText: AppStrings.lastName,
+                ),
                 validator: Validators.required,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSizes.s16),
               TextFormField(
                 controller: age,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Your Age'),
+                decoration: const InputDecoration(
+                  labelText: AppStrings.yourAge,
+                ),
                 validator: Validators.age,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSizes.s16),
               TextFormField(
                 controller: address,
-                decoration: const InputDecoration(labelText: 'Address'),
+                decoration: const InputDecoration(
+                  labelText: AppStrings.address2,
+                ),
                 validator: Validators.required,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSizes.s16),
               TextFormField(
                 controller: zipCode,
                 keyboardType: TextInputType.text,
                 decoration: const InputDecoration(
-                  labelText: 'Postal / ZIP Code',
+                  labelText: AppStrings.postalZipCode,
                 ),
                 validator: Validators.zip,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSizes.s16),
               TextFormField(
                 controller: phone,
                 keyboardType: TextInputType.phone,
-                decoration: const InputDecoration(labelText: 'Phone'),
+                decoration: const InputDecoration(labelText: AppStrings.phone),
                 validator: Validators.phone,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSizes.s16),
               TextFormField(
                 controller: childName,
                 decoration: const InputDecoration(
-                  labelText: 'Participant Name (Yourself or Child, optional)',
+                  labelText: AppStrings.participantNameYourselfOrChildOptional,
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSizes.s16),
               TextFormField(
                 controller: childAge,
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
-                  labelText: 'Participant Age (optional)',
+                  labelText: AppStrings.participantAgeOptional,
                 ),
                 validator: (v) =>
                     (v ?? '').trim().isEmpty ? null : Validators.age(v),
               ),
-              const SizedBox(height: 28),
-              JbbButton(label: 'Continue', busy: busy, onPressed: save),
+              const SizedBox(height: AppSizes.s28),
+              JbbButton(
+                label: AppStrings.continueButton,
+                busy: busy,
+                onPressed: save,
+              ),
             ],
           ),
         ),

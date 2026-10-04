@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/widgets/jbb_button.dart';
-import '../../../core/widgets/jbb_loading.dart';
-import '../../../core/widgets/jbb_empty_state.dart';
+import '../../../core/resources/app_sizes.dart';
+import '../../../core/resources/app_strings.dart';
 import '../../../core/utils/snackbar_utils.dart';
+import '../../../core/widgets/jbb_button.dart';
+import '../../../core/widgets/jbb_empty_state.dart';
+import '../../../core/widgets/jbb_loading.dart';
 import '../providers/review_provider.dart';
 import '../widgets/rating_summary_header.dart';
 import '../widgets/review_card.dart';
@@ -16,7 +18,7 @@ class ReviewsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final myReview = ref.watch(myReviewProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Reviews & Ratings')),
+      appBar: AppBar(title: const Text(AppStrings.reviewsRatings)),
       body: RefreshIndicator(
         onRefresh: () async {
           ref.invalidate(reviewsProvider);
@@ -24,7 +26,7 @@ class ReviewsScreen extends ConsumerWidget {
         },
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(AppSizes.s20),
           children: [
             ref
                 .watch(reviewStatsProvider)
@@ -34,17 +36,18 @@ class ReviewsScreen extends ConsumerWidget {
                   loading: () => const JbbLoading(),
                 ),
             JbbButton(
-              label: myReview == null ? 'Write a Review' : 'Edit Your Review',
+              label: myReview == null
+                  ? AppStrings.uiWriteAReview
+                  : AppStrings.uiEditYourReview,
               onPressed: () => showReviewFormSheet(context, existing: myReview),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: AppSizes.s24),
             ref
                 .watch(reviewsProvider)
                 .when(
                   data: (reviews) => reviews.isEmpty
                       ? const JbbEmptyState(
-                          message:
-                              'No reviews yet. Be the first to share your experience!',
+                          message: AppStrings.uiNoReviewsYetBeTheFirstToShare,
                         )
                       : Column(
                           children: [
@@ -60,7 +63,7 @@ class ReviewsScreen extends ConsumerWidget {
                                           if (context.mounted) {
                                             showMessage(
                                               context,
-                                              'Review deleted.',
+                                              AppStrings.reviewDeleted,
                                             );
                                           }
                                         } catch (e) {

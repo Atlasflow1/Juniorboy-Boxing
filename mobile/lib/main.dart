@@ -1,11 +1,13 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:timezone/data/latest.dart' as timezone;
-import 'package:firebase_messaging/firebase_messaging.dart';
+import 'core/resources/app_sizes.dart';
+import 'core/resources/app_strings.dart';
+import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
-import 'core/router/app_router.dart';
 import 'data/services/firebase_service.dart';
 import 'data/services/notification_service.dart';
 import 'features/profile/providers/profile_provider.dart';
@@ -29,12 +31,8 @@ Future<void> main() async {
         home: const Scaffold(
           body: SafeArea(
             child: Padding(
-              padding: EdgeInsets.all(28),
-              child: Center(
-                child: Text(
-                  'Junior Boy Boxing could not start. Check the Firebase configuration and rebuild the app. For local development, enable USE_FIREBASE_EMULATORS.',
-                ),
-              ),
+              padding: EdgeInsets.all(AppSizes.s28),
+              child: Center(child: Text(AppStrings.startupError)),
             ),
           ),
         ),
@@ -60,7 +58,7 @@ class JbbApp extends ConsumerWidget {
       }
     });
     return MaterialApp.router(
-      title: 'Junior Boy Boxing',
+      title: AppStrings.gymName,
       debugShowCheckedModeBanner: false,
       theme: buildTheme(background: background),
       routerConfig: router,

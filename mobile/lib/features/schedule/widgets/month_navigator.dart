@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_icons.dart';
-import '../../../core/widgets/app_icon.dart';
 import 'package:intl/intl.dart';
+import '../../../core/resources/app_icons.dart';
+import '../../../core/resources/app_strings.dart';
+import '../../../core/widgets/app_icon.dart';
 
 class MonthNavigator extends StatelessWidget {
   const MonthNavigator({super.key, required this.date, required this.onChange});
@@ -12,7 +13,7 @@ class MonthNavigator extends StatelessWidget {
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: [
       IconButton(
-        tooltip: 'Previous month',
+        tooltip: AppStrings.previousMonth,
         onPressed: () => onChange(DateTime(date.year, date.month - 1, 1)),
         icon: const AppIcon(AppIcons.chevronLeft),
       ),
@@ -21,7 +22,7 @@ class MonthNavigator extends StatelessWidget {
         style: Theme.of(context).textTheme.titleLarge,
       ),
       IconButton(
-        tooltip: 'Next month',
+        tooltip: AppStrings.nextMonth,
         onPressed: () => onChange(DateTime(date.year, date.month + 1, 1)),
         icon: const AppIcon(AppIcons.chevronRight),
       ),

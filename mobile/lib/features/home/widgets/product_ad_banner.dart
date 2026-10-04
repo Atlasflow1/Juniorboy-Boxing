@@ -1,10 +1,12 @@
-import '../../../core/router/app_routes.dart';
-import 'package:flutter/material.dart';
-import '../../../core/constants/app_icons.dart';
-import '../../../core/widgets/app_icon.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../../core/theme/app_colors.dart';
+import 'package:flutter/material.dart';
+import '../../../core/resources/app_colors.dart';
+import '../../../core/resources/app_icons.dart';
+import '../../../core/resources/app_sizes.dart';
+import '../../../core/resources/app_strings.dart';
+import '../../../core/router/app_routes.dart';
 import '../../../core/utils/nav_debounce.dart';
+import '../../../core/widgets/app_icon.dart';
 
 /// Advertises the product an admin flagged as "featured" near the top of
 /// Home, linking through to the Gym Store. Navigates with [context.push],
@@ -25,7 +27,7 @@ class ProductAdBanner extends StatelessWidget {
         ? (priceCents * (1 - discountPercent / 100)).round()
         : priceCents;
     return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(AppSizes.radius16),
       child: Material(
         color: AppColors.card,
         child: InkWell(
@@ -33,55 +35,55 @@ class ProductAdBanner extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               border: Border.all(color: AppColors.border),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(AppSizes.radius16),
             ),
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(AppSizes.s14),
             child: Row(
               children: [
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(AppSizes.radius10),
                   child: SizedBox(
-                    width: 72,
-                    height: 72,
+                    width: AppSizes.productThumbnailSize,
+                    height: AppSizes.productThumbnailSize,
                     child: imageUrl.isNotEmpty
                         ? CachedNetworkImage(
                             imageUrl: imageUrl,
                             fit: BoxFit.cover,
                           )
                         : Container(
-                            color: Colors.white10,
+                            color: AppColors.white10,
                             child: const AppIcon(
                               AppIcons.shoppingBag,
-                              color: Colors.grey,
+                              color: AppColors.grey,
                             ),
                           ),
                   ),
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: AppSizes.s14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'FROM THE GYM STORE',
+                        AppStrings.uiFromTheGymStore,
                         style: TextStyle(
                           color: AppColors.red,
-                          fontSize: 11,
+                          fontSize: AppSizes.font11,
                           fontWeight: FontWeight.bold,
-                          letterSpacing: 0.5,
+                          letterSpacing: AppSizes.badgeTracking,
                         ),
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: AppSizes.s2),
                       Text(
                         (product['name'] as String?) ?? '',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                          fontSize: AppSizes.font16,
                         ),
-                        maxLines: 1,
+                        maxLines: AppSizes.bannerTextLines,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: AppSizes.s4),
                       if (hasDiscount)
                         Row(
                           children: [
@@ -89,17 +91,17 @@ class ProductAdBanner extends StatelessWidget {
                               '\$${(priceCents / 100).toStringAsFixed(2)}',
                               style: const TextStyle(
                                 color: AppColors.muted,
-                                fontSize: 12,
+                                fontSize: AppSizes.font12,
                                 decoration: TextDecoration.lineThrough,
                               ),
                             ),
-                            const SizedBox(width: 6),
+                            const SizedBox(width: AppSizes.s6),
                             Text(
                               '\$${(saleCents / 100).toStringAsFixed(2)}',
                               style: const TextStyle(
-                                color: Colors.green,
+                                color: AppColors.materialGreen,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 13,
+                                fontSize: AppSizes.font13,
                               ),
                             ),
                           ],
@@ -109,13 +111,13 @@ class ProductAdBanner extends StatelessWidget {
                           (product['priceLabel'] as String?) ?? '',
                           style: const TextStyle(
                             color: AppColors.muted,
-                            fontSize: 13,
+                            fontSize: AppSizes.font13,
                           ),
                         ),
                     ],
                   ),
                 ),
-                const AppIcon(AppIcons.chevronRight, color: Colors.grey),
+                const AppIcon(AppIcons.chevronRight, color: AppColors.grey),
               ],
             ),
           ),

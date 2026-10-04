@@ -1,9 +1,12 @@
-import '../../../core/router/app_routes.dart';
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_icons.dart';
-import '../../../core/widgets/app_icon.dart';
+import '../../../core/resources/app_colors.dart';
+import '../../../core/resources/app_icons.dart';
+import '../../../core/resources/app_sizes.dart';
+import '../../../core/resources/app_strings.dart';
+import '../../../core/router/app_routes.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/utils/nav_debounce.dart';
+import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/jbb_card.dart';
 
 class NextSessionCard extends StatelessWidget {
@@ -17,12 +20,12 @@ class NextSessionCard extends StatelessWidget {
       children: [
         const Row(
           children: [
-            AppIcon(AppIcons.calendar, color: Colors.red),
-            SizedBox(width: 8),
-            Text('Next Session'),
+            AppIcon(AppIcons.calendar, color: AppColors.materialRed),
+            SizedBox(width: AppSizes.s8),
+            Text(AppStrings.nextSession),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSizes.s12),
         Text(
           dateLabel(readDate(booking['date'])),
           style: Theme.of(context).textTheme.headlineMedium,
@@ -30,12 +33,12 @@ class NextSessionCard extends StatelessWidget {
         Text(
           '${timeLabel(readDate(booking['date']))} – ${timeLabel(readDate(booking['endAt']))}',
         ),
-        const SizedBox(height: 6),
-        const Text('Junior Boy Boxing · Tracy, CA'),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSizes.s6),
+        const Text(AppStrings.juniorBoyBoxingTracyCa),
+        const SizedBox(height: AppSizes.s16),
         FilledButton(
           onPressed: () => context.safePush(AppRoutes.bookings),
-          child: const Text('View Booking  ›'),
+          child: const Text(AppStrings.viewBooking),
         ),
       ],
     ),

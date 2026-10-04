@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/widgets/jbb_card.dart';
-import '../../../core/widgets/jbb_loading.dart';
-import '../../../core/widgets/jbb_empty_state.dart';
+import '../../../core/resources/app_colors.dart';
+import '../../../core/resources/app_sizes.dart';
+import '../../../core/resources/app_strings.dart';
 import '../../../core/utils/snackbar_utils.dart';
+import '../../../core/widgets/jbb_card.dart';
+import '../../../core/widgets/jbb_empty_state.dart';
+import '../../../core/widgets/jbb_loading.dart';
 import '../../../data/repositories/notification_repository.dart';
 import '../providers/profile_provider.dart';
 
@@ -11,15 +14,15 @@ class NotificationsScreen extends ConsumerWidget {
   const NotificationsScreen({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
-    appBar: AppBar(title: const Text('Notifications')),
+    appBar: AppBar(title: const Text(AppStrings.notifications)),
     body: ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSizes.s16),
       children: [
         ref
             .watch(notificationsProvider)
             .when(
               data: (items) => items.isEmpty
-                  ? const JbbEmptyState(message: 'You’re all caught up.')
+                  ? const JbbEmptyState(message: AppStrings.youReAllCaughtUp)
                   : Column(
                       children: items
                           .map(
@@ -33,7 +36,7 @@ class NotificationsScreen extends ConsumerWidget {
                                 } catch (e) {
                                   if (context.mounted) {
                                     showMessage(context, friendlyError(e));
-}
+                                  }
                                 }
                               },
                               child: Column(
@@ -45,16 +48,18 @@ class NotificationsScreen extends ConsumerWidget {
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  const SizedBox(height: 8),
+                                  const SizedBox(height: AppSizes.s8),
                                   Text(n['body']),
                                   if (n['isRead'] != true)
                                     const Padding(
-                                      padding: EdgeInsets.only(top: 10),
+                                      padding: EdgeInsets.only(
+                                        top: AppSizes.s10,
+                                      ),
                                       child: Text(
-                                        'Tap to mark as read',
+                                        AppStrings.uiTapToMarkAsRead,
                                         style: TextStyle(
-                                          color: Colors.red,
-                                          fontSize: 12,
+                                          color: AppColors.materialRed,
+                                          fontSize: AppSizes.font12,
                                         ),
                                       ),
                                     ),

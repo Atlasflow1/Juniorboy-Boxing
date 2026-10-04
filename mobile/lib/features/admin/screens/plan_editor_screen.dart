@@ -1,11 +1,13 @@
-import 'package:flutter/material.dart';
-import '../../../core/constants/app_icons.dart';
-import '../../../core/widgets/app_icon.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/programs.dart';
-import '../../../core/utils/validators.dart';
+import '../../../core/resources/app_icons.dart';
+import '../../../core/resources/app_sizes.dart';
+import '../../../core/resources/app_strings.dart';
 import '../../../core/utils/snackbar_utils.dart';
+import '../../../core/utils/validators.dart';
+import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/jbb_button.dart';
 import '../providers/admin_provider.dart';
 
@@ -84,16 +86,16 @@ class _PlanEditorState extends ConsumerState<PlanEditorScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete plan?'),
-        content: Text('Remove "${name.text}" from membership plans.'),
+        title: const Text(AppStrings.deletePlan),
+        content: Text(AppStrings.removePlan(name.text)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: const Text(AppStrings.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Delete'),
+            child: const Text(AppStrings.delete),
           ),
         ],
       ),
@@ -114,8 +116,8 @@ class _PlanEditorState extends ConsumerState<PlanEditorScreen> {
     appBar: AppBar(
       title: Text(
         widget.plan == null
-            ? 'Add Plan'
-            : 'Edit ${widget.plan!['name'] ?? 'Plan'}',
+            ? AppStrings.uiAddPlan
+            : 'Edit ${widget.plan!['name'] ?? AppStrings.uiPlan}',
       ),
       actions: [
         if (widget.plan != null)
@@ -126,7 +128,7 @@ class _PlanEditorState extends ConsumerState<PlanEditorScreen> {
       ],
     ),
     body: SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(AppSizes.s24),
       child: Form(
         key: form,
         child: Column(
@@ -134,54 +136,60 @@ class _PlanEditorState extends ConsumerState<PlanEditorScreen> {
           children: [
             TextFormField(
               controller: name,
-              decoration: const InputDecoration(labelText: 'Plan name'),
+              decoration: const InputDecoration(labelText: AppStrings.planName),
               validator: Validators.required,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSizes.s16),
             TextFormField(
               controller: description,
-              decoration: const InputDecoration(labelText: 'Description'),
-              maxLines: 2,
+              decoration: const InputDecoration(
+                labelText: AppStrings.description,
+              ),
+              maxLines: AppSizes.cardTextLines,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSizes.s16),
             TextFormField(
               controller: perSessionLabel,
               decoration: const InputDecoration(
                 labelText: 'Rate description (e.g. "\$70 / session")',
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSizes.s16),
             TextFormField(
               controller: price,
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
-              decoration: const InputDecoration(labelText: 'Price in USD'),
+              decoration: const InputDecoration(
+                labelText: AppStrings.priceInUsd,
+              ),
               validator: (v) =>
                   double.tryParse(v ?? '') != null && double.parse(v!) > 0
                   ? null
-                  : 'Enter a valid price',
+                  : AppStrings.uiEnterAValidPrice,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSizes.s16),
             TextFormField(
               controller: sessionCount,
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(
-                labelText: 'Session credits included',
+                labelText: AppStrings.sessionCreditsIncluded,
               ),
               validator: (v) {
                 final n = int.tryParse(v ?? '');
-                return n != null && n > 0 ? null : 'Enter a whole number > 0';
+                return n != null && n > 0
+                    ? null
+                    : AppStrings.uiEnterAWholeNumber0;
               },
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSizes.s16),
             DropdownButtonFormField<String>(
               initialValue: category,
-              decoration: const InputDecoration(labelText: 'Program'),
+              decoration: const InputDecoration(labelText: AppStrings.program),
               items: [
                 const DropdownMenuItem(
                   value: 'general',
-                  child: Text('General (all programs)'),
+                  child: Text(AppStrings.generalAllPrograms),
                 ),
                 for (final entry in Programs.categories.entries)
                   DropdownMenuItem(value: entry.key, child: Text(entry.value)),
@@ -190,18 +198,18 @@ class _PlanEditorState extends ConsumerState<PlanEditorScreen> {
             ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Active (visible to members)'),
+              title: const Text(AppStrings.activeVisibleToMembers),
               value: isActive,
               onChanged: (v) => setState(() => isActive = v),
             ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Recommended'),
+              title: const Text(AppStrings.recommended),
               value: isRecommended,
               onChanged: (v) => setState(() => isRecommended = v),
             ),
-            const SizedBox(height: 16),
-            JbbButton(label: 'Save Plan', busy: busy, onPressed: save),
+            const SizedBox(height: AppSizes.s16),
+            JbbButton(label: AppStrings.savePlan, busy: busy, onPressed: save),
           ],
         ),
       ),

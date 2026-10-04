@@ -1,13 +1,15 @@
-import '../../../core/router/app_routes.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../../core/widgets/jbb_button.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/resources/app_colors.dart';
+import '../../../core/resources/app_sizes.dart';
+import '../../../core/resources/app_strings.dart';
+import '../../../core/router/app_routes.dart';
 import '../../../core/utils/nav_debounce.dart';
 import '../../../core/utils/snackbar_utils.dart';
-import '../../../core/constants/app_strings.dart';
+import '../../../core/widgets/jbb_button.dart';
 import '../providers/profile_provider.dart';
 
 final waiverProvider = StreamProvider(
@@ -32,7 +34,7 @@ class _WaiverState extends ConsumerState<WaiverScreen> {
 
   Future<void> sign(Map<String, dynamic> waiver) async {
     if (!adult || !agree || name.text.trim().length < 2) {
-      showMessage(context, 'Enter your name and confirm both agreements.');
+      showMessage(context, AppStrings.enterYourNameAndConfirmBothAgreements);
       return;
     }
     setState(() => busy = true);
@@ -44,7 +46,9 @@ class _WaiverState extends ConsumerState<WaiverScreen> {
         'adult': adult,
         'agree': agree,
       });
-      if (mounted) showMessage(context, 'Your agreement has been recorded.');
+      if (mounted) {
+        showMessage(context, AppStrings.yourAgreementHasBeenRecorded);
+      }
     } catch (e) {
       if (mounted) showMessage(context, friendlyError(e));
     } finally {
@@ -56,7 +60,7 @@ class _WaiverState extends ConsumerState<WaiverScreen> {
   Widget build(BuildContext context) {
     final profile = ref.watch(profileProvider).value;
     return Scaffold(
-      appBar: AppBar(title: const Text('Waiver & Disclaimer')),
+      appBar: AppBar(title: const Text(AppStrings.waiverDisclaimer)),
       body: ref
           .watch(waiverProvider)
           .when(
@@ -77,21 +81,21 @@ class _WaiverState extends ConsumerState<WaiverScreen> {
                       profile?['childName']?.trim() &&
                   profile?['waiverParticipantAge'] == profile?['childAge'];
               return ListView(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.all(AppSizes.s24),
                 children: [
                   if (!published)
                     const Text(
-                      'DRAFT · Signing opens after the gym approves and publishes its final wording.',
-                      style: TextStyle(color: Colors.amber),
+                      AppStrings.uiDraftSigningOpensAfterTheGymApprovesAnd,
+                      style: TextStyle(color: AppColors.amber),
                     ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppSizes.s16),
                   Text(
                     published ? waiver!['body'] : AppStrings.waiver,
-                    style: const TextStyle(height: 1.7),
+                    style: const TextStyle(height: AppSizes.lineHeightLegal),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: AppSizes.s24),
                   if (accepted)
-                    const Text('Your agreement to this version is recorded.')
+                    const Text(AppStrings.yourAgreementToThisVersionIsRecorded)
                   else if (published &&
                       FirebaseAuth.instance.currentUser?.isAnonymous ==
                           false) ...[
@@ -100,12 +104,12 @@ class _WaiverState extends ConsumerState<WaiverScreen> {
                     ),
                     TextButton(
                       onPressed: () => context.safePush(AppRoutes.profile),
-                      child: const Text('Edit participant details'),
+                      child: const Text(AppStrings.editParticipantDetails),
                     ),
                     TextField(
                       controller: name,
                       decoration: const InputDecoration(
-                        labelText: 'Your full legal name',
+                        labelText: AppStrings.yourFullLegalName,
                       ),
                       maxLength: 100,
                     ),
@@ -115,7 +119,7 @@ class _WaiverState extends ConsumerState<WaiverScreen> {
                           ? null
                           : (v) => setState(() => guardian = v ?? false),
                       title: const Text(
-                        'I am the parent or legal guardian (required for a participant under 18).',
+                        AppStrings.uiIAmTheParentOrLegalGuardianRequired,
                       ),
                     ),
                     CheckboxListTile(
@@ -124,7 +128,7 @@ class _WaiverState extends ConsumerState<WaiverScreen> {
                           ? null
                           : (v) => setState(() => adult = v ?? false),
                       title: const Text(
-                        'I am 18 or older and authorized to sign for this participant.',
+                        AppStrings.uiIAm18OrOlderAndAuthorizedTo,
                       ),
                     ),
                     CheckboxListTile(
@@ -133,18 +137,16 @@ class _WaiverState extends ConsumerState<WaiverScreen> {
                           ? null
                           : (v) => setState(() => agree = v ?? false),
                       title: const Text(
-                        'I read, understand and agree to this version, and submit my name as my electronic signature.',
+                        AppStrings.uiIReadUnderstandAndAgreeToThisVersion,
                       ),
                     ),
                     JbbButton(
-                      label: 'Record My Agreement',
+                      label: AppStrings.recordMyAgreement,
                       busy: busy,
                       onPressed: () => sign(waiver!),
                     ),
                   ] else if (published)
-                    const Text(
-                      'Sign in with a registered account to sign this agreement.',
-                    ),
+                    const Text(AppStrings.uiSignInWithARegisteredAccountToSign),
                 ],
               );
             },

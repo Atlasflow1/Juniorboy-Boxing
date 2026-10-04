@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_icons.dart';
-import '../../../core/widgets/app_icon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../../core/constants/app_strings.dart';
+import '../../../core/resources/app_colors.dart';
+import '../../../core/resources/app_icons.dart';
+import '../../../core/resources/app_sizes.dart';
+import '../../../core/resources/app_strings.dart';
 import '../../../core/utils/snackbar_utils.dart';
+import '../../../core/widgets/app_icon.dart';
 import '../providers/profile_provider.dart';
 
 class ContactScreen extends ConsumerWidget {
@@ -16,7 +18,7 @@ class ContactScreen extends ConsumerWidget {
       try {
         if (!await launchUrl(uri, mode: LaunchMode.externalApplication) &&
             context.mounted) {
-          showMessage(context, 'Could not open this link.');
+          showMessage(context, AppStrings.couldNotOpenThisLink);
         }
       } catch (e) {
         if (context.mounted) showMessage(context, friendlyError(e));
@@ -24,26 +26,32 @@ class ContactScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Contact Us')),
+      appBar: AppBar(title: const Text(AppStrings.contactUs)),
       body: ListView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(AppSizes.s24),
         children: [
           Text(
-            settings['coachName'] ?? 'Coach Sharif',
+            settings['coachName'] ?? AppStrings.uiCoachSharif,
             style: Theme.of(context).textTheme.headlineMedium,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSizes.s16),
           Text(settings['address'] ?? AppStrings.address),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSizes.s24),
           if ((settings['phone'] ?? '').isNotEmpty)
             ListTile(
-              leading: const AppIcon(AppIcons.phone, color: Colors.red),
+              leading: const AppIcon(
+                AppIcons.phone,
+                color: AppColors.materialRed,
+              ),
               title: Text(settings['phone']),
               onTap: () => open(Uri(scheme: 'tel', path: settings['phone'])),
             ),
           if ((settings['email'] ?? '').isNotEmpty)
             ListTile(
-              leading: const AppIcon(AppIcons.mail, color: Colors.red),
+              leading: const AppIcon(
+                AppIcons.mail,
+                color: AppColors.materialRed,
+              ),
               title: Text(settings['email']),
               onTap: () => open(Uri(scheme: 'mailto', path: settings['email'])),
             ),
@@ -54,11 +62,11 @@ class ContactScreen extends ConsumerWidget {
                 'query': settings['address'] ?? AppStrings.address,
               }),
             ),
-            child: const Text('Get Directions'),
+            child: const Text(AppStrings.getDirections),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSizes.s24),
           Text(
-            'Operating Hours',
+            AppStrings.uiOperatingHours,
             style: Theme.of(context).textTheme.titleLarge,
           ),
           for (final entry
@@ -68,7 +76,7 @@ class ContactScreen extends ConsumerWidget {
               trailing: Text(entry.value.toString()),
             ),
           if ((settings['operatingHours'] as Map? ?? {}).isEmpty)
-            const Text('Contact the gym to confirm training hours.'),
+            const Text(AppStrings.contactTheGymToConfirmTrainingHours),
         ],
       ),
     );

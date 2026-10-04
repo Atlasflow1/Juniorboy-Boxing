@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'app_colors.dart';
-import 'app_text_styles.dart';
+import '../resources/app_colors.dart';
+import '../resources/app_sizes.dart';
+import '../resources/app_text_styles.dart';
 
 ThemeData buildTheme({Color background = AppColors.background}) {
   final base = ThemeData.dark(useMaterial3: true);
@@ -17,32 +18,37 @@ ThemeData buildTheme({Color background = AppColors.background}) {
     ),
     appBarTheme: AppBarTheme(
       backgroundColor: background,
-      foregroundColor: Colors.white,
-      surfaceTintColor: Colors.transparent,
+      foregroundColor: AppColors.white,
+      surfaceTintColor: AppColors.transparent,
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: AppColors.card,
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AppSizes.radiusInput),
+      ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppSizes.radiusInput),
         borderSide: const BorderSide(color: AppColors.border),
       ),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         backgroundColor: AppColors.red,
-        foregroundColor: Colors.white,
-        minimumSize: const Size(double.infinity, 56),
-        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        foregroundColor: AppColors.white,
+        minimumSize: const Size(double.infinity, AppSizes.buttonHeight),
+        textStyle: const TextStyle(
+          fontSize: AppSizes.font16,
+          fontWeight: FontWeight.bold,
+        ),
         shape: const StadiumBorder(),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        foregroundColor: Colors.white,
-        minimumSize: const Size(double.infinity, 54),
-        side: const BorderSide(color: Colors.white),
+        foregroundColor: AppColors.white,
+        minimumSize: const Size(double.infinity, AppSizes.outlinedButtonHeight),
+        side: const BorderSide(color: AppColors.white),
         shape: const StadiumBorder(),
       ),
     ),

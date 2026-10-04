@@ -1,17 +1,20 @@
-import '../../../core/router/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/resources/app_colors.dart';
+import '../../../core/resources/app_sizes.dart';
+import '../../../core/resources/app_strings.dart';
+import '../../../core/router/app_routes.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/utils/nav_debounce.dart';
 import '../../../core/utils/snackbar_utils.dart';
 import '../../../core/widgets/jbb_button.dart';
 import '../../../core/widgets/jbb_card.dart';
-import '../../../core/widgets/jbb_loading.dart';
 import '../../../core/widgets/jbb_empty_state.dart';
-import '../../schedule/providers/schedule_provider.dart';
+import '../../../core/widgets/jbb_loading.dart';
 import '../../profile/providers/profile_provider.dart';
 import '../../profile/screens/waiver_screen.dart';
+import '../../schedule/providers/schedule_provider.dart';
 import '../providers/booking_provider.dart';
 
 class BookClassScreen extends ConsumerStatefulWidget {
@@ -54,7 +57,7 @@ class _BookClassState extends ConsumerState<BookClassScreen> {
   Widget build(BuildContext context) {
     ref.watch(waiverProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Book Class')),
+      appBar: AppBar(title: const Text(AppStrings.bookClass)),
       body: ref
           .watch(sessionProvider(widget.scheduleId))
           .when(
@@ -66,57 +69,62 @@ class _BookClassState extends ConsumerState<BookClassScreen> {
                   );
               final spots = session['maxSpots'] - session['bookedSpots'];
               return ListView(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(AppSizes.s16),
                 children: [
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(AppSizes.radius12),
                     child: Hero(
                       tag: 'class-${widget.scheduleId}',
                       child: Image.asset(
                         'assets/images/photos/photo_kid_boxing.jpg',
-                        height: 210,
+                        height: AppSizes.bookingProgramImageHeight,
                         width: double.infinity,
                         fit: BoxFit.cover,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: AppSizes.s20),
                   JbbCard(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          program['className'] ?? 'Boxing class',
+                          program['className'] ?? AppStrings.uiBoxingClass,
                           style: Theme.of(context).textTheme.headlineMedium,
                         ),
                         Text(program['ageGroup'] ?? ''),
-                        const SizedBox(height: 22),
+                        const SizedBox(height: AppSizes.s22),
                         for (final item in [
-                          ('DATE', dateLabel(readDate(session['date']))),
                           (
-                            'TIME',
+                            AppStrings.uiDate,
+                            dateLabel(readDate(session['date'])),
+                          ),
+                          (
+                            AppStrings.uiTime,
                             '${timeLabel(readDate(session['date']))} – ${timeLabel(readDate(session['endAt']))} PT',
                           ),
                           (
-                            'LOCATION',
+                            AppStrings.uiLocation2,
                             program['address'] ?? '3200 Naglee Rd, Tracy, CA',
                           ),
-                          ('AVAILABILITY', '$spots spots'),
+                          (AppStrings.uiAvailability, '$spots spots'),
                         ])
                           Padding(
-                            padding: const EdgeInsets.only(bottom: 18),
+                            padding: const EdgeInsets.only(
+                              bottom: AppSizes.s18,
+                            ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   item.$1,
                                   style: const TextStyle(
-                                    color: Colors.red,
-                                    fontSize: 11,
-                                    letterSpacing: 1.5,
+                                    color: AppColors.materialRed,
+                                    fontSize: AppSizes.font11,
+                                    letterSpacing: AppSizes.labelTracking,
                                   ),
                                 ),
-                                const SizedBox(height: 5),
+                                const SizedBox(height: AppSizes.s5),
                                 Text(item.$2),
                               ],
                             ),
@@ -125,7 +133,7 @@ class _BookClassState extends ConsumerState<BookClassScreen> {
                     ),
                   ),
                   JbbButton(
-                    label: 'Confirm Booking  ›',
+                    label: AppStrings.confirmBooking,
                     busy: busy,
                     onPressed:
                         spots > 0 &&

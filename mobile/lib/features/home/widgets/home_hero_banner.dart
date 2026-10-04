@@ -1,7 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../../core/constants/app_assets.dart';
-import '../../../core/theme/app_colors.dart';
+import 'package:flutter/material.dart';
+import '../../../core/resources/app_assets.dart';
+import '../../../core/resources/app_colors.dart';
+import '../../../core/resources/app_sizes.dart';
+import '../../../core/resources/app_strings.dart';
 
 /// Square brand hero image at the top of Home, with the welcome
 /// greeting overlaid on a dark gradient scrim. Shows the gym's uploaded
@@ -14,36 +16,35 @@ class HomeHeroBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(AppSizes.radius20),
       child: AspectRatio(
-        aspectRatio: 1,
+        aspectRatio: AppSizes.heroImageAspectRatio,
         child: Stack(
           fit: StackFit.expand,
           children: [
             (imageUrl ?? '').isNotEmpty
-                ? CachedNetworkImage(
-                    imageUrl: imageUrl!,
-                    fit: BoxFit.cover,
-                  )
+                ? CachedNetworkImage(imageUrl: imageUrl!, fit: BoxFit.cover)
                 : Image.asset(
                     AppAssets.homeHero,
                     fit: BoxFit.cover,
-                    semanticLabel: 'Junior Boy Boxing',
+                    semanticLabel: AppStrings.gymName,
                   ),
             Positioned(
-              left: 0,
-              right: 0,
-              top: 0,
+              left: AppSizes.s0,
+              right: AppSizes.s0,
+              top: AppSizes.s0,
               child: Container(
-                padding: const EdgeInsets.fromLTRB(20, 24, 20, 48),
+                padding: const EdgeInsets.fromLTRB(
+                  AppSizes.s20,
+                  AppSizes.s24,
+                  AppSizes.s20,
+                  AppSizes.s48,
+                ),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.black.withValues(alpha: 0.85),
-                      Colors.black.withValues(alpha: 0),
-                    ],
+                    colors: [AppColors.heroScrimStart, AppColors.heroScrimEnd],
                   ),
                 ),
                 child: Column(
@@ -55,7 +56,7 @@ class HomeHeroBanner extends StatelessWidget {
                         children: [
                           const TextSpan(
                             text: 'Welcome Back, ',
-                            style: TextStyle(color: Colors.white),
+                            style: TextStyle(color: AppColors.white),
                           ),
                           TextSpan(
                             text: '$name!',
@@ -64,12 +65,12 @@ class HomeHeroBanner extends StatelessWidget {
                         ],
                       ),
                       style: Theme.of(context).textTheme.headlineMedium
-                          ?.copyWith(color: Colors.white),
+                          ?.copyWith(color: AppColors.white),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: AppSizes.s6),
                     const Text(
-                      'Keep training. Keep improving.',
-                      style: TextStyle(color: Colors.white70),
+                      AppStrings.uiKeepTrainingKeepImproving,
+                      style: TextStyle(color: AppColors.white70),
                     ),
                   ],
                 ),

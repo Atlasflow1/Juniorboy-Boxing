@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/resources/app_colors.dart';
+import '../../../core/resources/app_sizes.dart';
+import '../../../core/resources/app_strings.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/utils/snackbar_utils.dart';
 import '../../../core/widgets/jbb_card.dart';
-import '../../../core/widgets/jbb_loading.dart';
 import '../../../core/widgets/jbb_empty_state.dart';
+import '../../../core/widgets/jbb_loading.dart';
 import '../../membership/providers/membership_provider.dart';
 import '../providers/profile_provider.dart';
 
@@ -14,9 +17,9 @@ class PaymentsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(profileProvider).value;
     return Scaffold(
-      appBar: AppBar(title: const Text('My Account')),
+      appBar: AppBar(title: const Text(AppStrings.myAccount)),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSizes.s16),
         children: [
           if (user != null)
             JbbCard(
@@ -24,29 +27,42 @@ class PaymentsScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Membership',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    AppStrings.navMembership,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: AppSizes.font16,
+                    ),
                   ),
-                  const SizedBox(height: 8),
-                  Text('${user['sessionsRemaining'] ?? 0} sessions remaining'),
+                  const SizedBox(height: AppSizes.s8),
+                  Text(
+                    AppStrings.sessionsRemaining(
+                      user['sessionsRemaining'] ?? 0,
+                    ),
+                  ),
                   Text(
                     '${user['sessionsReserved'] ?? 0} reserved for upcoming classes',
-                    style: const TextStyle(color: Colors.grey, fontSize: 13),
+                    style: const TextStyle(
+                      color: AppColors.grey,
+                      fontSize: AppSizes.font13,
+                    ),
                   ),
                 ],
               ),
             ),
-          const SizedBox(height: 20),
+          const SizedBox(height: AppSizes.s20),
           const Text(
-            'Payment History',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            AppStrings.uiPaymentHistory,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: AppSizes.font16,
+            ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSizes.s8),
           ref
               .watch(paymentsProvider)
               .when(
                 data: (rows) => rows.isEmpty
-                    ? const JbbEmptyState(message: 'No payments yet.')
+                    ? const JbbEmptyState(message: AppStrings.noPaymentsYet)
                     : Column(
                         children: rows
                             .map(
@@ -61,7 +77,7 @@ class PaymentsScreen extends ConsumerWidget {
                                             ? p['size'] != null
                                                   ? '${p['productName']} · Size ${p['size']} (Store)'
                                                   : '${p['productName']} (Store)'
-                                            : 'Membership',
+                                            : AppStrings.navMembership,
                                       ),
                                       subtitle: Text(
                                         '${dateLabel(readDate(p['createdAt']))} · ${timeLabel(readDate(p['createdAt']))} · \$${(p['amount'] / 100).toStringAsFixed(2)} · ${p['paymentMethod']}',
@@ -72,9 +88,9 @@ class PaymentsScreen extends ConsumerWidget {
                                         p['estimatedDeliveryDate'] != null)
                                       Padding(
                                         padding: const EdgeInsets.only(
-                                          left: 16,
-                                          right: 16,
-                                          bottom: 12,
+                                          left: AppSizes.s16,
+                                          right: AppSizes.s16,
+                                          bottom: AppSizes.s12,
                                         ),
                                         child: Column(
                                           crossAxisAlignment:
@@ -83,9 +99,9 @@ class PaymentsScreen extends ConsumerWidget {
                                             Text(
                                               'Expected ${dateLabel(readDate(p['estimatedDeliveryDate']))}',
                                               style: const TextStyle(
-                                                color: Colors.red,
+                                                color: AppColors.materialRed,
                                                 fontWeight: FontWeight.w600,
-                                                fontSize: 13,
+                                                fontSize: AppSizes.font13,
                                               ),
                                             ),
                                             if ((p['deliveryNote'] ?? '')
@@ -93,8 +109,8 @@ class PaymentsScreen extends ConsumerWidget {
                                               Text(
                                                 p['deliveryNote'],
                                                 style: const TextStyle(
-                                                  color: Colors.grey,
-                                                  fontSize: 12,
+                                                  color: AppColors.grey,
+                                                  fontSize: AppSizes.font12,
                                                 ),
                                               ),
                                           ],

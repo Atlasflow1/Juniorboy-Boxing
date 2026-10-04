@@ -1,32 +1,33 @@
-import '../../../core/router/app_routes.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/programs.dart';
-import '../../../core/widgets/jbb_button.dart';
-import '../../../core/widgets/jbb_loading.dart';
-import '../../../core/widgets/jbb_empty_state.dart';
+import '../../../core/resources/app_colors.dart';
+import '../../../core/resources/app_sizes.dart';
+import '../../../core/resources/app_strings.dart';
+import '../../../core/router/app_routes.dart';
 import '../../../core/utils/nav_debounce.dart';
 import '../../../core/utils/snackbar_utils.dart';
-import '../../../data/services/stripe_service.dart';
+import '../../../core/widgets/jbb_button.dart';
+import '../../../core/widgets/jbb_empty_state.dart';
+import '../../../core/widgets/jbb_loading.dart';
 import '../../../data/repositories/user_repository.dart';
+import '../../../data/services/stripe_service.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../../membership/providers/membership_provider.dart';
 import '../../membership/widgets/plan_card.dart';
-import '../../auth/providers/auth_provider.dart';
 
 const _programDescriptions = <String, String>{
-  'boxing':
-      'Build stance, footwork, defense and punching technique with focused coaching. Progress from fundamentals to more advanced drills at your level.',
-  'fitness':
-      'Improve general fitness through cardio, mobility and whole-body exercises adapted to your starting level.',
+  'boxing': AppStrings.uiBuildStanceFootworkDefenseAndPunchingTechniqueWith,
+  'fitness': AppStrings.uiImproveGeneralFitnessThroughCardioMobilityAndWhole,
   'strength':
-      'Develop strength, endurance and movement quality through progressive resistance work and conditioning drills.',
+      AppStrings.uiDevelopStrengthEnduranceAndMovementQualityThroughProgressive,
   'weight-loss':
-      'Build consistent exercise habits with structured activity and conditioning. Results vary; training does not guarantee weight loss or replace medical or nutritional care.',
-  'self-defense':
-      'Practice awareness, positioning, movement and defensive fundamentals. Training cannot guarantee safety in a real confrontation.',
+      AppStrings.uiBuildConsistentExerciseHabitsWithStructuredActivityAnd,
+  'self-defense': AppStrings
+      .uiPracticeAwarenessPositioningMovementAndDefensiveFundamentalsTraining,
 };
 
 class ProgramScreen extends ConsumerStatefulWidget {
@@ -45,7 +46,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
     final chosenPlan = selected;
     if (busy || chosenPlan == null || chosenPlan.isEmpty) {
       if (mounted && selected == null) {
-        showMessage(context, 'Choose a plan to continue.');
+        showMessage(context, AppStrings.chooseAPlanToContinue);
       }
       return;
     }
@@ -58,7 +59,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
         if (mounted) {
           showMessage(
             context,
-            'Signed in. Complete your profile, then choose your plan.',
+            AppStrings.signedInCompleteYourProfileThenChoose,
           );
         }
         return;
@@ -87,39 +88,42 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final title = Programs.categories[widget.id] ?? 'Program';
+    final title = Programs.categories[widget.id] ?? AppStrings.program;
     return Scaffold(
       appBar: AppBar(title: Text(title)),
       body: ListView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(AppSizes.s24),
         children: [
           Text(
             _programDescriptions[widget.id] ??
-                'Contact the gym for program details.',
-            style: const TextStyle(fontSize: 16, height: 1.6),
+                AppStrings.uiContactTheGymForProgramDetails,
+            style: const TextStyle(
+              fontSize: AppSizes.font16,
+              height: AppSizes.lineHeightDescription,
+            ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSizes.s8),
           const Text(
-            'Availability and suitability are confirmed by the gym.',
-            style: TextStyle(color: Colors.grey, fontSize: 13),
+            AppStrings.uiAvailabilityAndSuitabilityAreConfirmedByTheGym,
+            style: TextStyle(color: AppColors.grey, fontSize: AppSizes.font13),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSizes.s24),
           JbbButton(
-            label: 'View Available Sessions',
+            label: AppStrings.viewAvailableSessions,
             onPressed: () =>
                 context.safePush(AppRoutes.schedule(programId: widget.id)),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSizes.s12),
           TextButton(
             onPressed: () => context.safePush(AppRoutes.contact),
-            child: const Text('Ask the Coach'),
+            child: const Text(AppStrings.askTheCoach),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSizes.s24),
           Text(
             'Subscribe to $title',
             style: Theme.of(context).textTheme.titleLarge,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSizes.s12),
           ref
               .watch(plansProvider)
               .when(
@@ -139,7 +143,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                   if (plans.isEmpty) {
                     return const JbbEmptyState(
                       message:
-                          'Plans for this program will appear here when available.',
+                          AppStrings.uiPlansForThisProgramWillAppearHereWhen,
                     );
                   }
 
@@ -158,9 +162,9 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                               ? () {}
                               : () => setState(() => selected = plan['id']),
                         ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: AppSizes.s8),
                       JbbButton(
-                        label: 'Continue  →',
+                        label: AppStrings.continueAction,
                         busy: busy,
                         onPressed: effectiveSelected == null ? null : purchase,
                       ),

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_icons.dart';
-import '../../../core/widgets/app_icon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/widgets/jbb_card.dart';
-import '../../../core/widgets/jbb_loading.dart';
-import '../../../core/widgets/jbb_empty_state.dart';
+import '../../../core/resources/app_colors.dart';
+import '../../../core/resources/app_icons.dart';
+import '../../../core/resources/app_sizes.dart';
+import '../../../core/resources/app_strings.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/utils/snackbar_utils.dart';
+import '../../../core/widgets/app_icon.dart';
+import '../../../core/widgets/jbb_card.dart';
+import '../../../core/widgets/jbb_empty_state.dart';
+import '../../../core/widgets/jbb_loading.dart';
 import '../../booking/providers/booking_provider.dart';
 import '../providers/profile_provider.dart';
 
@@ -23,16 +26,16 @@ class _BookingsState extends ConsumerState<MyBookingsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Cancel this booking?'),
-        content: const Text('Your reserved session credit will be released.'),
+        title: const Text(AppStrings.cancelThisBooking),
+        content: const Text(AppStrings.yourReservedSessionCreditWillBeReleased),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Keep booking'),
+            child: const Text(AppStrings.keepBooking),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Cancel booking'),
+            child: const Text(AppStrings.cancelBooking),
           ),
         ],
       ),
@@ -41,7 +44,7 @@ class _BookingsState extends ConsumerState<MyBookingsScreen> {
     setState(() => pending.add(booking['id']));
     try {
       await ref.read(bookingRepositoryProvider).cancel(booking['id']);
-      if (mounted) showMessage(context, 'Booking cancelled.');
+      if (mounted) showMessage(context, AppStrings.bookingCancelled);
     } catch (e) {
       if (mounted) showMessage(context, friendlyError(e));
     } finally {
@@ -52,19 +55,19 @@ class _BookingsState extends ConsumerState<MyBookingsScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('My Bookings')),
+    appBar: AppBar(title: const Text(AppStrings.myBookings)),
     body: ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSizes.s16),
       children: [
         SegmentedButton<int>(
           segments: const [
-            ButtonSegment(value: 0, label: Text('Upcoming')),
-            ButtonSegment(value: 1, label: Text('Past')),
+            ButtonSegment(value: 0, label: Text(AppStrings.upcoming)),
+            ButtonSegment(value: 1, label: Text(AppStrings.past)),
           ],
           selected: {selected},
           onSelectionChanged: (s) => setState(() => selected = s.first),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: AppSizes.s20),
         ref
             .watch(bookingsProvider)
             .when(
@@ -76,7 +79,9 @@ class _BookingsState extends ConsumerState<MyBookingsScreen> {
                   return selected == 0 ? upcoming : !upcoming;
                 }).toList();
                 if (items.isEmpty) {
-                  return const JbbEmptyState(message: 'No bookings here yet.');
+                  return const JbbEmptyState(
+                    message: AppStrings.noBookingsHereYet,
+                  );
                 }
                 return Column(
                   children: items.map((b) {
@@ -98,9 +103,9 @@ class _BookingsState extends ConsumerState<MyBookingsScreen> {
                           : DismissDirection.none,
                       confirmDismiss: (_) => cancel(b),
                       background: Container(
-                        color: Colors.red,
+                        color: AppColors.materialRed,
                         alignment: Alignment.centerRight,
-                        padding: const EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(AppSizes.s20),
                         child: const AppIcon(AppIcons.circleX),
                       ),
                       child: JbbCard(
@@ -110,22 +115,22 @@ class _BookingsState extends ConsumerState<MyBookingsScreen> {
                             Text(
                               b['className'],
                               style: const TextStyle(
-                                fontSize: 18,
+                                fontSize: AppSizes.font18,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: AppSizes.s8),
                             Text(
                               '${dateLabel(readDate(b['date']))} · ${timeLabel(readDate(b['date']))} PT',
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: AppSizes.s8),
                             Text(
                               b['status'].toString().toUpperCase(),
                               style: TextStyle(
                                 color: b['status'] == 'cancelled'
-                                    ? Colors.red
-                                    : Colors.green,
-                                fontSize: 12,
+                                    ? AppColors.materialRed
+                                    : AppColors.materialGreen,
+                                fontSize: AppSizes.font12,
                               ),
                             ),
                             if (allowed)
@@ -133,14 +138,14 @@ class _BookingsState extends ConsumerState<MyBookingsScreen> {
                                 onPressed: pending.contains(b['id'])
                                     ? null
                                     : () => cancel(b),
-                                child: const Text('Cancel booking'),
+                                child: const Text(AppStrings.cancelBooking),
                               ),
                             if (!allowed && b['status'] == 'confirmed')
                               const Padding(
-                                padding: EdgeInsets.only(top: 8),
+                                padding: EdgeInsets.only(top: AppSizes.s8),
                                 child: Text(
-                                  'For late changes, contact the gym.',
-                                  style: TextStyle(color: Colors.grey),
+                                  AppStrings.uiForLateChangesContactTheGym,
+                                  style: TextStyle(color: AppColors.grey),
                                 ),
                               ),
                           ],

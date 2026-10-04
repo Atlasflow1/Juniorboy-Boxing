@@ -1,14 +1,17 @@
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_icons.dart';
-import '../../../core/widgets/app_icon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/constants/product_sizes.dart';
-import '../../../core/utils/validators.dart';
+import '../../../core/resources/app_colors.dart';
+import '../../../core/resources/app_icons.dart';
+import '../../../core/resources/app_sizes.dart';
+import '../../../core/resources/app_strings.dart';
 import '../../../core/utils/snackbar_utils.dart';
+import '../../../core/utils/validators.dart';
+import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/jbb_button.dart';
 import '../providers/store_provider.dart';
 
@@ -64,7 +67,7 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
   Future<void> pickImage(int index) async {
     final image = await ImagePicker().pickImage(
       source: ImageSource.gallery,
-      maxWidth: 1024,
+      maxWidth: AppSizes.mediaMaxWidth,
       imageQuality: 85,
     );
     if (image == null) return;
@@ -127,16 +130,16 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete product?'),
-        content: Text('Remove "${name.text}" from the store.'),
+        title: const Text(AppStrings.deleteProduct),
+        content: Text(AppStrings.removeProduct(name.text)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: const Text(AppStrings.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Delete'),
+            child: const Text(AppStrings.delete),
           ),
         ],
       ),
@@ -155,7 +158,11 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      title: Text(widget.product == null ? 'Add Product' : 'Edit Product'),
+      title: Text(
+        widget.product == null
+            ? AppStrings.addProduct
+            : AppStrings.uiEditProduct,
+      ),
       actions: [
         if (widget.product != null)
           IconButton(
@@ -165,17 +172,17 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
       ],
     ),
     body: SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(AppSizes.s24),
       child: Form(
         key: form,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Text(
-              'Photos (up to 3)',
+              AppStrings.uiPhotosUpTo3,
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSizes.s8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: List.generate(3, (index) {
@@ -191,7 +198,9 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
                                     children: [
                                       ListTile(
                                         leading: const AppIcon(AppIcons.swap),
-                                        title: const Text('Replace photo'),
+                                        title: const Text(
+                                          AppStrings.replacePhoto,
+                                        ),
                                         onTap: () {
                                           Navigator.pop(context);
                                           pickImage(index);
@@ -199,7 +208,9 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
                                       ),
                                       ListTile(
                                         leading: const AppIcon(AppIcons.trash),
-                                        title: const Text('Remove photo'),
+                                        title: const Text(
+                                          AppStrings.removePhoto,
+                                        ),
                                         onTap: () {
                                           Navigator.pop(context);
                                           removeImage(index);
@@ -211,57 +222,61 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
                               )
                             : pickImage(index),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(AppSizes.radius12),
                     child: Container(
-                      width: 100,
-                      height: 100,
-                      color: Colors.white10,
+                      width: AppSizes.productEditorPreviewSize,
+                      height: AppSizes.productEditorPreviewSize,
+                      color: AppColors.white10,
                       child: url.isNotEmpty
                           ? CachedNetworkImage(imageUrl: url, fit: BoxFit.cover)
                           : const AppIcon(
                               AppIcons.imagePlus,
-                              size: 28,
-                              color: Colors.grey,
+                              size: AppSizes.s28,
+                              color: AppColors.grey,
                             ),
                     ),
                   ),
                 );
               }),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: AppSizes.s24),
             TextFormField(
               controller: name,
-              decoration: const InputDecoration(labelText: 'Product name'),
+              decoration: const InputDecoration(
+                labelText: AppStrings.productName,
+              ),
               validator: Validators.required,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSizes.s16),
             TextFormField(
               controller: description,
               decoration: const InputDecoration(
-                labelText: 'Description (optional)',
+                labelText: AppStrings.descriptionOptional,
               ),
-              maxLines: 3,
+              maxLines: AppSizes.descriptionInputLines,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSizes.s16),
             TextFormField(
               controller: price,
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
-              decoration: const InputDecoration(labelText: 'Price in USD'),
+              decoration: const InputDecoration(
+                labelText: AppStrings.priceInUsd,
+              ),
               onChanged: (_) => setState(() {}),
               validator: (v) =>
                   double.tryParse(v ?? '') != null && double.parse(v!) > 0
                   ? null
-                  : 'Enter a valid price',
+                  : AppStrings.uiEnterAValidPrice,
             ),
             DropdownButtonFormField<String>(
               initialValue: category,
-              decoration: const InputDecoration(labelText: 'Category'),
+              decoration: const InputDecoration(labelText: AppStrings.category),
               items: [
                 const DropdownMenuItem(
                   value: 'other',
-                  child: Text('Other (no sizes)'),
+                  child: Text(AppStrings.otherNoSizes),
                 ),
                 for (final entry in ProductSizes.categories.entries)
                   DropdownMenuItem(value: entry.key, child: Text(entry.value)),
@@ -274,15 +289,15 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
               }),
             ),
             if (category != 'other') ...[
-              const SizedBox(height: 12),
+              const SizedBox(height: AppSizes.s12),
               Text(
-                'Available sizes (US)',
+                AppStrings.uiAvailableSizesUs,
                 style: Theme.of(context).textTheme.labelLarge,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppSizes.s8),
               Wrap(
-                spacing: 8,
-                runSpacing: 8,
+                spacing: AppSizes.s8,
+                runSpacing: AppSizes.s8,
                 children: [
                   for (final size in ProductSizes.forCategory(category))
                     FilterChip(
@@ -297,52 +312,58 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
                 ],
               ),
             ],
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSizes.s16),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Active (visible in the store)'),
+              title: const Text(AppStrings.activeVisibleInTheStore),
               value: isActive,
               onChanged: (v) => setState(() => isActive = v),
             ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Feature on Home (product ad)'),
+              title: const Text(AppStrings.featureOnHomeProductAd),
               subtitle: const Text(
-                'Shows this product as a banner near the top of Home.',
+                AppStrings.uiShowsThisProductAsABannerNearThe,
               ),
               value: isFeatured,
               onChanged: (v) => setState(() => isFeatured = v),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSizes.s16),
             TextFormField(
               controller: discountPercent,
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
               decoration: const InputDecoration(
-                labelText: 'Discount % (optional)',
+                labelText: AppStrings.discountOptional,
               ),
               onChanged: (_) => setState(() {}),
               validator: (v) {
                 if ((v ?? '').trim().isEmpty) return null;
                 final n = double.tryParse(v!);
-                return n != null && n > 0 && n <= 100 ? null : 'Enter 1-100';
+                return n != null && n > 0 && n <= 100
+                    ? null
+                    : AppStrings.uiEnter1100;
               },
             ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Show discount badge'),
+              title: const Text(AppStrings.showDiscountBadge),
               subtitle: Text(
                 (double.tryParse(discountPercent.text) ?? 0) > 0 &&
                         (double.tryParse(price.text) ?? 0) > 0
                     ? 'Customers will see: \$${(double.parse(price.text) * (1 - (double.tryParse(discountPercent.text) ?? 0) / 100)).toStringAsFixed(2)} (was \$${double.parse(price.text).toStringAsFixed(2)})'
-                    : 'Set a price and discount % to preview.',
+                    : AppStrings.uiSetAPriceAndDiscountToPreview,
               ),
               value: discountActive,
               onChanged: (v) => setState(() => discountActive = v),
             ),
-            const SizedBox(height: 16),
-            JbbButton(label: 'Save Product', busy: busy, onPressed: save),
+            const SizedBox(height: AppSizes.s16),
+            JbbButton(
+              label: AppStrings.saveProduct,
+              busy: busy,
+              onPressed: save,
+            ),
           ],
         ),
       ),

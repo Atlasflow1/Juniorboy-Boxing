@@ -1,13 +1,15 @@
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_icons.dart';
-import '../../../core/widgets/app_icon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import '../../../core/utils/validators.dart';
+import '../../../core/resources/app_icons.dart';
+import '../../../core/resources/app_sizes.dart';
+import '../../../core/resources/app_strings.dart';
 import '../../../core/utils/snackbar_utils.dart';
+import '../../../core/utils/validators.dart';
+import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/jbb_button.dart';
 import '../providers/profile_provider.dart';
 
@@ -47,13 +49,10 @@ class _EditState extends ConsumerState<EditProfileScreen> {
       if (fields[2].text.trim() != FirebaseAuth.instance.currentUser?.email) {
         await repo.changeEmail(fields[2].text.trim());
         if (mounted) {
-          showMessage(
-            context,
-            'Profile saved. Verify the new email to complete the email change.',
-          );
+          showMessage(context, AppStrings.profileSavedVerifyTheNewEmailTo);
         }
       } else if (mounted) {
-        showMessage(context, 'Profile saved.');
+        showMessage(context, AppStrings.profileSaved);
       }
     } catch (e) {
       if (mounted) showMessage(context, friendlyError(e));
@@ -83,9 +82,9 @@ class _EditState extends ConsumerState<EditProfileScreen> {
       loaded = true;
     }
     return Scaffold(
-      appBar: AppBar(title: const Text('Edit Profile')),
+      appBar: AppBar(title: const Text(AppStrings.editProfile)),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(AppSizes.s20),
         child: Form(
           key: form,
           child: Column(
@@ -96,7 +95,7 @@ class _EditState extends ConsumerState<EditProfileScreen> {
                     : () async {
                         final image = await ImagePicker().pickImage(
                           source: ImageSource.gallery,
-                          maxWidth: 1024,
+                          maxWidth: AppSizes.mediaMaxWidth,
                           imageQuality: 85,
                         );
                         if (image == null) return;
@@ -105,7 +104,10 @@ class _EditState extends ConsumerState<EditProfileScreen> {
                               .read(userRepositoryProvider)
                               .uploadAvatar(File(image.path));
                           if (context.mounted) {
-                            showMessage(context, 'Profile photo updated.');
+                            showMessage(
+                              context,
+                              AppStrings.profilePhotoUpdated,
+                            );
                           }
                         } catch (e) {
                           if (context.mounted) {
@@ -117,24 +119,24 @@ class _EditState extends ConsumerState<EditProfileScreen> {
                   alignment: Alignment.bottomRight,
                   children: [
                     CircleAvatar(
-                      radius: 48,
+                      radius: AppSizes.avatarRadiusProfile,
                       backgroundImage: (user?['avatarUrl'] ?? '').isNotEmpty
                           ? CachedNetworkImageProvider(user!['avatarUrl'])
                           : null,
                       child: (user?['avatarUrl'] ?? '').isEmpty
-                          ? const AppIcon(AppIcons.user, size: 40)
+                          ? const AppIcon(AppIcons.user, size: AppSizes.s40)
                           : null,
                     ),
                     const CircleAvatar(
-                      radius: 15,
-                      child: AppIcon(AppIcons.imagePlus, size: 16),
+                      radius: AppSizes.avatarRadiusSmall,
+                      child: AppIcon(AppIcons.imagePlus, size: AppSizes.s16),
                     ),
                   ],
                 ),
               ),
               for (var i = 0; i < fields.length; i++)
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 14),
+                  padding: const EdgeInsets.only(bottom: AppSizes.s14),
                   child: TextFormField(
                     controller: fields[i],
                     keyboardType: [
@@ -150,13 +152,13 @@ class _EditState extends ConsumerState<EditProfileScreen> {
                     ][i],
                     decoration: InputDecoration(
                       labelText: [
-                        'Full Name',
-                        'Last Name',
-                        'Email',
-                        'Your Age',
-                        'Address',
-                        'Postal / ZIP Code',
-                        'Phone',
+                        AppStrings.uiFullName,
+                        AppStrings.lastName,
+                        AppStrings.uiEmail,
+                        AppStrings.yourAge,
+                        AppStrings.address2,
+                        AppStrings.postalZipCode,
+                        AppStrings.phone,
                         "Child’s Name (optional)",
                         "Child’s Age (optional)",
                       ][i],
@@ -176,12 +178,12 @@ class _EditState extends ConsumerState<EditProfileScreen> {
                   ),
                 ),
               JbbButton(
-                label: 'Save Changes',
+                label: AppStrings.saveChanges,
                 busy: busy,
                 onPressed: loaded ? save : null,
               ),
               SwitchListTile(
-                title: const Text('Push notifications'),
+                title: const Text(AppStrings.pushNotifications),
                 value: user?['notificationPreferences']?['push'] ?? true,
                 onChanged: (v) async {
                   try {
@@ -198,7 +200,7 @@ class _EditState extends ConsumerState<EditProfileScreen> {
                 },
               ),
               SwitchListTile(
-                title: const Text('Email notifications'),
+                title: const Text(AppStrings.emailNotifications),
                 value: user?['notificationPreferences']?['email'] ?? true,
                 onChanged: (v) async {
                   try {

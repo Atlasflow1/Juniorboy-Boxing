@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_icons.dart';
+import '../../../core/resources/app_colors.dart';
+import '../../../core/resources/app_icons.dart';
+import '../../../core/resources/app_sizes.dart';
 import '../../../core/widgets/app_icon.dart';
-import '../../../core/theme/app_colors.dart';
 
 /// Renders 1-5 stars. Pass [onChanged] to make it a tappable input (used in
 /// the review form); leave it null for a read-only display (review cards,
@@ -26,7 +27,7 @@ class StarRating extends StatelessWidget {
     children: [
       for (var star = 1; star <= 5; star++)
         Padding(
-          padding: const EdgeInsets.only(right: 2),
+          padding: const EdgeInsets.only(right: AppSizes.s2),
           child: GestureDetector(
             onTap: _interactive ? () => onChanged!(star) : null,
             child: AppIcon(

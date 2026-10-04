@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/resources/app_colors.dart';
+import '../../../core/resources/app_sizes.dart';
+import '../../../core/resources/app_strings.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/utils/snackbar_utils.dart';
 import '../../../core/widgets/jbb_card.dart';
@@ -17,16 +20,16 @@ class AdminBookingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final bookings = ref.watch(adminBookingsProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Bookings')),
+      appBar: AppBar(title: const Text(AppStrings.bookings)),
       body: bookings.when(
         data: (rows) {
           if (rows.isEmpty) {
             return const JbbEmptyState(
-              message: 'No bookings yet. They will appear here once a member books a class.',
+              message: AppStrings.noBookingsYetTheyWillAppearHere,
             );
           }
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppSizes.s16),
             children: rows
                 .map(
                   (booking) => JbbCard(
@@ -43,20 +46,20 @@ class AdminBookingsScreen extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                booking['className'] ?? 'Class',
+                                booking['className'] ?? AppStrings.uiClass,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 16,
+                                  fontSize: AppSizes.font16,
                                 ),
                               ),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: AppSizes.s4),
                               BuyerName(userId: booking['userId']),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: AppSizes.s4),
                               Text(
                                 '${dateLabel(readDate(booking['date']))} · ${timeLabel(readDate(booking['date']))}',
                                 style: const TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 12,
+                                  color: AppColors.grey,
+                                  fontSize: AppSizes.font12,
                                 ),
                               ),
                             ],
@@ -65,8 +68,8 @@ class AdminBookingsScreen extends ConsumerWidget {
                         Text(
                           booking['status'] ?? '',
                           style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey,
+                            fontSize: AppSizes.font12,
+                            color: AppColors.grey,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -106,10 +109,11 @@ class _BookingDetailSheetState extends ConsumerState<_BookingDetailSheet> {
         .read(adminRepositoryProvider)
         .buyer(widget.booking['userId'])
         .then((value) {
-      if (mounted) setState(() => member = value);
-    }).whenComplete(() {
-      if (mounted) setState(() => loading = false);
-    });
+          if (mounted) setState(() => member = value);
+        })
+        .whenComplete(() {
+          if (mounted) setState(() => loading = false);
+        });
   }
 
   Future<void> markAttendance(String status) async {
@@ -119,7 +123,12 @@ class _BookingDetailSheetState extends ConsumerState<_BookingDetailSheet> {
           .read(adminRepositoryProvider)
           .markAttendance(widget.booking['id'], status);
       if (mounted) {
-        showMessage(context, status == 'completed' ? 'Marked present.' : 'Marked no-show.');
+        showMessage(
+          context,
+          status == 'completed'
+              ? AppStrings.uiMarkedPresent
+              : AppStrings.uiMarkedNoShow,
+        );
         Navigator.of(context).pop();
       }
     } catch (e) {
@@ -134,23 +143,23 @@ class _BookingDetailSheetState extends ConsumerState<_BookingDetailSheet> {
       builder: (context) {
         final controller = TextEditingController();
         return AlertDialog(
-          title: const Text('Cancel this booking?'),
+          title: const Text(AppStrings.cancelThisBooking),
           content: TextField(
             controller: controller,
-            decoration: const InputDecoration(labelText: 'Reason'),
+            decoration: const InputDecoration(labelText: AppStrings.reason),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Back'),
+              child: const Text(AppStrings.back),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(
                 controller.text.trim().isEmpty
-                    ? 'Cancelled by admin'
+                    ? AppStrings.uiCancelledByAdmin
                     : controller.text.trim(),
               ),
-              child: const Text('Cancel Booking'),
+              child: const Text(AppStrings.cancelBooking2),
             ),
           ],
         );
@@ -163,7 +172,7 @@ class _BookingDetailSheetState extends ConsumerState<_BookingDetailSheet> {
           .read(adminRepositoryProvider)
           .cancelBookingAsAdmin(widget.booking['id'], reason);
       if (mounted) {
-        showMessage(context, 'Booking cancelled.');
+        showMessage(context, AppStrings.bookingCancelled);
         Navigator.of(context).pop();
       }
     } catch (e) {
@@ -178,9 +187,9 @@ class _BookingDetailSheetState extends ConsumerState<_BookingDetailSheet> {
     final ended = readDate(widget.booking['endAt']).isBefore(DateTime.now());
     return Padding(
       padding: EdgeInsets.only(
-        left: 20,
-        right: 20,
-        top: 20,
+        left: AppSizes.s20,
+        right: AppSizes.s20,
+        top: AppSizes.s20,
         bottom: MediaQuery.of(context).viewInsets.bottom + 20,
       ),
       child: SingleChildScrollView(
@@ -189,22 +198,25 @@ class _BookingDetailSheetState extends ConsumerState<_BookingDetailSheet> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              widget.booking['className'] ?? 'Booking',
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              widget.booking['className'] ?? AppStrings.uiBooking,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: AppSizes.font18,
+              ),
             ),
             Text(
               '${dateLabel(readDate(widget.booking['date']))} · ${timeLabel(readDate(widget.booking['date']))}–${timeLabel(readDate(widget.booking['endAt']))} · $status',
-              style: const TextStyle(color: Colors.grey),
+              style: const TextStyle(color: AppColors.grey),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSizes.s16),
             if (loading)
               const Center(child: JbbLoading())
             else
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(AppSizes.s12),
                 decoration: BoxDecoration(
-                  color: Colors.white10,
-                  borderRadius: BorderRadius.circular(10),
+                  color: AppColors.white10,
+                  borderRadius: BorderRadius.circular(AppSizes.radius10),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -214,21 +226,21 @@ class _BookingDetailSheetState extends ConsumerState<_BookingDetailSheet> {
                           .trim(),
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: AppSizes.s4),
                     Text(
                       (member?['phone'] as String? ?? '').isNotEmpty
                           ? member!['phone']
-                          : 'No phone on file',
+                          : AppStrings.uiNoPhoneOnFile,
                     ),
                     Text(member?['email'] ?? ''),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: AppSizes.s4),
                     Text(
                       (member?['address'] as String? ?? '').isNotEmpty
                           ? '${member!['address']}${(member?['zipCode'] as String? ?? '').isNotEmpty ? ', ${member!['zipCode']}' : ''}'
-                          : 'No address on file',
+                          : AppStrings.uiNoAddressOnFile,
                     ),
                     if ((member?['childName'] as String? ?? '').isNotEmpty) ...[
-                      const SizedBox(height: 4),
+                      const SizedBox(height: AppSizes.s4),
                       Text(
                         'Participant: ${member!['childName']}${(member?['childAge'] ?? 0) > 0 ? ' (${member!['childAge']})' : ''}',
                       ),
@@ -236,30 +248,34 @@ class _BookingDetailSheetState extends ConsumerState<_BookingDetailSheet> {
                   ],
                 ),
               ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSizes.s16),
             if (status == 'confirmed') ...[
               if (ended)
                 Row(
                   children: [
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: busy ? null : () => markAttendance('completed'),
-                        child: const Text('Present'),
+                        onPressed: busy
+                            ? null
+                            : () => markAttendance('completed'),
+                        child: const Text(AppStrings.present),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: AppSizes.s12),
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: busy ? null : () => markAttendance('no-show'),
-                        child: const Text('No-show'),
+                        onPressed: busy
+                            ? null
+                            : () => markAttendance('no-show'),
+                        child: const Text(AppStrings.noShow),
                       ),
                     ),
                   ],
                 ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppSizes.s12),
               TextButton(
                 onPressed: busy ? null : cancel,
-                child: const Text('Cancel Booking'),
+                child: const Text(AppStrings.cancelBooking2),
               ),
             ],
           ],

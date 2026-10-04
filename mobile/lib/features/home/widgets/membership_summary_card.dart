@@ -1,8 +1,11 @@
-import '../../../core/router/app_routes.dart';
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_icons.dart';
-import '../../../core/widgets/app_icon.dart';
+import '../../../core/resources/app_colors.dart';
+import '../../../core/resources/app_icons.dart';
+import '../../../core/resources/app_sizes.dart';
+import '../../../core/resources/app_strings.dart';
+import '../../../core/router/app_routes.dart';
 import '../../../core/utils/nav_debounce.dart';
+import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/jbb_card.dart';
 
 /// Confirms the member's active subscription right on Home — plan name
@@ -24,30 +27,33 @@ class MembershipSummaryCard extends StatelessWidget {
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const AppIcon(AppIcons.crown, color: Colors.red),
-        const SizedBox(width: 12),
+        const AppIcon(AppIcons.crown, color: AppColors.materialRed),
+        const SizedBox(width: AppSizes.s12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                planName ?? 'Your Membership',
+                planName ?? AppStrings.uiYourMembership,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 16,
+                  fontSize: AppSizes.font16,
                 ),
               ),
-              const SizedBox(height: 4),
-              Text('$sessionsRemaining sessions remaining'),
+              const SizedBox(height: AppSizes.s4),
+              Text(AppStrings.sessionsRemaining(sessionsRemaining)),
               if (sessionsReserved > 0)
                 Text(
                   '$sessionsReserved reserved for upcoming classes',
-                  style: const TextStyle(color: Colors.grey, fontSize: 12),
+                  style: const TextStyle(
+                    color: AppColors.grey,
+                    fontSize: AppSizes.font12,
+                  ),
                 ),
             ],
           ),
         ),
-        const AppIcon(AppIcons.chevronRight, color: Colors.grey),
+        const AppIcon(AppIcons.chevronRight, color: AppColors.grey),
       ],
     ),
   );

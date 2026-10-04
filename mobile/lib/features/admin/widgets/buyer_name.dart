@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/resources/app_sizes.dart';
 import '../providers/admin_provider.dart';
 
 /// Resolves a Firestore user id to a display name, for admin lists that
@@ -17,7 +18,7 @@ class BuyerName extends ConsumerWidget {
           : '${buyer['fullName'] ?? ''} ${buyer['lastName'] ?? ''}'.trim();
       return Text(
         (name ?? '').isNotEmpty ? name! : 'Loading…',
-        style: const TextStyle(fontSize: 13),
+        style: const TextStyle(fontSize: AppSizes.font13),
       );
     },
   );

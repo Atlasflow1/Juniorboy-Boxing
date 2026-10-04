@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import '../../../core/resources/app_colors.dart';
+import '../../../core/resources/app_sizes.dart';
+import '../../../core/resources/app_strings.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/utils/snackbar_utils.dart';
-import '../../../core/widgets/page_content.dart';
-import '../../../core/widgets/jbb_loading.dart';
 import '../../../core/widgets/jbb_empty_state.dart';
+import '../../../core/widgets/jbb_loading.dart';
+import '../../../core/widgets/page_content.dart';
 import '../providers/schedule_provider.dart';
-import '../widgets/month_navigator.dart';
-import '../widgets/day_selector.dart';
 import '../widgets/class_list_card.dart';
+import '../widgets/day_selector.dart';
+import '../widgets/month_navigator.dart';
 
 class ScheduleScreen extends ConsumerStatefulWidget {
   const ScheduleScreen({super.key, this.programId});
@@ -36,16 +39,16 @@ class _ScheduleState extends ConsumerState<ScheduleScreen> {
         programs = ref.watch(classesProvider).value ?? [];
     final sessions = ref.watch(scheduleProvider(key));
     return PageContent(
-      title: 'Class Schedule',
+      title: AppStrings.classSchedule,
       children: [
         MonthNavigator(date: day, onChange: (v) => setState(() => day = v)),
         DaySelector(date: day, onChange: (v) => setState(() => day = v)),
-        const SizedBox(height: 24),
+        const SizedBox(height: AppSizes.s24),
         Text(
           '${DateFormat('EEEE, MMM d').format(day)} · Pacific time',
-          style: const TextStyle(color: Colors.grey),
+          style: const TextStyle(color: AppColors.grey),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: AppSizes.s14),
         sessions.when(
           data: (allRows) {
             final rows = allRows
@@ -57,8 +60,8 @@ class _ScheduleState extends ConsumerState<ScheduleScreen> {
                 .toList();
             return rows.isEmpty
                 ? const JbbEmptyState(
-                    message:
-                        'No classes scheduled for this selection. Contact the gym for availability.',
+                    message: AppStrings
+                        .uiNoClassesScheduledForThisSelectionContactThe,
                   )
                 : Column(
                     children: rows

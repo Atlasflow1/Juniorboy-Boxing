@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_icons.dart';
-import '../../../core/widgets/app_icon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/resources/app_colors.dart';
+import '../../../core/resources/app_icons.dart';
+import '../../../core/resources/app_sizes.dart';
+import '../../../core/resources/app_strings.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/utils/snackbar_utils.dart';
+import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/jbb_card.dart';
 import '../../../core/widgets/jbb_empty_state.dart';
 import '../../../core/widgets/jbb_loading.dart';
@@ -28,7 +31,7 @@ class _AdminSubscriptionsScreenState
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete this subscription record?'),
+        title: const Text(AppStrings.deleteThisSubscriptionRecord),
         content: const Text(
           'This removes the payment record only. It does not remove '
           'session credits already added — use Refund first if the '
@@ -37,11 +40,11 @@ class _AdminSubscriptionsScreenState
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: const Text(AppStrings.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Delete'),
+            child: const Text(AppStrings.delete),
           ),
         ],
       ),
@@ -50,7 +53,7 @@ class _AdminSubscriptionsScreenState
     setState(() => busyId = order['id']);
     try {
       await ref.read(adminRepositoryProvider).deletePayment(order['id']);
-      if (mounted) showMessage(context, 'Record deleted.');
+      if (mounted) showMessage(context, AppStrings.recordDeleted);
     } catch (e) {
       if (mounted) showMessage(context, friendlyError(e));
     } finally {
@@ -66,17 +69,19 @@ class _AdminSubscriptionsScreenState
       for (final p in plans) p['id'] as String: p['name'] as String? ?? 'Plan',
     };
     return Scaffold(
-      appBar: AppBar(title: const Text('Membership Subscriptions')),
+      appBar: AppBar(title: const Text(AppStrings.membershipSubscriptions)),
       body: orders.when(
         data: (rows) {
           final subs = rows
               .where((p) => p['membershipPlanId'] != null)
               .toList();
           if (subs.isEmpty) {
-            return const JbbEmptyState(message: 'No membership purchases yet.');
+            return const JbbEmptyState(
+              message: AppStrings.noMembershipPurchasesYet,
+            );
           }
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppSizes.s16),
             children: subs
                 .map(
                   (order) => JbbCard(
@@ -89,20 +94,20 @@ class _AdminSubscriptionsScreenState
                             children: [
                               Text(
                                 planNames[order['membershipPlanId']] ??
-                                    'Membership',
+                                    AppStrings.navMembership,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 16,
+                                  fontSize: AppSizes.font16,
                                 ),
                               ),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: AppSizes.s4),
                               BuyerName(userId: order['userId']),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: AppSizes.s4),
                               Text(
                                 '${dateLabel(readDate(order['createdAt']))} · ${timeLabel(readDate(order['createdAt']))}',
                                 style: const TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 12,
+                                  color: AppColors.grey,
+                                  fontSize: AppSizes.font12,
                                 ),
                               ),
                             ],
@@ -117,20 +122,20 @@ class _AdminSubscriptionsScreenState
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(height: AppSizes.s4),
                             if (order['credits'] != null)
                               Text(
                                 '${order['credits']} credits',
                                 style: const TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey,
+                                  fontSize: AppSizes.font12,
+                                  color: AppColors.grey,
                                 ),
                               ),
                             Text(
                               order['status'] ?? '',
                               style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey,
+                                fontSize: AppSizes.font12,
+                                color: AppColors.grey,
                               ),
                             ),
                           ],
@@ -141,16 +146,16 @@ class _AdminSubscriptionsScreenState
                               : () => delete(order),
                           icon: busyId == order['id']
                               ? const SizedBox(
-                                  width: 18,
-                                  height: 18,
+                                  width: AppSizes.s18,
+                                  height: AppSizes.s18,
                                   child: CircularProgressIndicator(
-                                    strokeWidth: 2,
+                                    strokeWidth: AppSizes.s2,
                                   ),
                                 )
                               : const AppIcon(
                                   AppIcons.trash,
-                                  color: Colors.grey,
-                                  size: 20,
+                                  color: AppColors.grey,
+                                  size: AppSizes.s20,
                                 ),
                         ),
                       ],

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_icons.dart';
-import '../../../core/widgets/app_icon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/theme/app_colors.dart';
+import '../../../core/resources/app_colors.dart';
+import '../../../core/resources/app_icons.dart';
+import '../../../core/resources/app_sizes.dart';
+import '../../../core/resources/app_strings.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/utils/snackbar_utils.dart';
+import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/jbb_button.dart';
 import '../../../core/widgets/jbb_card.dart';
 import '../../../core/widgets/jbb_empty_state.dart';
@@ -21,18 +23,17 @@ class AdminOrdersScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final orders = ref.watch(adminOrdersProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Store Orders')),
+      appBar: AppBar(title: const Text(AppStrings.storeOrders)),
       body: orders.when(
         data: (rows) {
           final products = rows.where((p) => p['productId'] != null).toList();
           if (products.isEmpty) {
             return const JbbEmptyState(
-              message:
-                  'No store orders yet. They will appear here once a customer buys something.',
+              message: AppStrings.uiNoStoreOrdersYetTheyWillAppearHere,
             );
           }
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppSizes.s16),
             children: products
                 .map(
                   (order) => JbbCard(
@@ -50,32 +51,35 @@ class AdminOrdersScreen extends ConsumerWidget {
                             children: [
                               Text(
                                 order['size'] != null
-                                    ? '${order['productName'] ?? 'Product'} · Size ${order['size']}'
-                                    : order['productName'] ?? 'Product',
+                                    ? '${order['productName'] ?? AppStrings.uiProduct} · Size ${order['size']}'
+                                    : order['productName'] ??
+                                          AppStrings.uiProduct,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 16,
+                                  fontSize: AppSizes.font16,
                                 ),
                               ),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: AppSizes.s4),
                               BuyerName(userId: order['userId']),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: AppSizes.s4),
                               Text(
                                 '${dateLabel(readDate(order['createdAt']))} · ${timeLabel(readDate(order['createdAt']))}',
                                 style: const TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 12,
+                                  color: AppColors.grey,
+                                  fontSize: AppSizes.font12,
                                 ),
                               ),
                               if (order['estimatedDeliveryDate'] != null)
                                 Padding(
-                                  padding: const EdgeInsets.only(top: 6),
+                                  padding: const EdgeInsets.only(
+                                    top: AppSizes.s6,
+                                  ),
                                   child: Text(
                                     'Delivery: ${dateLabel(readDate(order['estimatedDeliveryDate']))}',
                                     style: const TextStyle(
                                       color: AppColors.red,
                                       fontWeight: FontWeight.w600,
-                                      fontSize: 12,
+                                      fontSize: AppSizes.font12,
                                     ),
                                   ),
                                 ),
@@ -91,12 +95,12 @@ class AdminOrdersScreen extends ConsumerWidget {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(height: AppSizes.s4),
                             Text(
                               order['status'] ?? '',
                               style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey,
+                                fontSize: AppSizes.font12,
+                                color: AppColors.grey,
                               ),
                             ),
                           ],
@@ -159,7 +163,7 @@ class _OrderDetailSheetState extends ConsumerState<_OrderDetailSheet> {
 
   Future<void> save() async {
     if (deliveryDate == null) {
-      showMessage(context, 'Pick an expected delivery/pickup date.');
+      showMessage(context, AppStrings.pickAnExpectedDeliveryPickupDate);
       return;
     }
     setState(() => busy = true);
@@ -172,7 +176,7 @@ class _OrderDetailSheetState extends ConsumerState<_OrderDetailSheet> {
             note.text.trim(),
           );
       if (mounted) {
-        showMessage(context, 'Delivery date saved.');
+        showMessage(context, AppStrings.deliveryDateSaved);
         Navigator.of(context).pop();
       }
     } catch (e) {
@@ -186,7 +190,7 @@ class _OrderDetailSheetState extends ConsumerState<_OrderDetailSheet> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete this order?'),
+        title: const Text(AppStrings.deleteThisOrder),
         content: const Text(
           'This removes the order record only. It does not refund the '
           'customer or reverse fulfillment — use Refund first if the '
@@ -195,11 +199,11 @@ class _OrderDetailSheetState extends ConsumerState<_OrderDetailSheet> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: const Text(AppStrings.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Delete'),
+            child: const Text(AppStrings.delete),
           ),
         ],
       ),
@@ -209,7 +213,7 @@ class _OrderDetailSheetState extends ConsumerState<_OrderDetailSheet> {
     try {
       await ref.read(adminRepositoryProvider).deletePayment(widget.order['id']);
       if (mounted) {
-        showMessage(context, 'Order deleted.');
+        showMessage(context, AppStrings.orderDeleted);
         Navigator.of(context).pop();
       }
     } catch (e) {
@@ -221,9 +225,9 @@ class _OrderDetailSheetState extends ConsumerState<_OrderDetailSheet> {
   @override
   Widget build(BuildContext context) => Padding(
     padding: EdgeInsets.only(
-      left: 20,
-      right: 20,
-      top: 20,
+      left: AppSizes.s20,
+      right: AppSizes.s20,
+      top: AppSizes.s20,
       bottom: MediaQuery.of(context).viewInsets.bottom + 20,
     ),
     child: SingleChildScrollView(
@@ -236,11 +240,11 @@ class _OrderDetailSheetState extends ConsumerState<_OrderDetailSheet> {
               Expanded(
                 child: Text(
                   widget.order['size'] != null
-                      ? '${widget.order['productName'] ?? 'Order'} · Size ${widget.order['size']}'
-                      : widget.order['productName'] ?? 'Order',
+                      ? '${widget.order['productName'] ?? AppStrings.uiOrder} · Size ${widget.order['size']}'
+                      : widget.order['productName'] ?? AppStrings.uiOrder,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 18,
+                    fontSize: AppSizes.font18,
                   ),
                 ),
               ),
@@ -252,17 +256,17 @@ class _OrderDetailSheetState extends ConsumerState<_OrderDetailSheet> {
           ),
           Text(
             '\$${(widget.order['amount'] / 100).toStringAsFixed(2)} · ${widget.order['status']}',
-            style: const TextStyle(color: Colors.grey),
+            style: const TextStyle(color: AppColors.grey),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSizes.s16),
           if (loading)
             const Center(child: JbbLoading())
           else
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(AppSizes.s12),
               decoration: BoxDecoration(
-                color: Colors.white10,
-                borderRadius: BorderRadius.circular(10),
+                color: AppColors.white10,
+                borderRadius: BorderRadius.circular(AppSizes.radius10),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -272,23 +276,23 @@ class _OrderDetailSheetState extends ConsumerState<_OrderDetailSheet> {
                         .trim(),
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: AppSizes.s4),
                   Text(
                     (buyer?['phone'] as String? ?? '').isNotEmpty
                         ? buyer!['phone']
-                        : 'No phone on file',
+                        : AppStrings.uiNoPhoneOnFile,
                   ),
                   Text(buyer?['email'] ?? ''),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: AppSizes.s4),
                   Text(
                     (buyer?['address'] as String? ?? '').isNotEmpty
                         ? '${buyer!['address']}${(buyer?['zipCode'] as String? ?? '').isNotEmpty ? ', ${buyer!['zipCode']}' : ''}'
-                        : 'No address on file',
+                        : AppStrings.uiNoAddressOnFile,
                   ),
                 ],
               ),
             ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSizes.s16),
           ListTile(
             contentPadding: EdgeInsets.zero,
             title: Text(
@@ -310,13 +314,13 @@ class _OrderDetailSheetState extends ConsumerState<_OrderDetailSheet> {
           TextField(
             controller: note,
             decoration: const InputDecoration(
-              labelText: 'Note for the buyer (optional)',
-              hintText: 'e.g. Ships via USPS, or ready for pickup',
+              labelText: AppStrings.noteForTheBuyerOptional,
+              hintText: AppStrings.eGShipsViaUspsOrReady,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSizes.s16),
           JbbButton(
-            label: 'Save Delivery Date',
+            label: AppStrings.saveDeliveryDate,
             busy: busy,
             onPressed: widget.order['status'] == 'completed' ? save : null,
           ),

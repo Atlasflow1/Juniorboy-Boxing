@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_icons.dart';
-import '../../../core/widgets/app_icon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/resources/app_icons.dart';
+import '../../../core/resources/app_sizes.dart';
+import '../../../core/resources/app_strings.dart';
 import '../../../core/utils/snackbar_utils.dart';
+import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/jbb_button.dart';
 import '../../schedule/providers/schedule_provider.dart';
 import '../providers/admin_provider.dart';
 
 const _weekdays = [
-  (1, 'Monday'),
-  (2, 'Tuesday'),
-  (3, 'Wednesday'),
-  (4, 'Thursday'),
-  (5, 'Friday'),
-  (6, 'Saturday'),
-  (7, 'Sunday'),
+  (1, AppStrings.uiMonday),
+  (2, AppStrings.uiTuesday),
+  (3, AppStrings.uiWednesday),
+  (4, AppStrings.uiThursday),
+  (5, AppStrings.uiFriday),
+  (6, AppStrings.uiSaturday),
+  (7, AppStrings.uiSunday),
 ];
 
 class TemplateEditorScreen extends ConsumerStatefulWidget {
@@ -68,18 +70,18 @@ class _TemplateEditorState extends ConsumerState<TemplateEditorScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Remove this class time?'),
+        title: const Text(AppStrings.removeThisClassTime),
         content: const Text(
-          'Future sessions already generated for it stay bookable; new ones stop being created.',
+          AppStrings.uiFutureSessionsAlreadyGeneratedForItStayBookable,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: const Text(AppStrings.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Remove'),
+            child: const Text(AppStrings.remove),
           ),
         ],
       ),
@@ -103,7 +105,9 @@ class _TemplateEditorState extends ConsumerState<TemplateEditorScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          widget.template == null ? 'Add Class Time' : 'Edit Class Time',
+          widget.template == null
+              ? AppStrings.uiAddClassTime
+              : AppStrings.uiEditClassTime,
         ),
         actions: [
           if (widget.template != null)
@@ -114,7 +118,7 @@ class _TemplateEditorState extends ConsumerState<TemplateEditorScreen> {
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(AppSizes.s24),
         child: Form(
           key: form,
           child: Column(
@@ -122,7 +126,9 @@ class _TemplateEditorState extends ConsumerState<TemplateEditorScreen> {
             children: [
               DropdownButtonFormField<String>(
                 initialValue: classId,
-                decoration: const InputDecoration(labelText: 'Program'),
+                decoration: const InputDecoration(
+                  labelText: AppStrings.program,
+                ),
                 items: [
                   for (final c in classes)
                     DropdownMenuItem(
@@ -131,50 +137,55 @@ class _TemplateEditorState extends ConsumerState<TemplateEditorScreen> {
                     ),
                 ],
                 onChanged: (v) => setState(() => classId = v),
-                validator: (v) => v == null ? 'Choose a program' : null,
+                validator: (v) =>
+                    v == null ? AppStrings.uiChooseAProgram : null,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSizes.s16),
               DropdownButtonFormField<int>(
                 initialValue: dayOfWeek,
-                decoration: const InputDecoration(labelText: 'Day of week'),
+                decoration: const InputDecoration(
+                  labelText: AppStrings.dayOfWeek,
+                ),
                 items: [
                   for (final d in _weekdays)
                     DropdownMenuItem(value: d.$1, child: Text(d.$2)),
                 ],
                 onChanged: (v) => setState(() => dayOfWeek = v!),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSizes.s16),
               TextFormField(
                 controller: startTime,
                 decoration: const InputDecoration(
-                  labelText: 'Start time (24h, e.g. 16:00)',
+                  labelText: AppStrings.startTime24hEG1600,
                 ),
                 validator: (v) =>
                     RegExp(r'^([01]\d|2[0-3]):[0-5]\d$').hasMatch(v ?? '')
                     ? null
-                    : 'Use 24-hour HH:mm, e.g. 16:00',
+                    : AppStrings.uiUse24HourHhMmEG16,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSizes.s16),
               TextFormField(
                 controller: maxSpots,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Max spots'),
+                decoration: const InputDecoration(
+                  labelText: AppStrings.maxSpots,
+                ),
                 validator: (v) =>
                     int.tryParse(v ?? '') != null && int.parse(v!) > 0
                     ? null
-                    : 'Enter a valid number',
+                    : AppStrings.uiEnterAValidNumber,
               ),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('Active (generates weekly sessions)'),
+                title: const Text(AppStrings.activeGeneratesWeeklySessions),
                 value: isActive,
                 onChanged: (v) => setState(() => isActive = v),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSizes.s16),
               JbbButton(
                 label: widget.template == null
-                    ? 'Add Class Time'
-                    : 'Save Changes',
+                    ? AppStrings.uiAddClassTime
+                    : AppStrings.saveChanges,
                 busy: busy,
                 onPressed: save,
               ),

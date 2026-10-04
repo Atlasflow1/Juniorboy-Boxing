@@ -1,20 +1,22 @@
-import '../../../core/router/app_routes.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/widgets/page_content.dart';
-import '../../../core/widgets/jbb_button.dart';
-import '../../../core/widgets/jbb_loading.dart';
-import '../../../core/widgets/jbb_empty_state.dart';
+import '../../../core/resources/app_sizes.dart';
+import '../../../core/resources/app_strings.dart';
+import '../../../core/router/app_routes.dart';
 import '../../../core/utils/snackbar_utils.dart';
-import '../../../data/services/stripe_service.dart';
+import '../../../core/widgets/jbb_button.dart';
+import '../../../core/widgets/jbb_empty_state.dart';
+import '../../../core/widgets/jbb_loading.dart';
+import '../../../core/widgets/page_content.dart';
 import '../../../data/repositories/user_repository.dart';
+import '../../../data/services/stripe_service.dart';
+import '../../auth/providers/auth_provider.dart';
+import '../../profile/providers/profile_provider.dart';
 import '../providers/membership_provider.dart';
 import '../widgets/plan_card.dart';
-import '../../profile/providers/profile_provider.dart';
-import '../../auth/providers/auth_provider.dart';
 
 class MembershipScreen extends ConsumerStatefulWidget {
   const MembershipScreen({super.key});
@@ -33,11 +35,12 @@ class _MembershipState extends ConsumerState<MembershipScreen> {
       final authUser = FirebaseAuth.instance.currentUser;
       if (authUser == null || authUser.isAnonymous) {
         await ref.read(authRepositoryProvider).googleSignIn();
-        if (mounted)
+        if (mounted) {
           showMessage(
             context,
-            'Signed in. Complete your profile, then choose your plan.',
+            AppStrings.signedInCompleteYourProfileThenChoose,
           );
+        }
         return;
       }
       final profile =
@@ -66,20 +69,20 @@ class _MembershipState extends ConsumerState<MembershipScreen> {
   Widget build(BuildContext context) {
     final user = ref.watch(profileProvider).value;
     return PageContent(
-      title: 'Choose Your Plan',
+      title: AppStrings.chooseYourPlan,
       children: [
         const Wrap(
-          spacing: 8,
+          spacing: AppSizes.s8,
           children: [
-            Chip(label: Text('Build Confidence')),
-            Chip(label: Text('Get Stronger')),
-            Chip(label: Text('Real Progress')),
+            Chip(label: Text(AppStrings.buildConfidence)),
+            Chip(label: Text(AppStrings.getStronger)),
+            Chip(label: Text(AppStrings.realProgress)),
           ],
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSizes.s16),
         if (user != null)
           Padding(
-            padding: const EdgeInsets.only(bottom: 20),
+            padding: const EdgeInsets.only(bottom: AppSizes.s20),
             child: Text(
               '${user['sessionsRemaining']} sessions remaining · ${user['sessionsReserved'] ?? 0} reserved',
             ),
@@ -112,12 +115,12 @@ class _MembershipState extends ConsumerState<MembershipScreen> {
                       ),
                     if (plans.isEmpty)
                       const JbbEmptyState(
-                        message:
-                            'Membership plans will appear here when available.',
+                        message: AppStrings
+                            .uiMembershipPlansWillAppearHereWhenAvailable,
                       ),
                     if (plans.any((p) => p['id'] == selected))
                       JbbButton(
-                        label: 'Continue  →',
+                        label: AppStrings.continueAction,
                         busy: busy,
                         onPressed: purchase,
                       ),

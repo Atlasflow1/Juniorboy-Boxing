@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+import '../../../core/resources/app_sizes.dart';
 
 /// Extracts an 11-character YouTube video id from any common URL shape
 /// (watch?v=, youtu.be/, embed/). Returns null if none is found.
@@ -50,12 +51,10 @@ class _YoutubeBackgroundPlayerState extends State<YoutubeBackgroundPlayer> {
 
   @override
   Widget build(BuildContext context) => ClipRRect(
-    borderRadius: BorderRadius.circular(16),
+    borderRadius: BorderRadius.circular(AppSizes.radius16),
     child: AspectRatio(
-      aspectRatio: 16 / 9,
-      child: AbsorbPointer(
-        child: YoutubePlayer(controller: controller),
-      ),
+      aspectRatio: AppSizes.videoAspectRatio,
+      child: AbsorbPointer(child: YoutubePlayer(controller: controller)),
     ),
   );
 }

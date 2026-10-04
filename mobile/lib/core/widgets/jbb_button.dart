@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../resources/app_colors.dart';
+import '../resources/app_sizes.dart';
 
 class JbbButton extends StatelessWidget {
   const JbbButton({
@@ -15,11 +17,11 @@ class JbbButton extends StatelessWidget {
     onPressed: busy ? null : onPressed,
     child: busy
         ? const SizedBox(
-            width: 22,
-            height: 22,
+            width: AppSizes.s22,
+            height: AppSizes.s22,
             child: CircularProgressIndicator(
-              strokeWidth: 2,
-              color: Colors.white,
+              strokeWidth: AppSizes.s2,
+              color: AppColors.white,
             ),
           )
         : Text(label),

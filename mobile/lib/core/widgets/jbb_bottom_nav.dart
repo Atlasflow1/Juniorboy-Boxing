@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../constants/app_icons.dart';
-import '../theme/app_colors.dart';
+import '../resources/app_colors.dart';
+import '../resources/app_icons.dart';
+import '../resources/app_sizes.dart';
+import '../resources/app_strings.dart';
 import 'app_icon.dart';
 
 class JbbBottomNav extends StatelessWidget {
@@ -10,9 +12,9 @@ class JbbBottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return NavigationBar(
-      height: 64,
+      height: AppSizes.bottomNavHeight,
       backgroundColor: AppColors.background,
-      indicatorColor: Colors.transparent,
+      indicatorColor: AppColors.transparent,
       selectedIndex: navigationShell.currentIndex,
       onDestinationSelected: (index) => navigationShell.goBranch(
         index,
@@ -20,14 +22,14 @@ class JbbBottomNav extends StatelessWidget {
       ),
       destinations: [
         for (final item in [
-          ('Home', AppIcons.navHome),
-          ('Schedule', AppIcons.navSchedule),
-          ('Book', AppIcons.navBook),
-          ('Membership', AppIcons.navMembership),
-          ('More', AppIcons.navMore),
+          (AppStrings.navHome, AppIcons.navHome),
+          (AppStrings.navSchedule, AppIcons.navSchedule),
+          (AppStrings.navBook, AppIcons.navBook),
+          (AppStrings.navMembership, AppIcons.navMembership),
+          (AppStrings.navMore, AppIcons.navMore),
         ])
           NavigationDestination(
-            icon: AppIcon(item.$2, color: Colors.grey),
+            icon: AppIcon(item.$2, color: AppColors.grey),
             selectedIcon: AppIcon(item.$2, color: AppColors.red),
             label: item.$1,
           ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../resources/app_colors.dart';
+import '../resources/app_sizes.dart';
 
 /// Drop-in replacement for [Icon] that renders an SVG from [AppIcons].
 /// Size and color fall back to the ambient [IconTheme], so it works inside
@@ -14,8 +16,8 @@ class AppIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IconTheme.of(context);
-    final s = size ?? theme.size ?? 24;
-    final c = color ?? theme.color ?? Colors.white;
+    final s = size ?? theme.size ?? AppSizes.iconMedium;
+    final c = color ?? theme.color ?? AppColors.white;
     return SvgPicture.asset(
       asset,
       width: s,

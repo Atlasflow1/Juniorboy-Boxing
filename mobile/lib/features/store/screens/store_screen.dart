@@ -1,20 +1,23 @@
-import '../../../core/router/app_routes.dart';
-import 'package:flutter/material.dart';
-import '../../../core/constants/app_icons.dart';
-import '../../../core/widgets/app_icon.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../../core/widgets/page_content.dart';
-import '../../../core/widgets/jbb_card.dart';
-import '../../../core/widgets/jbb_button.dart';
-import '../../../core/widgets/jbb_loading.dart';
-import '../../../core/widgets/jbb_empty_state.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/resources/app_colors.dart';
+import '../../../core/resources/app_icons.dart';
+import '../../../core/resources/app_sizes.dart';
+import '../../../core/resources/app_strings.dart';
+import '../../../core/router/app_routes.dart';
 import '../../../core/utils/nav_debounce.dart';
 import '../../../core/utils/snackbar_utils.dart';
+import '../../../core/widgets/app_icon.dart';
+import '../../../core/widgets/jbb_button.dart';
+import '../../../core/widgets/jbb_card.dart';
+import '../../../core/widgets/jbb_empty_state.dart';
+import '../../../core/widgets/jbb_loading.dart';
+import '../../../core/widgets/page_content.dart';
+import '../../../data/services/stripe_service.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../profile/providers/profile_provider.dart';
-import '../../../data/services/stripe_service.dart';
 import '../providers/store_provider.dart';
 import 'product_editor_screen.dart';
 
@@ -34,7 +37,7 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
     final id = product['id'] as String;
     final sizes = List<String>.from(product['sizes'] ?? const []);
     if (sizes.isNotEmpty && selectedSize[id] == null) {
-      showMessage(context, 'Choose a size first.');
+      showMessage(context, AppStrings.chooseASizeFirst);
       return;
     }
     setState(() => busyProductId = id);
@@ -42,11 +45,9 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
       final authUser = FirebaseAuth.instance.currentUser;
       if (authUser == null || authUser.isAnonymous) {
         await ref.read(authRepositoryProvider).googleSignIn();
-        if (mounted)
-          showMessage(
-            context,
-            'Signed in. Tap Buy Now again to complete your order.',
-          );
+        if (mounted) {
+          showMessage(context, AppStrings.signedInTapBuyNowAgainTo);
+        }
         return;
       }
       final message = await stripe.purchaseProduct(id, size: selectedSize[id]);
@@ -84,19 +85,19 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(AppSizes.radius8),
             child: (product['imageUrl'] ?? '').isNotEmpty
                 ? CachedNetworkImage(
                     imageUrl: product['imageUrl'],
-                    width: 72,
-                    height: 72,
+                    width: AppSizes.productThumbnailSize,
+                    height: AppSizes.productThumbnailSize,
                     fit: BoxFit.cover,
                     errorWidget: (context, url, error) =>
                         const _ProductPlaceholder(),
                   )
                 : const _ProductPlaceholder(),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: AppSizes.s14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,42 +109,42 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
                         product['name'] ?? '',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                          fontSize: AppSizes.font16,
                         ),
                       ),
                     ),
                     if (isAdmin && product['isActive'] != true)
                       const Padding(
-                        padding: EdgeInsets.only(left: 8),
+                        padding: EdgeInsets.only(left: AppSizes.s8),
                         child: Text(
-                          'HIDDEN',
+                          AppStrings.uiHidden,
                           style: TextStyle(
-                            color: Colors.amber,
-                            fontSize: 11,
+                            color: AppColors.amber,
+                            fontSize: AppSizes.font11,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
                     if (isAdmin && product['isFeatured'] == true)
                       const Padding(
-                        padding: EdgeInsets.only(left: 8),
+                        padding: EdgeInsets.only(left: AppSizes.s8),
                         child: Text(
-                          'FEATURED',
+                          AppStrings.uiFeatured,
                           style: TextStyle(
-                            color: Colors.red,
-                            fontSize: 11,
+                            color: AppColors.materialRed,
+                            fontSize: AppSizes.font11,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
                     if (hasDiscount)
                       Padding(
-                        padding: const EdgeInsets.only(left: 8),
+                        padding: const EdgeInsets.only(left: AppSizes.s8),
                         child: Text(
                           '${discountPercent.toStringAsFixed(0)}% OFF',
                           style: const TextStyle(
-                            color: Colors.green,
-                            fontSize: 11,
+                            color: AppColors.materialGreen,
+                            fontSize: AppSizes.font11,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -151,33 +152,36 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
                   ],
                 ),
                 if ((product['description'] ?? '').isNotEmpty) ...[
-                  const SizedBox(height: 4),
+                  const SizedBox(height: AppSizes.s4),
                   Text(
                     product['description'],
-                    style: const TextStyle(color: Colors.grey, fontSize: 13),
-                    maxLines: 2,
+                    style: const TextStyle(
+                      color: AppColors.grey,
+                      fontSize: AppSizes.font13,
+                    ),
+                    maxLines: AppSizes.cardTextLines,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
-                const SizedBox(height: 8),
+                const SizedBox(height: AppSizes.s8),
                 if (hasDiscount)
                   Row(
                     children: [
                       Text(
                         '\$${(priceCents / 100).toStringAsFixed(2)}',
                         style: const TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey,
+                          fontSize: AppSizes.font13,
+                          color: AppColors.grey,
                           decoration: TextDecoration.lineThrough,
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: AppSizes.s8),
                       Text(
                         '\$${(saleCents / 100).toStringAsFixed(2)}',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: Colors.green,
+                          fontSize: AppSizes.font16,
+                          color: AppColors.materialGreen,
                         ),
                       ),
                     ],
@@ -187,16 +191,16 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
                     product['priceLabel'] ?? '',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Colors.red,
+                      fontSize: AppSizes.font16,
+                      color: AppColors.materialRed,
                     ),
                   ),
                 if (!isAdmin) ...[
                   if (List.from(product['sizes'] ?? const []).isNotEmpty) ...[
-                    const SizedBox(height: 8),
+                    const SizedBox(height: AppSizes.s8),
                     Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
+                      spacing: AppSizes.s6,
+                      runSpacing: AppSizes.s6,
                       children: [
                         for (final size in List<String>.from(product['sizes']))
                           ChoiceChip(
@@ -209,11 +213,11 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
                       ],
                     ),
                   ],
-                  const SizedBox(height: 10),
+                  const SizedBox(height: AppSizes.s10),
                   SizedBox(
                     width: double.infinity,
                     child: JbbButton(
-                      label: 'Buy Now',
+                      label: AppStrings.buyNow,
                       busy: busyProductId == product['id'],
                       onPressed: busyProductId == null
                           ? () => buyNow(product)
@@ -224,7 +228,8 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
               ],
             ),
           ),
-          if (isAdmin) const AppIcon(AppIcons.chevronRight, color: Colors.grey),
+          if (isAdmin)
+            const AppIcon(AppIcons.chevronRight, color: AppColors.grey),
         ],
       ),
     );
@@ -237,14 +242,14 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
       isAdmin ? productsAdminProvider : productsProvider,
     );
     return Scaffold(
-      appBar: AppBar(title: const Text('Gym Store')),
+      appBar: AppBar(title: const Text(AppStrings.gymStore)),
       floatingActionButton: isAdmin
           ? FloatingActionButton.extended(
               onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const ProductEditorScreen()),
               ),
               icon: const AppIcon(AppIcons.plus),
-              label: const Text('Add Product'),
+              label: const Text(AppStrings.addProduct),
             )
           : null,
       body: PageContent(
@@ -260,19 +265,19 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
               if (sorted.isEmpty) {
                 return JbbEmptyState(
                   message: isAdmin
-                      ? 'No products yet. Tap Add Product to create your first one.'
-                      : 'Products will appear here when available.',
+                      ? AppStrings.uiNoProductsYetTapAddProductToCreate
+                      : AppStrings.uiProductsWillAppearHereWhenAvailable,
                 );
               }
               return Column(
                 children: [
                   for (final product in sorted) productCard(product, isAdmin),
                   if (!isAdmin) ...[
-                    const SizedBox(height: 8),
+                    const SizedBox(height: AppSizes.s8),
                     TextButton(
                       onPressed: () => context.safePush(AppRoutes.contact),
                       child: const Text(
-                        'Question about an order? Contact the gym',
+                        AppStrings.uiQuestionAboutAnOrderContactTheGym,
                       ),
                     ),
                   ],
@@ -297,9 +302,9 @@ class _ProductPlaceholder extends StatelessWidget {
   const _ProductPlaceholder();
   @override
   Widget build(BuildContext context) => Container(
-    width: 72,
-    height: 72,
-    color: Colors.white10,
-    child: const AppIcon(AppIcons.shoppingBag, color: Colors.grey),
+    width: AppSizes.productThumbnailSize,
+    height: AppSizes.productThumbnailSize,
+    color: AppColors.white10,
+    child: const AppIcon(AppIcons.shoppingBag, color: AppColors.grey),
   );
 }

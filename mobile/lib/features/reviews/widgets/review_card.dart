@@ -1,9 +1,11 @@
-import 'package:flutter/material.dart';
-import '../../../core/constants/app_icons.dart';
-import '../../../core/widgets/app_icon.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../../core/theme/app_colors.dart';
+import 'package:flutter/material.dart';
+import '../../../core/resources/app_colors.dart';
+import '../../../core/resources/app_icons.dart';
+import '../../../core/resources/app_sizes.dart';
+import '../../../core/resources/app_strings.dart';
 import '../../../core/utils/date_utils.dart';
+import '../../../core/widgets/app_icon.dart';
 import '../../../data/models/review_model.dart';
 import 'star_rating.dart';
 
@@ -18,11 +20,11 @@ class ReviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    margin: const EdgeInsets.only(bottom: 12),
-    padding: const EdgeInsets.all(16),
+    margin: const EdgeInsets.only(bottom: AppSizes.s12),
+    padding: const EdgeInsets.all(AppSizes.s16),
     decoration: BoxDecoration(
       color: AppColors.card,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(AppSizes.radius12),
       border: Border.all(color: AppColors.border),
     ),
     child: Column(
@@ -32,7 +34,7 @@ class ReviewCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             CircleAvatar(
-              radius: 20,
+              radius: AppSizes.avatarRadiusMedium,
               backgroundColor: AppColors.border,
               backgroundImage: review.userAvatarUrl.isNotEmpty
                   ? CachedNetworkImageProvider(review.userAvatarUrl)
@@ -41,11 +43,11 @@ class ReviewCard extends StatelessWidget {
                   ? const AppIcon(
                       AppIcons.user,
                       color: AppColors.muted,
-                      size: 20,
+                      size: AppSizes.s20,
                     )
                   : null,
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppSizes.s12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,19 +56,22 @@ class ReviewCard extends StatelessWidget {
                     review.userName,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 15,
+                      fontSize: AppSizes.font15,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: AppSizes.s2),
                   Row(
                     children: [
-                      StarRating(rating: review.rating.toDouble(), size: 14),
-                      const SizedBox(width: 8),
+                      StarRating(
+                        rating: review.rating.toDouble(),
+                        size: AppSizes.s14,
+                      ),
+                      const SizedBox(width: AppSizes.s8),
                       Text(
                         dateLabel(review.createdAt),
                         style: const TextStyle(
                           color: AppColors.muted,
-                          fontSize: 12,
+                          fontSize: AppSizes.font12,
                         ),
                       ),
                     ],
@@ -78,17 +83,20 @@ class ReviewCard extends StatelessWidget {
               IconButton(
                 icon: const AppIcon(
                   AppIcons.trash,
-                  size: 20,
+                  size: AppSizes.s20,
                   color: AppColors.muted,
                 ),
-                tooltip: 'Delete your review',
+                tooltip: AppStrings.deleteYourReview,
                 onPressed: onDelete,
               ),
           ],
         ),
         if (review.comment.isNotEmpty) ...[
-          const SizedBox(height: 12),
-          Text(review.comment, style: const TextStyle(height: 1.5)),
+          const SizedBox(height: AppSizes.s12),
+          Text(
+            review.comment,
+            style: const TextStyle(height: AppSizes.lineHeightBody),
+          ),
         ],
       ],
     ),
