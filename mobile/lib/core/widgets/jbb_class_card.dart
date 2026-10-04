@@ -8,8 +8,15 @@ class JbbClassCard extends StatelessWidget {
   final Map<String, dynamic> session, program;
   @override
   Widget build(BuildContext context) {
-    final spots =
-        (session['maxSpots'] as num) - (session['bookedSpots'] as num);
+    final maxSpots = session['maxSpots'] as num;
+    final spots = maxSpots - (session['bookedSpots'] as num);
+    final trainingType = (program['trainingType'] as String?) ?? 'private';
+    final trainingTypeLabel = switch (trainingType) {
+      'group' => 'GROUP',
+      'duo' => 'DUO',
+      _ => 'PRIVATE',
+    };
+    final priceLabel = (program['priceLabel'] as String?) ?? '';
     return JbbCard(
       child: Row(
         children: [
@@ -30,9 +37,33 @@ class JbbClassCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  '${session['startTime']} – ${session['endTime']}',
-                  style: const TextStyle(color: AppColors.red, fontSize: 12),
+                Row(
+                  children: [
+                    Text(
+                      '${session['startTime']} – ${session['endTime']}',
+                      style: const TextStyle(color: AppColors.red, fontSize: 12),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 1,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: AppColors.red),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        trainingTypeLabel,
+                        style: const TextStyle(
+                          color: AppColors.red,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 5),
                 Text(
@@ -48,11 +79,22 @@ class JbbClassCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  spots > 0 ? '$spots spots available' : 'Fully booked',
+                  spots > 0
+                      ? '$spots of $maxSpots spots available'
+                      : 'Fully booked',
                   style: TextStyle(
                     color: spots > 0 ? AppColors.green : AppColors.red,
+                    fontSize: 12,
                   ),
                 ),
+                if (priceLabel.isNotEmpty)
+                  Text(
+                    priceLabel,
+                    style: const TextStyle(
+                      color: AppColors.muted,
+                      fontSize: 12,
+                    ),
+                  ),
               ],
             ),
           ),

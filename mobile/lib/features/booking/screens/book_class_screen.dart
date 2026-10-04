@@ -129,11 +129,17 @@ class _BookClassState extends ConsumerState<BookClassScreen> {
                             'TIME',
                             '${timeLabel(readDate(session['date']))} – ${timeLabel(readDate(session['endAt']))} PT',
                           ),
-                          ('AVAILABILITY', '$spots spots'),
+                          ('TRAINING TYPE', trainingTypeLabel),
+                          (
+                            'AVAILABILITY',
+                            '$spots of ${session['maxSpots']} spots',
+                          ),
                           (
                             '$trainingTypeLabel SESSIONS REMAINING',
                             '$remaining remaining',
                           ),
+                          if ((program['priceLabel'] ?? '').toString().isNotEmpty)
+                            ('PRICE', program['priceLabel'].toString()),
                         ])
                           Padding(
                             padding: const EdgeInsets.only(bottom: 18),

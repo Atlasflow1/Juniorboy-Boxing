@@ -8,6 +8,7 @@ import '../../../core/widgets/social_links_row.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/utils/nav_debounce.dart';
 import '../../../core/utils/snackbar_utils.dart';
+import '../../../core/theme/theme_provider.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../providers/profile_provider.dart';
 
@@ -16,6 +17,7 @@ class MoreScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(profileProvider).value;
+    final useBlackTheme = ref.watch(useBlackBackgroundProvider);
     return PageContent(
       title: 'More',
       children: [
@@ -73,7 +75,15 @@ class MoreScreen extends ConsumerWidget {
             onTap: () => context.safePush('/admin'),
           ),
         ],
-        const SizedBox(height: 20),
+        const SizedBox(height: 8),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          title: const Text('Black Theme'),
+          subtitle: Text(useBlackTheme ? 'Black' : 'Gray'),
+          value: useBlackTheme,
+          onChanged: (v) => ref.read(useBlackBackgroundProvider.notifier).toggle(v),
+        ),
+        const SizedBox(height: 12),
         OutlinedButton(
           onPressed: () async {
             try {

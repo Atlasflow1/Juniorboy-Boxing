@@ -96,18 +96,54 @@ class AdminRepository extends CachedRepository {
   Future<void> generateScheduleNow() =>
       FirebaseFunctions.instance.httpsCallable('generateScheduleNow').call();
 
+  /// Creates or edits a one-off bookable session on a specific date (as
+  /// opposed to a recurring weekly class time) — e.g. "October 10,
+  /// 10:00-11:00". Server-side `saveSchedule` enforces the capacity rule
+  /// (Private=1, Duo=2, Group=admin's choice) and future-date/overlap
+  /// checks, so this is a thin wrapper, same pattern as generateScheduleNow.
+  Future<void> saveSession({
+    String? scheduleId,
+    required String classId,
+    required String date,
+    required String startTime,
+    required String endTime,
+    required int maxSpots,
+  }) => FirebaseFunctions.instance.httpsCallable('saveSchedule').call({
+    'scheduleId': scheduleId,
+    'classId': classId,
+    'date': date,
+    'startTime': startTime,
+    'endTime': endTime,
+    'maxSpots': maxSpots,
+  });
+
   Future<void> savePromoVideoUrl(String url) =>
       db.doc('gymSettings/config').set({
         'promoVideoUrl': url,
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
-  Future<void> saveGymInfo(String address, String phone) =>
-      db.doc('gymSettings/config').set({
-        'address': address,
-        'phone': phone,
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
+  Future<void> saveGymInfo({
+    required String houseNumber,
+    required String streetName,
+    required String city,
+    required String country,
+    required String zipCode,
+    required String phone,
+  }) => db.doc('gymSettings/config').set({
+    // Street, city, zip, country — the conventional mailing-address order.
+    // Built here (not via the shared composeAddress helper used for member
+    // profiles) so zip lands between city and country instead of after.
+    'address': [
+      [houseNumber, streetName].where((s) => s.trim().isNotEmpty).join(' '),
+      city,
+      zipCode,
+      country,
+    ].where((s) => s.trim().isNotEmpty).join(', '),
+    'zipCode': zipCode,
+    'phone': phone,
+    'updatedAt': FieldValue.serverTimestamp(),
+  }, SetOptions(merge: true));
 
   Future<void> saveSocialLinks(Map<String, String> links) =>
       db.doc('gymSettings/config').set({

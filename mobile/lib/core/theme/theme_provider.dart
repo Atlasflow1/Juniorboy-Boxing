@@ -6,11 +6,13 @@ import 'app_colors.dart';
 const _useBlackBackgroundKey = 'useBlackBackground';
 
 /// Whether the app is showing the plain black background instead of the
-/// current brand teal. Persisted locally so it survives app restarts.
+/// gray/teal brand background. Black is the app's primary theme, so it's
+/// the default for anyone who hasn't chosen otherwise. Persisted locally
+/// so it survives app restarts.
 class BackgroundStyleNotifier extends Notifier<bool> {
   @override
   bool build() =>
-      Hive.box('jbb_device').get(_useBlackBackgroundKey, defaultValue: false)
+      Hive.box('jbb_device').get(_useBlackBackgroundKey, defaultValue: true)
           as bool;
 
   Future<void> toggle(bool useBlack) async {

@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../theme/app_colors.dart';
+import '../theme/theme_provider.dart';
 
-class JbbBottomNav extends StatelessWidget {
+class JbbBottomNav extends ConsumerWidget {
   const JbbBottomNav({super.key, required this.location});
   final String location;
   static const routes = ['/home', '/schedule', '/bookings', '/more'];
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final index = routes.indexWhere(
       (p) => location == p || location.startsWith('$p/'),
     );
     return NavigationBar(
       height: 64,
-      backgroundColor: AppColors.background,
+      backgroundColor: ref.watch(backgroundColorProvider),
       indicatorColor: Colors.transparent,
       selectedIndex: index < 0 ? 3 : index,
       onDestinationSelected: (i) => context.go(routes[i]),

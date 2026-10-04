@@ -19,6 +19,7 @@ import 'ad_editor_screen.dart';
 import 'plan_editor_screen.dart';
 import 'program_editor_screen.dart';
 import 'template_editor_screen.dart';
+import 'session_editor_screen.dart';
 
 const _weekdayNames = {
   1: 'Mon',
@@ -284,13 +285,31 @@ class AdminDashboardScreen extends ConsumerWidget {
             loading: () => const JbbLoading(),
           ),
           const SizedBox(height: 24),
-          Row(
+          const Text(
+            'Class Schedule Times',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+          ),
+          const SizedBox(height: 4),
+          Wrap(
+            spacing: 4,
             children: [
-              const Expanded(
-                child: Text(
-                  'Class Schedule Times',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+              TextButton.icon(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const SessionEditorScreen(),
+                  ),
                 ),
+                icon: const Icon(Icons.event_outlined, size: 18),
+                label: const Text('Add Session'),
+              ),
+              TextButton.icon(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const TemplateEditorScreen(),
+                  ),
+                ),
+                icon: const Icon(Icons.add, size: 18),
+                label: const Text('Add Class Time'),
               ),
               TextButton.icon(
                 onPressed: () async {
@@ -305,15 +324,6 @@ class AdminDashboardScreen extends ConsumerWidget {
                 },
                 icon: const Icon(Icons.refresh, size: 18),
                 label: const Text('Generate Next Week'),
-              ),
-              TextButton.icon(
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const TemplateEditorScreen(),
-                  ),
-                ),
-                icon: const Icon(Icons.add, size: 18),
-                label: const Text('Add'),
               ),
             ],
           ),
@@ -473,8 +483,9 @@ class AdminDashboardScreen extends ConsumerWidget {
   }
 }
 
-/// Lets the admin edit the gym's public address and phone number, shown
-/// on the Contact screen and the website.
+/// Lets the admin edit the gym's public address and phone number. The
+/// address is shown at the bottom of Home and on the website; phone stays
+/// internal (not shown publicly).
 class _GymInfoSection extends ConsumerStatefulWidget {
   const _GymInfoSection();
   @override
@@ -482,12 +493,21 @@ class _GymInfoSection extends ConsumerStatefulWidget {
 }
 
 class _GymInfoSectionState extends ConsumerState<_GymInfoSection> {
-  final address = TextEditingController(), phone = TextEditingController();
+  final houseNumber = TextEditingController(),
+      streetName = TextEditingController(),
+      city = TextEditingController(),
+      country = TextEditingController(),
+      zipCode = TextEditingController(),
+      phone = TextEditingController();
   bool loaded = false, busy = false;
 
   @override
   void dispose() {
-    address.dispose();
+    houseNumber.dispose();
+    streetName.dispose();
+    city.dispose();
+    country.dispose();
+    zipCode.dispose();
     phone.dispose();
     super.dispose();
   }
@@ -497,7 +517,14 @@ class _GymInfoSectionState extends ConsumerState<_GymInfoSection> {
     try {
       await ref
           .read(adminRepositoryProvider)
-          .saveGymInfo(address.text.trim(), phone.text.trim());
+          .saveGymInfo(
+            houseNumber: houseNumber.text.trim(),
+            streetName: streetName.text.trim(),
+            city: city.text.trim(),
+            country: country.text.trim(),
+            zipCode: zipCode.text.trim(),
+            phone: phone.text.trim(),
+          );
       if (mounted) showMessage(context, 'Gym info saved.');
     } catch (e) {
       if (mounted) showMessage(context, friendlyError(e));
@@ -510,7 +537,11 @@ class _GymInfoSectionState extends ConsumerState<_GymInfoSection> {
   Widget build(BuildContext context) {
     final settings = ref.watch(settingsProvider).value;
     if (!loaded && settings != null) {
-      address.text = settings['address'] ?? '';
+      // The composed address was only ever stored as one string before —
+      // land it in Street so the admin can re-split it across the new
+      // fields rather than losing what they already typed.
+      streetName.text = settings['address'] ?? '';
+      zipCode.text = settings['zipCode'] ?? '';
       phone.text = settings['phone'] ?? '';
       loaded = true;
     }
@@ -524,13 +555,35 @@ class _GymInfoSectionState extends ConsumerState<_GymInfoSection> {
           ),
           const SizedBox(height: 4),
           const Text(
-            'Shown on the Contact screen and the website.',
+            'Address shows at the bottom of Home and on the website.',
             style: TextStyle(color: AppColors.muted, fontSize: 12),
           ),
           const SizedBox(height: 12),
           TextField(
-            controller: address,
-            decoration: const InputDecoration(labelText: 'Address'),
+            controller: houseNumber,
+            decoration: const InputDecoration(
+              labelText: 'House / Building Number',
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: streetName,
+            decoration: const InputDecoration(labelText: 'Street Name'),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: city,
+            decoration: const InputDecoration(labelText: 'City'),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: country,
+            decoration: const InputDecoration(labelText: 'Country'),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: zipCode,
+            decoration: const InputDecoration(labelText: 'Postal / ZIP Code'),
           ),
           const SizedBox(height: 12),
           TextField(

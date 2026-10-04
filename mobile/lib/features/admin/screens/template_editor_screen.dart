@@ -44,6 +44,34 @@ class _TemplateEditorState extends ConsumerState<TemplateEditorScreen> {
     super.dispose();
   }
 
+  /// Private sessions must have exactly 1 spot, Duo exactly 2 — Group is
+  /// the admin's own choice. Returns null for Group (no fixed capacity).
+  int? requiredCapacity(List<Map<String, dynamic>> classes) {
+    final program = classes.firstWhere(
+      (c) => c['id'] == classId,
+      orElse: () => <String, dynamic>{},
+    );
+    return switch (program['trainingType']) {
+      'private' => 1,
+      'duo' => 2,
+      _ => null,
+    };
+  }
+
+  void pickClass(String? id, List<Map<String, dynamic>> classes) {
+    setState(() => classId = id);
+    final program = classes.firstWhere(
+      (c) => c['id'] == id,
+      orElse: () => <String, dynamic>{},
+    );
+    final cap = switch (program['trainingType']) {
+      'private' => 1,
+      'duo' => 2,
+      _ => null,
+    };
+    if (cap != null) maxSpots.text = '$cap';
+  }
+
   Future<void> save() async {
     if (!form.currentState!.validate() || classId == null) return;
     setState(() => busy = true);
@@ -105,6 +133,7 @@ class _TemplateEditorState extends ConsumerState<TemplateEditorScreen> {
   @override
   Widget build(BuildContext context) {
     final classes = ref.watch(classesProvider).value ?? [];
+    final cap = requiredCapacity(classes);
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.template == null ? 'Add Class Time' : 'Edit Class Time'),
@@ -145,7 +174,7 @@ class _TemplateEditorState extends ConsumerState<TemplateEditorScreen> {
                       child: Text(c['className'] ?? c['id']),
                     ),
                 ],
-                onChanged: (v) => setState(() => classId = v),
+                onChanged: (v) => pickClass(v, classes),
                 validator: (v) => v == null ? 'Choose a program' : null,
               ),
               const SizedBox(height: 16),
@@ -173,7 +202,13 @@ class _TemplateEditorState extends ConsumerState<TemplateEditorScreen> {
               TextFormField(
                 controller: maxSpots,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Max spots'),
+                readOnly: cap != null,
+                decoration: InputDecoration(
+                  labelText: 'Max spots',
+                  helperText: cap != null
+                      ? 'Locked to $cap for this training type'
+                      : null,
+                ),
                 validator: (v) =>
                     int.tryParse(v ?? '') != null && int.parse(v!) > 0
                     ? null

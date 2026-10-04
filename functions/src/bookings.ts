@@ -144,19 +144,25 @@ export const onClassCancelled = onDocumentUpdated({ document: 'schedule/{schedul
   if (event.data?.after.data().isCancelled && !event.data.before.data().isCancelled) await cancelSessionBookings(event.params.scheduleId, event.data.after.data().cancelReason || 'Class cancelled by gym');
 });
 
-export const saveSchedule = callable(z.object({ scheduleId: id.optional(), classId: id, date: z.string().datetime(), maxSpots: z.number().int().min(1).max(1000) }), 'saveSchedule', async (input, uid) => {
+const timeField = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
+const capacityForType: Record<TrainingType, number | null> = { private: 1, duo: 2, group: null };
+export const saveSchedule = callable(z.object({ scheduleId: id.optional(), classId: id, date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), startTime: timeField, endTime: timeField, maxSpots: z.number().int().min(1).max(1000) }), 'saveSchedule', async (input, uid) => {
   const { DateTime } = await import('luxon');
   const { zone } = await import('./platform');
   const ref = input.scheduleId ? db.doc(`schedule/${input.scheduleId}`) : db.collection('schedule').doc();
   await db.runTransaction(async tx => {
     const [old, c] = await Promise.all([tx.get(ref), tx.get(db.doc(`classes/${input.classId}`))]);
     if (!c.data()?.isActive) throw new HttpsError('failed-precondition', 'Select an active class.');
-    const start = DateTime.fromISO(input.date).setZone(zone);
-    const end = start.plus({ minutes: c.data()!.durationMinutes });
+    const start = DateTime.fromFormat(`${input.date} ${input.startTime}`, 'yyyy-MM-dd HH:mm', { zone });
+    const end = DateTime.fromFormat(`${input.date} ${input.endTime}`, 'yyyy-MM-dd HH:mm', { zone });
     if (!start.isValid || start.toMillis() <= Date.now()) throw new HttpsError('invalid-argument', 'Select a future time.');
+    if (!end.isValid || end.toMillis() <= start.toMillis()) throw new HttpsError('invalid-argument', 'End time must be after the start time.');
+    const trainingType: TrainingType = c.data()!.trainingType || 'private';
+    const requiredCapacity = capacityForType[trainingType];
+    if (requiredCapacity != null && input.maxSpots !== requiredCapacity) throw new HttpsError('invalid-argument', `${trainingTypeLabel(trainingType)} sessions must have exactly ${requiredCapacity} ${requiredCapacity === 1 ? 'spot' : 'spots'}.`);
     if ((old.data()?.bookedSpots ?? 0) > 0 && (old.data()!.date.toMillis() !== start.toMillis() || old.data()!.classId !== input.classId)) throw new HttpsError('failed-precondition', 'Cancel the booked session before changing its time or class.');
     if (input.maxSpots < (old.data()?.bookedSpots ?? 0)) throw new HttpsError('failed-precondition', 'Capacity is below current bookings.');
-    tx.set(ref, { classId: input.classId, date: Timestamp.fromMillis(start.toMillis()), endAt: Timestamp.fromMillis(end.toMillis()), startTime: start.toFormat('HH:mm'), endTime: end.toFormat('HH:mm'), dayOfWeek: start.toFormat('cccc').toLowerCase(), maxSpots: input.maxSpots, bookedSpots: old.data()?.bookedSpots ?? 0, isRecurring: false, isCancelled: old.data()?.isCancelled ?? false, createdAt: old.data()?.createdAt ?? now(), updatedAt: now() });
+    tx.set(ref, { classId: input.classId, date: Timestamp.fromMillis(start.toMillis()), endAt: Timestamp.fromMillis(end.toMillis()), startTime: input.startTime, endTime: input.endTime, dayOfWeek: start.toFormat('cccc').toLowerCase(), maxSpots: input.maxSpots, bookedSpots: old.data()?.bookedSpots ?? 0, isRecurring: false, isCancelled: old.data()?.isCancelled ?? false, createdAt: old.data()?.createdAt ?? now(), updatedAt: now() });
     audit(tx, uid, 'saveSchedule', ref.id);
   });
   return { scheduleId: ref.id };
