@@ -1,0 +1,2 @@
+ic_boxing_glove.svg is "sports_mma" from Google Material Symbols, licensed under Apache License 2.0.
+https://github.com/google/material-design-icons
