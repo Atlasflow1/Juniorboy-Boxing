@@ -1,3 +1,4 @@
+import '../../../core/router/app_routes.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_icons.dart';
 import '../../../core/widgets/app_icon.dart';
@@ -19,7 +20,7 @@ class MembershipSummaryCard extends StatelessWidget {
   final int sessionsReserved;
   @override
   Widget build(BuildContext context) => JbbCard(
-    onTap: () => context.safePush('/membership'),
+    onTap: () => context.safePush(AppRoutes.membership),
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

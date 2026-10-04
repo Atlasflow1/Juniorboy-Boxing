@@ -1,3 +1,4 @@
+import '../../../core/router/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -32,19 +33,30 @@ class _MembershipState extends ConsumerState<MembershipScreen> {
       final authUser = FirebaseAuth.instance.currentUser;
       if (authUser == null || authUser.isAnonymous) {
         await ref.read(authRepositoryProvider).googleSignIn();
-        if (mounted) showMessage(context, 'Signed in. Complete your profile, then choose your plan.');
+        if (mounted)
+          showMessage(
+            context,
+            'Signed in. Complete your profile, then choose your plan.',
+          );
         return;
       }
-      final profile = (await FirebaseFirestore.instance.doc('users/${authUser.uid}').get()).data();
+      final profile =
+          (await FirebaseFirestore.instance.doc('users/${authUser.uid}').get())
+              .data();
       if (!mounted) return;
       if (profile == null || !isProfileComplete(profile)) {
-        final completed = await context.push<bool>('/complete-profile');
+        final completed = await context.push<bool>(AppRoutes.completeProfile);
         if (completed != true || !mounted) return;
       }
       final message = await stripe.purchase(selected);
       if (mounted) showMessage(context, message);
     } catch (e) {
-      if (mounted) { showMessage(context, e is FormatException ? e.message : friendlyError(e)); }
+      if (mounted) {
+        showMessage(
+          context,
+          e is FormatException ? e.message : friendlyError(e),
+        );
+      }
     } finally {
       if (mounted) setState(() => busy = false);
     }

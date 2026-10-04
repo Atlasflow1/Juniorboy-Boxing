@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import '../../features/auth/providers/auth_provider.dart';
 import '../../features/profile/providers/profile_provider.dart';
 import '../../data/repositories/user_repository.dart';
@@ -24,110 +22,170 @@ import '../../features/profile/screens/contact_screen.dart';
 import '../../features/profile/screens/payments_screen.dart';
 import '../../features/reviews/screens/reviews_screen.dart';
 import '../../features/admin/screens/admin_dashboard_screen.dart';
-import '../widgets/jbb_bottom_nav.dart';
+import 'app_routes.dart';
+import 'app_shell.dart';
+import '../../features/profile/screens/information_screen.dart';
 import '../constants/app_strings.dart';
 
-final connectionProvider = StreamProvider(
-  (ref) => Connectivity().onConnectivityChanged,
-);
 final routerProvider = Provider<GoRouter>((ref) {
   final refresh = ValueNotifier<int>(0);
   ref.listen(authProvider, (_, next) => refresh.value++);
   ref.listen(profileProvider, (_, next) => refresh.value++);
   final router = GoRouter(
-    initialLocation: '/home',
+    initialLocation: AppRoutes.home,
     refreshListenable: refresh,
     redirect: (context, state) {
       final auth = ref.read(authProvider);
       final profile = ref.read(profileProvider);
-      final isAuth = state.uri.path == '/welcome';
+      final isAuth = state.uri.path == AppRoutes.welcome;
       if (auth.isLoading) return null;
       final user = auth.value;
-      if (user == null && !isAuth) return '/welcome';
+      if (user == null && !isAuth) return AppRoutes.welcome;
       final signedInWithGoogle =
           user != null &&
           !user.isAnonymous &&
           user.providerData.any((p) => p.providerId == 'google.com');
       if (signedInWithGoogle &&
           ![
-            '/complete-profile',
-            '/waiver',
-            '/privacy',
-            '/terms',
-            '/contact',
+            AppRoutes.completeProfile,
+            AppRoutes.waiver,
+            AppRoutes.privacy,
+            AppRoutes.terms,
+            AppRoutes.contact,
           ].contains(state.uri.path) &&
           (profile.value != null && !isProfileComplete(profile.value!))) {
-        return '/complete-profile';
-}
-      if (user != null && isAuth) return '/home';
-      if (state.uri.path == '/admin' && profile.value?['role'] != 'admin') {
-        return '/home';
-}
+        return AppRoutes.completeProfile;
+      }
+      if (user != null && isAuth) return AppRoutes.home;
+      if (state.uri.path == AppRoutes.admin &&
+          profile.value?['role'] != 'admin') {
+        return AppRoutes.home;
+      }
       return null;
     },
     routes: [
-      GoRoute(path: '/welcome', builder: (c, s) => const WelcomeScreen()),
-      ShellRoute(
-        builder: (c, s, child) => _Shell(location: s.uri.path, child: child),
-        routes: [
-          GoRoute(path: '/home', builder: (c, s) => const HomeScreen()),
-          GoRoute(
-            path: '/schedule',
-            builder: (c, s) =>
-                ScheduleScreen(programId: s.uri.queryParameters['program']),
+      GoRoute(
+        path: AppRoutes.welcome,
+        builder: (c, s) => const WelcomeScreen(),
+      ),
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) =>
+            AppShell(navigationShell: navigationShell),
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.home,
+                name: 'home',
+                builder: (c, s) => const HomeScreen(),
+              ),
+            ],
           ),
-          GoRoute(path: '/book', builder: (c, s) => const ScheduleScreen()),
-          GoRoute(
-            path: '/membership',
-            builder: (c, s) => const MembershipScreen(),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.schedulePath,
+                name: 'schedule',
+                builder: (c, s) =>
+                    ScheduleScreen(programId: s.uri.queryParameters['program']),
+              ),
+            ],
           ),
-          GoRoute(path: '/more', builder: (c, s) => const MoreScreen()),
-          GoRoute(path: '/store', builder: (c, s) => const StoreScreen()),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.book,
+                name: 'book',
+                builder: (c, s) => const ScheduleScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.membership,
+                name: 'membership',
+                builder: (c, s) => const MembershipScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.more,
+                name: 'more',
+                builder: (c, s) => const MoreScreen(),
+              ),
+            ],
+          ),
         ],
       ),
       GoRoute(
-        path: '/booking/:id',
+        path: AppRoutes.store,
+        name: 'store',
+        builder: (c, s) => const StoreScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.bookingPath,
         builder: (c, s) => BookClassScreen(scheduleId: s.pathParameters['id']!),
       ),
       GoRoute(
-        path: '/booking-confirmed',
+        path: AppRoutes.bookingConfirmed,
         builder: (c, s) => const BookingConfirmationScreen(),
       ),
-      GoRoute(path: '/bookings', builder: (c, s) => const MyBookingsScreen()),
-      GoRoute(path: '/profile', builder: (c, s) => const EditProfileScreen()),
       GoRoute(
-        path: '/complete-profile',
+        path: AppRoutes.bookings,
+        builder: (c, s) => const MyBookingsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.profile,
+        builder: (c, s) => const EditProfileScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.completeProfile,
         builder: (c, s) => const CompleteProfileScreen(),
       ),
       GoRoute(
-        path: '/notifications',
+        path: AppRoutes.notifications,
         builder: (c, s) => const NotificationsScreen(),
       ),
-      GoRoute(path: '/payments', builder: (c, s) => const PaymentsScreen()),
-      GoRoute(path: '/reviews', builder: (c, s) => const ReviewsScreen()),
-      GoRoute(path: '/admin', builder: (c, s) => const AdminDashboardScreen()),
-      GoRoute(path: '/contact', builder: (c, s) => const ContactScreen()),
       GoRoute(
-        path: '/about',
-        builder: (c, s) => const _InformationScreen(title: 'About Us'),
+        path: AppRoutes.payments,
+        builder: (c, s) => const PaymentsScreen(),
       ),
       GoRoute(
-        path: '/privacy',
-        builder: (c, s) => const _InformationScreen(
+        path: AppRoutes.reviews,
+        builder: (c, s) => const ReviewsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.admin,
+        builder: (c, s) => const AdminDashboardScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.contact,
+        builder: (c, s) => const ContactScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.about,
+        builder: (c, s) => const InformationScreen(title: 'About Us'),
+      ),
+      GoRoute(
+        path: AppRoutes.privacy,
+        builder: (c, s) => const InformationScreen(
           title: 'Privacy Policy',
           text: AppStrings.privacy,
         ),
       ),
       GoRoute(
-        path: '/terms',
-        builder: (c, s) => const _InformationScreen(
+        path: AppRoutes.terms,
+        builder: (c, s) => const InformationScreen(
           title: 'Terms of Service',
           text: AppStrings.terms,
         ),
       ),
-      GoRoute(path: '/waiver', builder: (c, s) => const WaiverScreen()),
+      GoRoute(path: AppRoutes.waiver, builder: (c, s) => const WaiverScreen()),
       GoRoute(
-        path: '/programs/:id',
+        path: AppRoutes.programPath,
         builder: (c, s) => ProgramScreen(id: s.pathParameters['id']!),
       ),
     ],
@@ -138,89 +196,3 @@ final routerProvider = Provider<GoRouter>((ref) {
   });
   return router;
 });
-
-class _Shell extends ConsumerWidget {
-  const _Shell({required this.location, required this.child});
-  final String location;
-  final Widget child;
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final offline =
-        ref
-            .watch(connectionProvider)
-            .value
-            ?.contains(ConnectivityResult.none) ??
-        false;
-    final user = ref.watch(profileProvider).value;
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) async {
-        if (didPop) return;
-        final confirmed = await showDialog<bool>(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Exit App?'),
-            content: const Text('Are you sure you want to exit?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('No'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('Yes'),
-              ),
-            ],
-          ),
-        );
-        if (confirmed == true) SystemNavigator.pop();
-      },
-      child: Scaffold(
-        body: SafeArea(
-          child: Column(
-            children: [
-              if (offline)
-                Container(
-                  width: double.infinity,
-                  color: Colors.amber.shade900,
-                  padding: const EdgeInsets.all(8),
-                  child: const Text(
-                    'Offline · Showing saved data',
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              if (user?['isActive'] == false)
-                const Expanded(
-                  child: Center(
-                    child: Text('Your account is inactive. Contact the gym.'),
-                  ),
-                )
-              else
-                Expanded(child: child),
-            ],
-          ),
-        ),
-        bottomNavigationBar: JbbBottomNav(location: location),
-      ),
-    );
-  }
-}
-
-class _InformationScreen extends ConsumerWidget {
-  const _InformationScreen({required this.title, this.text});
-  final String title;
-  final String? text;
-  @override
-  Widget build(BuildContext context, WidgetRef ref) => Scaffold(
-    appBar: AppBar(title: Text(title)),
-    body: SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Text(
-        text ??
-            ref.watch(settingsProvider).value?['aboutText'] ??
-            'Discipline builds champions. Train, learn and grow at Junior Boy Boxing.',
-        style: const TextStyle(height: 1.7),
-      ),
-    ),
-  );
-}

@@ -1,3 +1,4 @@
+import '../../core/router/app_routes.dart';
 import 'dart:async';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -26,7 +27,8 @@ class NotificationService {
       settings: const InitializationSettings(
         android: AndroidInitializationSettings('@mipmap/ic_launcher'),
       ),
-      onDidReceiveNotificationResponse: (_) => navigate?.call('/notifications'),
+      onDidReceiveNotificationResponse: (_) =>
+          navigate?.call(AppRoutes.notifications),
     );
     await local
         .resolvePlatformSpecificImplementation<
@@ -66,14 +68,14 @@ class NotificationService {
               ),
             )
             .catchError((Object e) {});
-}
+      }
     });
     opened = FirebaseMessaging.onMessageOpenedApp.listen(
-      (_) => navigate?.call('/notifications'),
+      (_) => navigate?.call(AppRoutes.notifications),
     );
     if (await FirebaseMessaging.instance.getInitialMessage() != null) {
-      navigate?.call('/notifications');
-}
+      navigate?.call(AppRoutes.notifications);
+    }
   }
 
   Future<void> saveToken(String token) async {
@@ -104,7 +106,7 @@ class NotificationService {
       await FirebaseFirestore.instance
           .doc('users/$uid/devices/$deviceId')
           .delete();
-}
+    }
     await FirebaseMessaging.instance.deleteToken();
   }
 }

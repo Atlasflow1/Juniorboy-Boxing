@@ -1,3 +1,4 @@
+import '../../../core/router/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -98,7 +99,7 @@ class _WaiverState extends ConsumerState<WaiverScreen> {
                       'Participant: ${profile?['childName'] ?? ''} · Age: ${profile?['childAge'] ?? ''}',
                     ),
                     TextButton(
-                      onPressed: () => context.safePush('/profile'),
+                      onPressed: () => context.safePush(AppRoutes.profile),
                       child: const Text('Edit participant details'),
                     ),
                     TextField(

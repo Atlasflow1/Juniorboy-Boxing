@@ -1,3 +1,4 @@
+import '../../../core/router/app_routes.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_icons.dart';
 import '../../../core/widgets/app_icon.dart';
@@ -16,12 +17,12 @@ class QuickActionsGrid extends StatelessWidget {
     physics: const NeverScrollableScrollPhysics(),
     children: [
       for (final item in [
-        ('Book Class', AppIcons.boxingGlove, '/book'),
-        ('Class Schedule', AppIcons.calendar, '/schedule'),
-        ('Membership', AppIcons.crown, '/membership'),
-        ('Gym Store', AppIcons.shoppingBag, '/store'),
-        ('Reviews', AppIcons.star, '/reviews'),
-        ('Contact', AppIcons.phone, '/contact'),
+        ('Book Class', AppIcons.boxingGlove, AppRoutes.book),
+        ('Class Schedule', AppIcons.calendar, AppRoutes.schedulePath),
+        ('Membership', AppIcons.crown, AppRoutes.membership),
+        ('Gym Store', AppIcons.shoppingBag, AppRoutes.store),
+        ('Reviews', AppIcons.star, AppRoutes.reviews),
+        ('Contact', AppIcons.phone, AppRoutes.contact),
       ])
         JbbCard(
           onTap: () => context.safePush(item.$3),

@@ -1,3 +1,4 @@
+import '../../../core/router/app_routes.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_icons.dart';
 import '../../../core/widgets/app_icon.dart';
@@ -33,7 +34,7 @@ class NextSessionCard extends StatelessWidget {
         const Text('Junior Boy Boxing · Tracy, CA'),
         const SizedBox(height: 16),
         FilledButton(
-          onPressed: () => context.safePush('/bookings'),
+          onPressed: () => context.safePush(AppRoutes.bookings),
           child: const Text('View Booking  ›'),
         ),
       ],

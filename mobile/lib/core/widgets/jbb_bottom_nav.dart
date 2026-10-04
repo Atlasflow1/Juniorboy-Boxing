@@ -5,20 +5,19 @@ import '../theme/app_colors.dart';
 import 'app_icon.dart';
 
 class JbbBottomNav extends StatelessWidget {
-  const JbbBottomNav({super.key, required this.location});
-  final String location;
-  static const routes = ['/home', '/schedule', '/book', '/membership', '/more'];
+  const JbbBottomNav({super.key, required this.navigationShell});
+  final StatefulNavigationShell navigationShell;
   @override
   Widget build(BuildContext context) {
-    final index = routes.indexWhere(
-      (p) => location == p || location.startsWith('$p/'),
-    );
     return NavigationBar(
       height: 64,
       backgroundColor: AppColors.background,
       indicatorColor: Colors.transparent,
-      selectedIndex: index < 0 ? 4 : index,
-      onDestinationSelected: (i) => context.go(routes[i]),
+      selectedIndex: navigationShell.currentIndex,
+      onDestinationSelected: (index) => navigationShell.goBranch(
+        index,
+        initialLocation: index == navigationShell.currentIndex,
+      ),
       destinations: [
         for (final item in [
           ('Home', AppIcons.navHome),

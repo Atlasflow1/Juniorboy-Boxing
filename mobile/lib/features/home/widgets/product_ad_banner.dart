@@ -1,3 +1,4 @@
+import '../../../core/router/app_routes.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_icons.dart';
 import '../../../core/widgets/app_icon.dart';
@@ -28,7 +29,7 @@ class ProductAdBanner extends StatelessWidget {
       child: Material(
         color: AppColors.card,
         child: InkWell(
-          onTap: () => context.safePush('/store'),
+          onTap: () => context.safePush(AppRoutes.store),
           child: Container(
             decoration: BoxDecoration(
               border: Border.all(color: AppColors.border),

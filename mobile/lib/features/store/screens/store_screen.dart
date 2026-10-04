@@ -1,3 +1,4 @@
+import '../../../core/router/app_routes.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_icons.dart';
 import '../../../core/widgets/app_icon.dart';
@@ -269,7 +270,7 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
                   if (!isAdmin) ...[
                     const SizedBox(height: 8),
                     TextButton(
-                      onPressed: () => context.safePush('/contact'),
+                      onPressed: () => context.safePush(AppRoutes.contact),
                       child: const Text(
                         'Question about an order? Contact the gym',
                       ),

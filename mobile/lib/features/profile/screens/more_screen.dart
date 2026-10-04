@@ -1,3 +1,4 @@
+import '../../../core/router/app_routes.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_icons.dart';
 import '../../../core/widgets/app_icon.dart';
@@ -55,7 +56,7 @@ class MoreScreen extends ConsumerWidget {
                         ),
                       ),
                     TextButton(
-                      onPressed: () => context.safePush('/profile'),
+                      onPressed: () => context.safePush(AppRoutes.profile),
                       child: const Text('Edit Profile'),
                     ),
                   ],
@@ -65,20 +66,20 @@ class MoreScreen extends ConsumerWidget {
           ),
         ),
         for (final item in [
-          ('My Bookings', AppIcons.calendar, '/bookings'),
-          ('Membership', AppIcons.crown, '/membership'),
-          ('Gym Store', AppIcons.shoppingBag, '/store'),
-          ('Reviews & Ratings', AppIcons.star, '/reviews'),
-          ('My Account', AppIcons.receipt, '/payments'),
-          ('Notifications', AppIcons.notification, '/notifications'),
-          ('Contact Us', AppIcons.phone, '/contact'),
-          ('Location', AppIcons.location, '/contact'),
-          ('About Us', AppIcons.info, '/about'),
-          ('Privacy Policy', AppIcons.shield, '/privacy'),
-          ('Terms of Service', AppIcons.document, '/terms'),
-          ('Waiver & Disclaimer', AppIcons.gavel, '/waiver'),
+          ('My Bookings', AppIcons.calendar, AppRoutes.bookings),
+          ('Membership', AppIcons.crown, AppRoutes.membership),
+          ('Gym Store', AppIcons.shoppingBag, AppRoutes.store),
+          ('Reviews & Ratings', AppIcons.star, AppRoutes.reviews),
+          ('My Account', AppIcons.receipt, AppRoutes.payments),
+          ('Notifications', AppIcons.notification, AppRoutes.notifications),
+          ('Contact Us', AppIcons.phone, AppRoutes.contact),
+          ('Location', AppIcons.location, AppRoutes.contact),
+          ('About Us', AppIcons.info, AppRoutes.about),
+          ('Privacy Policy', AppIcons.shield, AppRoutes.privacy),
+          ('Terms of Service', AppIcons.document, AppRoutes.terms),
+          ('Waiver & Disclaimer', AppIcons.gavel, AppRoutes.waiver),
           if (user?['role'] == 'admin')
-            ('Admin Dashboard', AppIcons.admin, '/admin'),
+            ('Admin Dashboard', AppIcons.admin, AppRoutes.admin),
         ])
           ListTile(
             contentPadding: EdgeInsets.zero,
@@ -102,7 +103,7 @@ class MoreScreen extends ConsumerWidget {
           onPressed: () async {
             try {
               await ref.read(authRepositoryProvider).signOut();
-              if (context.mounted) context.go('/welcome');
+              if (context.mounted) context.go(AppRoutes.welcome);
             } catch (e) {
               if (context.mounted) showMessage(context, friendlyError(e));
             }

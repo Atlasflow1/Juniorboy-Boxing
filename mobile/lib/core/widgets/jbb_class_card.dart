@@ -1,3 +1,4 @@
+import '../router/app_routes.dart';
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../utils/nav_debounce.dart';
@@ -65,7 +66,9 @@ class JbbClassCard extends StatelessWidget {
                 padding: EdgeInsets.zero,
               ),
               onPressed: spots > 0
-                  ? () => context.safePush('/booking/${session['id']}')
+                  ? () => context.safePush(
+                      AppRoutes.booking(session['id'].toString()),
+                    )
                   : null,
               child: const Text('Book'),
             ),

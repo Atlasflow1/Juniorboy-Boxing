@@ -1,3 +1,4 @@
+import '../../../core/router/app_routes.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_icons.dart';
 import '../../../core/widgets/app_icon.dart';
@@ -32,7 +33,7 @@ class ProgramsSection extends StatelessWidget {
             button: true,
             label: 'View ${item.$2} schedule',
             child: InkWell(
-              onTap: () => context.safePush('/schedule'),
+              onTap: () => context.safePush(AppRoutes.schedulePath),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: Image.asset(
@@ -47,7 +48,15 @@ class ProgramsSection extends StatelessWidget {
       for (final item in _textPrograms)
         JbbCard(
           onTap: () => context.safePush(
-            '/programs/${['boxing', 'fitness', 'strength', 'weight-loss', 'self-defense'][_textPrograms.indexOf(item)]}',
+            AppRoutes.program(
+              [
+                'boxing',
+                'fitness',
+                'strength',
+                'weight-loss',
+                'self-defense',
+              ][_textPrograms.indexOf(item)],
+            ),
           ),
           child: Row(
             children: [

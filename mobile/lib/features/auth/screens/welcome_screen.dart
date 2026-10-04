@@ -1,3 +1,4 @@
+import '../../../core/router/app_routes.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_icons.dart';
 import '../../../core/widgets/app_icon.dart';
@@ -24,7 +25,7 @@ class _WelcomeState extends ConsumerState<WelcomeScreen> {
     setState(() => busy = true);
     try {
       await ref.read(authRepositoryProvider).continueAsGuest();
-      if (mounted) context.go('/home');
+      if (mounted) context.go(AppRoutes.home);
     } catch (e) {
       if (mounted) showMessage(context, friendlyError(e));
     } finally {
@@ -36,7 +37,7 @@ class _WelcomeState extends ConsumerState<WelcomeScreen> {
     setState(() => googleBusy = true);
     try {
       await ref.read(authRepositoryProvider).googleSignIn();
-      if (mounted) context.go('/home');
+      if (mounted) context.go(AppRoutes.home);
     } catch (e) {
       if (mounted) showMessage(context, friendlyError(e));
     } finally {

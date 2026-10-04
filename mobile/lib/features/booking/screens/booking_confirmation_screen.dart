@@ -1,3 +1,4 @@
+import '../../../core/router/app_routes.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_icons.dart';
 import '../../../core/widgets/app_icon.dart';
@@ -26,11 +27,11 @@ class BookingConfirmationScreen extends StatelessWidget {
             ),
             const SizedBox(height: 32),
             FilledButton(
-              onPressed: () => context.go('/home'),
+              onPressed: () => context.go(AppRoutes.home),
               child: const Text('Back to Home'),
             ),
             TextButton(
-              onPressed: () => context.go('/bookings'),
+              onPressed: () => context.go(AppRoutes.bookings),
               child: const Text('View My Bookings'),
             ),
           ],

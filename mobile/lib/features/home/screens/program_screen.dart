@@ -1,3 +1,4 @@
+import '../../../core/router/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -55,21 +56,29 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
       if (authUser == null || authUser.isAnonymous) {
         await ref.read(authRepositoryProvider).googleSignIn();
         if (mounted) {
-          showMessage(context, 'Signed in. Complete your profile, then choose your plan.');
+          showMessage(
+            context,
+            'Signed in. Complete your profile, then choose your plan.',
+          );
         }
         return;
       }
-      final profile = (await FirebaseFirestore.instance.doc('users/${authUser.uid}').get()).data();
+      final profile =
+          (await FirebaseFirestore.instance.doc('users/${authUser.uid}').get())
+              .data();
       if (!mounted) return;
       if (profile == null || !isProfileComplete(profile)) {
-        final completed = await context.push<bool>('/complete-profile');
+        final completed = await context.push<bool>(AppRoutes.completeProfile);
         if (completed != true || !mounted) return;
       }
       final message = await stripe.purchase(chosenPlan);
       if (mounted) showMessage(context, message);
     } catch (e) {
       if (mounted) {
-        showMessage(context, e is FormatException ? e.message : friendlyError(e));
+        showMessage(
+          context,
+          e is FormatException ? e.message : friendlyError(e),
+        );
       }
     } finally {
       if (mounted) setState(() => busy = false);
@@ -85,7 +94,8 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
         padding: const EdgeInsets.all(24),
         children: [
           Text(
-            _programDescriptions[widget.id] ?? 'Contact the gym for program details.',
+            _programDescriptions[widget.id] ??
+                'Contact the gym for program details.',
             style: const TextStyle(fontSize: 16, height: 1.6),
           ),
           const SizedBox(height: 8),
@@ -96,11 +106,12 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
           const SizedBox(height: 24),
           JbbButton(
             label: 'View Available Sessions',
-            onPressed: () => context.go('/schedule?program=${widget.id}'),
+            onPressed: () =>
+                context.safePush(AppRoutes.schedule(programId: widget.id)),
           ),
           const SizedBox(height: 12),
           TextButton(
-            onPressed: () => context.safePush('/contact'),
+            onPressed: () => context.safePush(AppRoutes.contact),
             child: const Text('Ask the Coach'),
           ),
           const SizedBox(height: 24),
@@ -113,26 +124,27 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
               .watch(plansProvider)
               .when(
                 data: (rows) {
-                  final plans = rows.where((p) {
-                    final category = p['category'] as String?;
-                    return category == widget.id ||
-                        category == null ||
-                        category.isEmpty ||
-                        category == 'general';
-                  }).toList()..sort(
-                    (a, b) => (a['sortOrder'] as num? ?? 0).compareTo(
-                      b['sortOrder'] as num? ?? 0,
-                    ),
-                  );
+                  final plans =
+                      rows.where((p) {
+                        final category = p['category'] as String?;
+                        return category == widget.id ||
+                            category == null ||
+                            category.isEmpty ||
+                            category == 'general';
+                      }).toList()..sort(
+                        (a, b) => (a['sortOrder'] as num? ?? 0).compareTo(
+                          b['sortOrder'] as num? ?? 0,
+                        ),
+                      );
                   if (plans.isEmpty) {
                     return const JbbEmptyState(
-                      message: 'Plans for this program will appear here when available.',
+                      message:
+                          'Plans for this program will appear here when available.',
                     );
                   }
 
-                  final effectiveSelected = plans.any(
-                        (plan) => plan['id'] == selected,
-                      )
+                  final effectiveSelected =
+                      plans.any((plan) => plan['id'] == selected)
                       ? selected
                       : plans.first['id'] as String?;
 

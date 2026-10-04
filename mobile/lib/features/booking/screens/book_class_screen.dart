@@ -1,3 +1,4 @@
+import '../../../core/router/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -30,18 +31,18 @@ class _BookClassState extends ConsumerState<BookClassScreen> {
         (user?['waiverVersion'] != waiver?['version'] ||
             user?['waiverParticipantName'] != user?['childName']?.trim() ||
             user?['waiverParticipantAge'] != user?['childAge'])) {
-      context.safePush('/waiver');
+      context.safePush(AppRoutes.waiver);
       return;
     }
     if ((user?['sessionsRemaining'] ?? 0) - (user?['sessionsReserved'] ?? 0) <
         1) {
-      context.go('/membership');
+      context.go(AppRoutes.membership);
       return;
     }
     setState(() => busy = true);
     try {
       await ref.read(bookingRepositoryProvider).create(widget.scheduleId);
-      if (mounted) context.go('/booking-confirmed');
+      if (mounted) context.go(AppRoutes.bookingConfirmed);
     } catch (e) {
       if (mounted) showMessage(context, friendlyError(e));
     } finally {

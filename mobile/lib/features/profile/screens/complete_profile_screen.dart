@@ -1,3 +1,4 @@
+import '../../../core/router/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -51,7 +52,7 @@ class _CompleteProfileState extends ConsumerState<CompleteProfileScreen> {
         if (context.canPop()) {
           context.pop(true);
         } else {
-          context.go('/home');
+          context.go(AppRoutes.home);
         }
       }
     } catch (e) {
@@ -69,14 +70,14 @@ class _CompleteProfileState extends ConsumerState<CompleteProfileScreen> {
       if (lastName.text.isEmpty) lastName.text = user['lastName'] ?? '';
       if (age.text.isEmpty && (user['age'] ?? 0) > 0) {
         age.text = '${user['age']}';
-}
+      }
       if (address.text.isEmpty) address.text = user['address'] ?? '';
       if (zipCode.text.isEmpty) zipCode.text = user['zipCode'] ?? '';
       if (phone.text.isEmpty) phone.text = user['phone'] ?? '';
       if (childName.text.isEmpty) childName.text = user['childName'] ?? '';
       if (childAge.text.isEmpty && (user['childAge'] ?? 0) > 0) {
         childAge.text = '${user['childAge']}';
-}
+      }
     }
     return Scaffold(
       appBar: AppBar(title: const Text('Complete Your Profile')),
@@ -119,7 +120,9 @@ class _CompleteProfileState extends ConsumerState<CompleteProfileScreen> {
               TextFormField(
                 controller: zipCode,
                 keyboardType: TextInputType.text,
-                decoration: const InputDecoration(labelText: 'Postal / ZIP Code'),
+                decoration: const InputDecoration(
+                  labelText: 'Postal / ZIP Code',
+                ),
                 validator: Validators.zip,
               ),
               const SizedBox(height: 16),
