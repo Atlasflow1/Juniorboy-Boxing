@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'cached_repository.dart';
+import '../../core/data/cached_repository.dart';
 
 class ProductRepository extends CachedRepository {
   Stream<List<Map<String, dynamic>>> products() => watchQuery(

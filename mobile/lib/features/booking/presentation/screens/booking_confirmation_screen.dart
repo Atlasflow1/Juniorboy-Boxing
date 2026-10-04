@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/resources/app_colors.dart';
-import '../../../core/resources/app_icons.dart';
-import '../../../core/resources/app_sizes.dart';
-import '../../../core/resources/app_strings.dart';
-import '../../../core/router/app_routes.dart';
-import '../../../core/utils/nav_debounce.dart';
-import '../../../core/widgets/app_icon.dart';
+import '../../../../core/resources/app_colors.dart';
+import '../../../../core/resources/app_icons.dart';
+import '../../../../core/resources/app_sizes.dart';
+import '../../../../core/resources/app_strings.dart';
+import '../../../../core/router/app_routes.dart';
+import '../../../../core/utils/nav_debounce.dart';
+import '../../../../core/widgets/app_icon.dart';
 
 class BookingConfirmationScreen extends StatelessWidget {
   const BookingConfirmationScreen({super.key});

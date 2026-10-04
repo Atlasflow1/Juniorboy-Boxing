@@ -4,7 +4,7 @@ import '../../../core/resources/app_sizes.dart';
 import '../../../core/resources/app_strings.dart';
 import '../../../core/widgets/jbb_empty_state.dart';
 import '../../../core/widgets/page_content.dart';
-import '../../booking/providers/booking_provider.dart';
+import '../../booking/presentation/providers/booking_provider.dart';
 import '../../membership/providers/membership_provider.dart';
 import '../../profile/providers/profile_provider.dart';
 import '../../store/providers/store_provider.dart';

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../../core/resources/app_colors.dart';
-import '../../../core/resources/app_icons.dart';
-import '../../../core/resources/app_sizes.dart';
-import '../../../core/resources/app_strings.dart';
-import '../../../core/widgets/app_icon.dart';
-import '../../../data/models/review_model.dart';
+import '../../../../core/resources/app_colors.dart';
+import '../../../../core/resources/app_icons.dart';
+import '../../../../core/resources/app_sizes.dart';
+import '../../../../core/resources/app_strings.dart';
+import '../../../../core/widgets/app_icon.dart';
+import '../../domain/review.dart';
 import 'star_rating.dart';
 
 /// Overall rating summary: big average number, stars, review count, and a

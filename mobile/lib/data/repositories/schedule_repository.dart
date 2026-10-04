@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'cached_repository.dart';
+import '../../core/data/cached_repository.dart';
 
 class ScheduleRepository extends CachedRepository {
   Stream<List<Map<String, dynamic>>> watch(DateTime from, DateTime to) =>

@@ -1,12 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import '../../../core/resources/app_colors.dart';
-import '../../../core/resources/app_icons.dart';
-import '../../../core/resources/app_sizes.dart';
-import '../../../core/resources/app_strings.dart';
-import '../../../core/utils/date_utils.dart';
-import '../../../core/widgets/app_icon.dart';
-import '../../../data/models/review_model.dart';
+import '../../../../core/resources/app_colors.dart';
+import '../../../../core/resources/app_icons.dart';
+import '../../../../core/resources/app_sizes.dart';
+import '../../../../core/resources/app_strings.dart';
+import '../../../../core/utils/date_utils.dart';
+import '../../../../core/widgets/app_icon.dart';
+import '../../domain/review.dart';
 import 'star_rating.dart';
 
 /// Displays a single review: avatar, name, star rating, date and comment.
@@ -15,7 +15,7 @@ import 'star_rating.dart';
 class ReviewCard extends StatelessWidget {
   const ReviewCard({super.key, required this.review, this.onDelete});
 
-  final ReviewModel review;
+  final Review review;
   final VoidCallback? onDelete;
 
   @override

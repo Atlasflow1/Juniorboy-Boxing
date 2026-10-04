@@ -1,4 +1,4 @@
-import 'cached_repository.dart';
+import '../../core/data/cached_repository.dart';
 
 class NotificationRepository extends CachedRepository {
   Stream<List<Map<String, dynamic>>> watch() => watchQuery(

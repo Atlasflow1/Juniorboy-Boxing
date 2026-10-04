@@ -1,20 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/resources/app_colors.dart';
-import '../../../core/resources/app_sizes.dart';
-import '../../../core/resources/app_strings.dart';
-import '../../../core/utils/snackbar_utils.dart';
-import '../../../core/widgets/jbb_button.dart';
-import '../../../data/models/review_model.dart';
+import '../../../../core/resources/app_colors.dart';
+import '../../../../core/resources/app_sizes.dart';
+import '../../../../core/resources/app_strings.dart';
+import '../../../../core/utils/snackbar_utils.dart';
+import '../../../../core/widgets/jbb_button.dart';
+import '../../domain/review.dart';
 import '../providers/review_provider.dart';
 import 'star_rating.dart';
 
 /// Opens the review submission form. Pass [existing] to pre-fill it for
 /// editing the user's own review; leave it null to write a new one.
-Future<void> showReviewFormSheet(
-  BuildContext context, {
-  ReviewModel? existing,
-}) {
+Future<void> showReviewFormSheet(BuildContext context, {Review? existing}) {
   return showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -25,7 +22,7 @@ Future<void> showReviewFormSheet(
 
 class ReviewFormSheet extends ConsumerStatefulWidget {
   const ReviewFormSheet({super.key, this.existing});
-  final ReviewModel? existing;
+  final Review? existing;
   @override
   ConsumerState<ReviewFormSheet> createState() => _ReviewFormSheetState();
 }

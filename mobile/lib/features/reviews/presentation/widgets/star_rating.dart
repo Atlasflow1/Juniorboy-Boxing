@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../../core/resources/app_colors.dart';
-import '../../../core/resources/app_icons.dart';
-import '../../../core/resources/app_sizes.dart';
-import '../../../core/widgets/app_icon.dart';
+import '../../../../core/resources/app_colors.dart';
+import '../../../../core/resources/app_icons.dart';
+import '../../../../core/resources/app_sizes.dart';
+import '../../../../core/widgets/app_icon.dart';
 
 /// Renders 1-5 stars. Pass [onChanged] to make it a tappable input (used in
 /// the review form); leave it null for a read-only display (review cards,

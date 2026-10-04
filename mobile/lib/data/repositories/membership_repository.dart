@@ -1,4 +1,4 @@
-import 'cached_repository.dart';
+import '../../core/data/cached_repository.dart';
 
 class MembershipRepository extends CachedRepository {
   Stream<List<Map<String, dynamic>>> plans() => watchQuery(

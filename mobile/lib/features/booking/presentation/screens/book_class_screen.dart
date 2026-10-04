@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/resources/app_colors.dart';
-import '../../../core/resources/app_sizes.dart';
-import '../../../core/resources/app_strings.dart';
-import '../../../core/router/app_routes.dart';
-import '../../../core/utils/date_utils.dart';
-import '../../../core/utils/nav_debounce.dart';
-import '../../../core/utils/snackbar_utils.dart';
-import '../../../core/widgets/jbb_button.dart';
-import '../../../core/widgets/jbb_card.dart';
-import '../../../core/widgets/jbb_empty_state.dart';
-import '../../../core/widgets/jbb_loading.dart';
-import '../../profile/providers/profile_provider.dart';
-import '../../profile/screens/waiver_screen.dart';
-import '../../schedule/providers/schedule_provider.dart';
+import '../../../../core/resources/app_colors.dart';
+import '../../../../core/resources/app_sizes.dart';
+import '../../../../core/resources/app_strings.dart';
+import '../../../../core/router/app_routes.dart';
+import '../../../../core/utils/date_utils.dart';
+import '../../../../core/utils/nav_debounce.dart';
+import '../../../../core/utils/snackbar_utils.dart';
+import '../../../../core/widgets/jbb_button.dart';
+import '../../../../core/widgets/jbb_card.dart';
+import '../../../../core/widgets/jbb_empty_state.dart';
+import '../../../../core/widgets/jbb_loading.dart';
+import '../../../profile/providers/profile_provider.dart';
+import '../../../profile/screens/waiver_screen.dart';
+import '../../../schedule/providers/schedule_provider.dart';
 import '../providers/booking_provider.dart';
 
 class BookClassScreen extends ConsumerStatefulWidget {

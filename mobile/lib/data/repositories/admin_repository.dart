@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'cached_repository.dart';
+import '../../core/data/cached_repository.dart';
 
 /// Admin-only data access for the in-app dashboard: membership plan
 /// prices and class schedule times. Firestore rules already restrict

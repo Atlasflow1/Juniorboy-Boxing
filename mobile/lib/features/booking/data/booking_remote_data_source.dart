@@ -1,7 +1,8 @@
 import 'package:cloud_functions/cloud_functions.dart';
-import 'cached_repository.dart';
 
-class BookingRepository extends CachedRepository {
+import '../../../core/data/cached_repository.dart';
+
+class BookingRemoteDataSource extends CachedRepository {
   Stream<List<Map<String, dynamic>>> watch() => watchQuery(
     db
         .collection('bookings')
@@ -10,6 +11,7 @@ class BookingRepository extends CachedRepository {
         .limit(200),
     'bookings',
   );
+
   Future<String> create(String scheduleId) async {
     final result = await FirebaseFunctions.instance
         .httpsCallable('createBooking')

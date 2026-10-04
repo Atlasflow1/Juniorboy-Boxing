@@ -10,7 +10,9 @@ import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/jbb_card.dart';
 import '../../../core/widgets/jbb_empty_state.dart';
 import '../../../core/widgets/jbb_loading.dart';
-import '../../booking/providers/booking_provider.dart';
+import '../../booking/presentation/providers/booking_provider.dart';
+import '../../booking/domain/booking.dart';
+import '../../booking/domain/booking_eligibility.dart';
 import '../providers/profile_provider.dart';
 
 class MyBookingsScreen extends ConsumerStatefulWidget {
@@ -22,7 +24,7 @@ class MyBookingsScreen extends ConsumerStatefulWidget {
 class _BookingsState extends ConsumerState<MyBookingsScreen> {
   int selected = 0;
   final pending = <String>{};
-  Future<bool> cancel(Map<String, dynamic> booking) async {
+  Future<bool> cancel(Booking booking) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -41,14 +43,14 @@ class _BookingsState extends ConsumerState<MyBookingsScreen> {
       ),
     );
     if (confirmed != true || !mounted) return false;
-    setState(() => pending.add(booking['id']));
+    setState(() => pending.add(booking.id));
     try {
-      await ref.read(bookingRepositoryProvider).cancel(booking['id']);
+      await ref.read(bookingRepositoryProvider).cancel(booking.id);
       if (mounted) showMessage(context, AppStrings.bookingCancelled);
     } catch (e) {
       if (mounted) showMessage(context, friendlyError(e));
     } finally {
-      if (mounted) setState(() => pending.remove(booking['id']));
+      if (mounted) setState(() => pending.remove(booking.id));
     }
     return false;
   }
@@ -73,9 +75,7 @@ class _BookingsState extends ConsumerState<MyBookingsScreen> {
             .when(
               data: (rows) {
                 final items = rows.where((b) {
-                  final upcoming =
-                      b['status'] == 'confirmed' &&
-                      readDate(b['date']).isAfter(DateTime.now());
+                  final upcoming = isUpcomingBooking(b, DateTime.now());
                   return selected == 0 ? upcoming : !upcoming;
                 }).toList();
                 if (items.isEmpty) {
@@ -90,14 +90,9 @@ class _BookingsState extends ConsumerState<MyBookingsScreen> {
                             .watch(settingsProvider)
                             .value?['cancellationPolicyHours'] ??
                         24;
-                    final allowed =
-                        b['status'] == 'confirmed' &&
-                        readDate(
-                              b['date'],
-                            ).difference(DateTime.now()).inSeconds >=
-                            hours * 3600;
+                    final allowed = canCancelBooking(b, DateTime.now(), hours);
                     return Dismissible(
-                      key: ValueKey(b['id']),
+                      key: ValueKey(b.id),
                       direction: allowed
                           ? DismissDirection.endToStart
                           : DismissDirection.none,
@@ -113,7 +108,7 @@ class _BookingsState extends ConsumerState<MyBookingsScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              b['className'],
+                              b.className,
                               style: const TextStyle(
                                 fontSize: AppSizes.font18,
                                 fontWeight: FontWeight.bold,
@@ -121,13 +116,13 @@ class _BookingsState extends ConsumerState<MyBookingsScreen> {
                             ),
                             const SizedBox(height: AppSizes.s8),
                             Text(
-                              '${dateLabel(readDate(b['date']))} · ${timeLabel(readDate(b['date']))} PT',
+                              '${dateLabel(b.date)} · ${timeLabel(b.date)} PT',
                             ),
                             const SizedBox(height: AppSizes.s8),
                             Text(
-                              b['status'].toString().toUpperCase(),
+                              b.status.toString().toUpperCase(),
                               style: TextStyle(
-                                color: b['status'] == 'cancelled'
+                                color: b.status == 'cancelled'
                                     ? AppColors.materialRed
                                     : AppColors.materialGreen,
                                 fontSize: AppSizes.font12,
@@ -135,12 +130,12 @@ class _BookingsState extends ConsumerState<MyBookingsScreen> {
                             ),
                             if (allowed)
                               TextButton(
-                                onPressed: pending.contains(b['id'])
+                                onPressed: pending.contains(b.id)
                                     ? null
                                     : () => cancel(b),
                                 child: const Text(AppStrings.cancelBooking),
                               ),
-                            if (!allowed && b['status'] == 'confirmed')
+                            if (!allowed && b.status == 'confirmed')
                               const Padding(
                                 padding: EdgeInsets.only(top: AppSizes.s8),
                                 child: Text(

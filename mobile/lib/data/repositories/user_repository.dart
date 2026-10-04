@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'cached_repository.dart';
+import '../../core/data/cached_repository.dart';
 
 bool isProfileComplete(Map<String, dynamic> user) =>
     (user['phone'] as String? ?? '').isNotEmpty &&

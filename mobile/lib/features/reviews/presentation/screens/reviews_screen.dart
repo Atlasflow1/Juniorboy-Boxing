@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/resources/app_sizes.dart';
-import '../../../core/resources/app_strings.dart';
-import '../../../core/utils/snackbar_utils.dart';
-import '../../../core/widgets/jbb_button.dart';
-import '../../../core/widgets/jbb_empty_state.dart';
-import '../../../core/widgets/jbb_loading.dart';
+import '../../../../core/resources/app_sizes.dart';
+import '../../../../core/resources/app_strings.dart';
+import '../../../../core/utils/snackbar_utils.dart';
+import '../../../../core/widgets/jbb_button.dart';
+import '../../../../core/widgets/jbb_empty_state.dart';
+import '../../../../core/widgets/jbb_loading.dart';
 import '../providers/review_provider.dart';
 import '../widgets/rating_summary_header.dart';
 import '../widgets/review_card.dart';

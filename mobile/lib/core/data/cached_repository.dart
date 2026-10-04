@@ -11,7 +11,7 @@ abstract class CachedRepository {
     if (value is Timestamp) return value.toDate().toIso8601String();
     if (value is Map) {
       return value.map((key, v) => MapEntry(key.toString(), normalize(v)));
-}
+    }
     if (value is List) return value.map(normalize).toList();
     return value;
   }
@@ -27,13 +27,13 @@ abstract class CachedRepository {
       yield (jsonDecode(stored) as List)
           .map((e) => Map<String, dynamic>.from(e))
           .toList();
-}
+    }
     await for (final snapshot in query.snapshots()) {
       if (snapshot.metadata.isFromCache &&
           snapshot.docs.isEmpty &&
           stored is String) {
         continue;
-}
+      }
       final rows = snapshot.docs
           .map(
             (d) => <String, dynamic>{
