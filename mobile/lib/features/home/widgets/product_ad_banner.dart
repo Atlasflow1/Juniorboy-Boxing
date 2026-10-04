@@ -31,7 +31,7 @@ class ProductAdBanner extends StatelessWidget {
       child: Material(
         color: AppColors.card,
         child: InkWell(
-          onTap: () => context.safePush(AppRoutes.store),
+          onTap: () => context.safeNavigate(AppRoutes.store),
           child: Container(
             decoration: BoxDecoration(
               border: Border.all(color: AppColors.border),

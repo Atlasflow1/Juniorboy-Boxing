@@ -73,7 +73,7 @@ class JbbClassCard extends StatelessWidget {
                 padding: EdgeInsets.zero,
               ),
               onPressed: spots > 0
-                  ? () => context.safePush(
+                  ? () => context.safeNavigate(
                       AppRoutes.booking(session['id'].toString()),
                     )
                   : null,

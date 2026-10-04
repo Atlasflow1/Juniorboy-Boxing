@@ -38,7 +38,7 @@ class ProgramsSection extends StatelessWidget {
             button: true,
             label: AppStrings.viewProgramSchedule(item.$2),
             child: InkWell(
-              onTap: () => context.safePush(AppRoutes.schedulePath),
+              onTap: () => context.safeNavigate(AppRoutes.schedulePath),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(AppSizes.radius12),
                 child: Image.asset(
@@ -52,7 +52,7 @@ class ProgramsSection extends StatelessWidget {
         ),
       for (final item in _textPrograms)
         JbbCard(
-          onTap: () => context.safePush(
+          onTap: () => context.safeNavigate(
             AppRoutes.program(
               [
                 'boxing',

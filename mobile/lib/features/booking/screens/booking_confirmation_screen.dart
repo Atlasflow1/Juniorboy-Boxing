@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+
 import '../../../core/resources/app_colors.dart';
 import '../../../core/resources/app_icons.dart';
 import '../../../core/resources/app_sizes.dart';
 import '../../../core/resources/app_strings.dart';
 import '../../../core/router/app_routes.dart';
+import '../../../core/utils/nav_debounce.dart';
 import '../../../core/widgets/app_icon.dart';
 
 class BookingConfirmationScreen extends StatelessWidget {
@@ -34,11 +35,11 @@ class BookingConfirmationScreen extends StatelessWidget {
             ),
             const SizedBox(height: AppSizes.s32),
             FilledButton(
-              onPressed: () => context.go(AppRoutes.home),
+              onPressed: () => context.safeNavigate(AppRoutes.home),
               child: const Text(AppStrings.backToHome),
             ),
             TextButton(
-              onPressed: () => context.go(AppRoutes.bookings),
+              onPressed: () => context.safeNavigate(AppRoutes.bookings),
               child: const Text(AppStrings.viewMyBookings),
             ),
           ],

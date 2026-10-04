@@ -28,7 +28,7 @@ class QuickActionsGrid extends StatelessWidget {
         (AppStrings.uiContact, AppIcons.phone, AppRoutes.contact),
       ])
         JbbCard(
-          onTap: () => context.safePush(item.$3),
+          onTap: () => context.safeNavigate(item.$3),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

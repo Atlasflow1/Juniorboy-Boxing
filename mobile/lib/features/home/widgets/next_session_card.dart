@@ -37,7 +37,7 @@ class NextSessionCard extends StatelessWidget {
         const Text(AppStrings.juniorBoyBoxingTracyCa),
         const SizedBox(height: AppSizes.s16),
         FilledButton(
-          onPressed: () => context.safePush(AppRoutes.bookings),
+          onPressed: () => context.safeNavigate(AppRoutes.bookings),
           child: const Text(AppStrings.viewBooking),
         ),
       ],

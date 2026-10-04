@@ -34,12 +34,12 @@ class _BookClassState extends ConsumerState<BookClassScreen> {
         (user?['waiverVersion'] != waiver?['version'] ||
             user?['waiverParticipantName'] != user?['childName']?.trim() ||
             user?['waiverParticipantAge'] != user?['childAge'])) {
-      context.safePush(AppRoutes.waiver);
+      context.safeNavigate(AppRoutes.waiver);
       return;
     }
     if ((user?['sessionsRemaining'] ?? 0) - (user?['sessionsReserved'] ?? 0) <
         1) {
-      context.go(AppRoutes.membership);
+      context.safeNavigate(AppRoutes.membership);
       return;
     }
     setState(() => busy = true);

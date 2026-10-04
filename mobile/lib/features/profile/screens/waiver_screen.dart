@@ -103,7 +103,7 @@ class _WaiverState extends ConsumerState<WaiverScreen> {
                       'Participant: ${profile?['childName'] ?? ''} · Age: ${profile?['childAge'] ?? ''}',
                     ),
                     TextButton(
-                      onPressed: () => context.safePush(AppRoutes.profile),
+                      onPressed: () => context.safeNavigate(AppRoutes.profile),
                       child: const Text(AppStrings.editParticipantDetails),
                     ),
                     TextField(

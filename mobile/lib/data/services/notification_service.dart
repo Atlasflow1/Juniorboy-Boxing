@@ -1,11 +1,14 @@
-import '../../core/router/app_routes.dart';
 import 'dart:async';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
+
+import '../../core/router/app_routes.dart';
 import 'firebase_service.dart';
 
 @pragma('vm:entry-point')
@@ -26,6 +29,11 @@ class NotificationService {
     await local.initialize(
       settings: const InitializationSettings(
         android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+        iOS: DarwinInitializationSettings(
+          requestAlertPermission: false,
+          requestBadgePermission: false,
+          requestSoundPermission: false,
+        ),
       ),
       onDidReceiveNotificationResponse: (_) =>
           navigate?.call(AppRoutes.notifications),
@@ -41,10 +49,29 @@ class NotificationService {
             importance: Importance.high,
           ),
         );
-    final permission = await FirebaseMessaging.instance.requestPermission();
+    final permission = await FirebaseMessaging.instance.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
     if (permission.authorizationStatus == AuthorizationStatus.denied) return;
-    final token = await FirebaseMessaging.instance.getToken();
-    if (token != null) await saveToken(token);
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      await FirebaseMessaging.instance
+          .setForegroundNotificationPresentationOptions(
+            alert: true,
+            badge: true,
+            sound: true,
+          );
+    }
+    // FCM requires an APNs token before requesting an iOS registration token.
+    // A simulator may never receive one, but local setup and listeners can run.
+    final canGetToken =
+        defaultTargetPlatform != TargetPlatform.iOS ||
+        await FirebaseMessaging.instance.getAPNSToken() != null;
+    if (canGetToken) {
+      final token = await FirebaseMessaging.instance.getToken();
+      if (token != null) await saveToken(token);
+    }
     tokenSubscription = FirebaseMessaging.instance.onTokenRefresh.listen((
       token,
     ) {
@@ -52,7 +79,9 @@ class NotificationService {
     });
     foreground = FirebaseMessaging.onMessage.listen((message) {
       final n = message.notification;
-      if (n != null) {
+      // iOS presents foreground FCM notifications natively; showing a local
+      // copy as well would display the same message twice.
+      if (n != null && defaultTargetPlatform != TargetPlatform.iOS) {
         local
             .show(
               id: (message.messageId ?? n.title ?? '').hashCode & 0x7fffffff,
@@ -86,7 +115,9 @@ class NotificationService {
     await box.put('deviceId', deviceId);
     await FirebaseFirestore.instance.doc('users/$uid/devices/$deviceId').set({
       'token': token,
-      'platform': 'android',
+      'platform': defaultTargetPlatform == TargetPlatform.iOS
+          ? 'ios'
+          : 'android',
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }

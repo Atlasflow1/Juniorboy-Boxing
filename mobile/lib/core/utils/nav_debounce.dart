@@ -1,33 +1,39 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
+
 import '../resources/app_durations.dart';
+import '../router/app_routes.dart';
 
-/// A tap that fires twice before the first push has finished (a fast
-/// double-tap on a card/banner, or a stray double pointer event) makes
-/// go_router create two pages for the same location in the same frame.
-/// Both pages end up wanting the same page/restoration key, which crashes
-/// Navigator with `'!keyReservation.contains(key)': is not true`.
-///
-/// [safePush] ignores a repeat push to the same location that arrives
-/// within [minGap] of the previous one, so a double-tap only navigates
-/// once.
+/// Switches to tab roots and pushes detail pages, ignoring rapid repeat taps.
 extension SafeNavigation on BuildContext {
-  static DateTime? _lastPushAt;
-  static String? _lastPushLocation;
+  static DateTime? _lastNavigationAt;
+  static String? _lastNavigationLocation;
 
-  void safePush(
+  static const _tabRoots = {
+    AppRoutes.home,
+    AppRoutes.schedulePath,
+    AppRoutes.book,
+    AppRoutes.membership,
+    AppRoutes.more,
+  };
+
+  void safeNavigate(
     String location, {
     Object? extra,
     Duration minGap = AppDurations.navigationDebounce,
   }) {
     final now = DateTime.now();
-    if (_lastPushLocation == location &&
-        _lastPushAt != null &&
-        now.difference(_lastPushAt!) < minGap) {
+    if (_lastNavigationLocation == location &&
+        _lastNavigationAt != null &&
+        now.difference(_lastNavigationAt!) < minGap) {
       return;
     }
-    _lastPushAt = now;
-    _lastPushLocation = location;
-    push(location, extra: extra);
+    _lastNavigationAt = now;
+    _lastNavigationLocation = location;
+    if (_tabRoots.contains(Uri.parse(location).path)) {
+      go(location, extra: extra);
+    } else {
+      push(location, extra: extra);
+    }
   }
 }

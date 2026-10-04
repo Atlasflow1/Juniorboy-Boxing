@@ -23,7 +23,7 @@ class MembershipSummaryCard extends StatelessWidget {
   final int sessionsReserved;
   @override
   Widget build(BuildContext context) => JbbCard(
-    onTap: () => context.safePush(AppRoutes.membership),
+    onTap: () => context.safeNavigate(AppRoutes.membership),
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

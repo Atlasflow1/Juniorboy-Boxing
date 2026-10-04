@@ -59,7 +59,7 @@ class MoreScreen extends ConsumerWidget {
                         ),
                       ),
                     TextButton(
-                      onPressed: () => context.safePush(AppRoutes.profile),
+                      onPressed: () => context.safeNavigate(AppRoutes.profile),
                       child: const Text(AppStrings.editProfile),
                     ),
                   ],
@@ -93,7 +93,7 @@ class MoreScreen extends ConsumerWidget {
             leading: AppIcon(item.$2, color: AppColors.materialRed),
             title: Text(item.$1),
             trailing: const AppIcon(AppIcons.chevronRight),
-            onTap: () => context.safePush(item.$3),
+            onTap: () => context.safeNavigate(item.$3),
           ),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,

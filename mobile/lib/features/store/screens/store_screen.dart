@@ -275,7 +275,7 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
                   if (!isAdmin) ...[
                     const SizedBox(height: AppSizes.s8),
                     TextButton(
-                      onPressed: () => context.safePush(AppRoutes.contact),
+                      onPressed: () => context.safeNavigate(AppRoutes.contact),
                       child: const Text(
                         AppStrings.uiQuestionAboutAnOrderContactTheGym,
                       ),

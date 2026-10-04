@@ -111,11 +111,11 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
           JbbButton(
             label: AppStrings.viewAvailableSessions,
             onPressed: () =>
-                context.safePush(AppRoutes.schedule(programId: widget.id)),
+                context.safeNavigate(AppRoutes.schedule(programId: widget.id)),
           ),
           const SizedBox(height: AppSizes.s12),
           TextButton(
-            onPressed: () => context.safePush(AppRoutes.contact),
+            onPressed: () => context.safeNavigate(AppRoutes.contact),
             child: const Text(AppStrings.askTheCoach),
           ),
           const SizedBox(height: AppSizes.s24),
