@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../../../core/resources/app_colors.dart';
 import '../../../../core/resources/app_icons.dart';
 import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/resources/app_strings.dart';
 import '../../../../core/utils/snackbar_utils.dart';
-import '../../../../core/widgets/app_icon.dart';
+import '../../../../core/widgets/settings_group.dart';
 import '../providers/profile_provider.dart';
 import '../../domain/gym_settings.dart';
 
@@ -27,7 +26,7 @@ class ContactScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text(AppStrings.contactUs)),
+      appBar: AppBar(title: Text(AppStrings.contactUs)),
       body: ListView(
         padding: const EdgeInsets.all(AppSizes.s24),
         children: [
@@ -35,27 +34,27 @@ class ContactScreen extends ConsumerWidget {
             settings.coachName ?? AppStrings.uiCoachSharif,
             style: Theme.of(context).textTheme.headlineMedium,
           ),
-          const SizedBox(height: AppSizes.s16),
+          SizedBox(height: AppSizes.s16),
           Text(settings.address ?? AppStrings.address),
-          const SizedBox(height: AppSizes.s24),
-          if ((settings.phone ?? '').isNotEmpty)
-            ListTile(
-              leading: const AppIcon(
-                AppIcons.phone,
-                color: AppColors.materialRed,
-              ),
-              title: Text(settings.phone!),
-              onTap: () => open(Uri(scheme: 'tel', path: settings.phone!)),
-            ),
-          if ((settings.email ?? '').isNotEmpty)
-            ListTile(
-              leading: const AppIcon(
-                AppIcons.mail,
-                color: AppColors.materialRed,
-              ),
-              title: Text(settings.email!),
-              onTap: () => open(Uri(scheme: 'mailto', path: settings.email!)),
-            ),
+          SizedBox(height: AppSizes.s24),
+          SettingsGroup(
+            children: [
+              if ((settings.phone ?? '').isNotEmpty)
+                SettingsRow(
+                  icon: AppIcons.phone,
+                  title: settings.phone!,
+                  onTap: () => open(Uri(scheme: 'tel', path: settings.phone!)),
+                ),
+              if ((settings.email ?? '').isNotEmpty)
+                SettingsRow(
+                  icon: AppIcons.mail,
+                  title: settings.email!,
+                  onTap: () =>
+                      open(Uri(scheme: 'mailto', path: settings.email!)),
+                ),
+            ],
+          ),
+          const SizedBox(height: AppSizes.s16),
           FilledButton(
             onPressed: () => open(
               Uri.https('www.google.com', '/maps/search/', {
@@ -63,20 +62,40 @@ class ContactScreen extends ConsumerWidget {
                 'query': settings.address ?? AppStrings.address,
               }),
             ),
-            child: const Text(AppStrings.getDirections),
+            child: Text(AppStrings.getDirections),
           ),
-          const SizedBox(height: AppSizes.s24),
+          SizedBox(height: AppSizes.s24),
           Text(
             AppStrings.uiOperatingHours,
             style: Theme.of(context).textTheme.titleLarge,
           ),
-          for (final entry in settings.operatingHours.entries)
-            ListTile(
-              title: Text(entry.key.toString()),
-              trailing: Text(entry.value.toString()),
+          if (settings.operatingHours.isNotEmpty)
+            SettingsGroup(
+              children: [
+                for (final entry in settings.operatingHours.entries)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSizes.s16,
+                      vertical: AppSizes.s14,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(child: Text(entry.key.toString())),
+                        Text(
+                          entry.value.toString(),
+                          style: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
             ),
           if (settings.operatingHours.isEmpty)
-            const Text(AppStrings.contactTheGymToConfirmTrainingHours),
+            Text(AppStrings.contactTheGymToConfirmTrainingHours),
         ],
       ),
     );

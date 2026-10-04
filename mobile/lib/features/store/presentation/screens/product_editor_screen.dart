@@ -1,10 +1,10 @@
+import '../../../../core/theme/app_palette.dart';
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../core/constants/product_sizes.dart';
-import '../../../../core/resources/app_colors.dart';
 import '../../../../core/resources/app_icons.dart';
 import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/resources/app_strings.dart';
@@ -45,7 +45,7 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
   late bool isFeatured = widget.product?.isFeatured ?? false;
   late String category = widget.product?.category ?? 'other';
   late Set<String> selectedSizes = Set<String>.from(
-    widget.product?.sizes ?? const [],
+    widget.product?.sizes ?? [],
   );
   late bool discountActive = widget.product?.discountActive ?? false;
   late final discountPercent = TextEditingController(
@@ -128,17 +128,18 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
   Future<void> delete() async {
     final confirmed = await showDialog<bool>(
       context: context,
+      useRootNavigator: true,
       builder: (context) => AlertDialog(
-        title: const Text(AppStrings.deleteProduct),
+        title: Text(AppStrings.deleteProduct),
         content: Text(AppStrings.removeProduct(name.text)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text(AppStrings.cancel),
+            child: Text(AppStrings.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text(AppStrings.delete),
+            child: Text(AppStrings.delete),
           ),
         ],
       ),
@@ -166,7 +167,7 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
         if (widget.product != null)
           IconButton(
             onPressed: busy ? null : delete,
-            icon: const AppIcon(AppIcons.trash),
+            icon: AppIcon(AppIcons.trash),
           ),
       ],
     ),
@@ -177,11 +178,11 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
+            Text(
               AppStrings.uiPhotosUpTo3,
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: AppSizes.s8),
+            SizedBox(height: AppSizes.s8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: List.generate(3, (index) {
@@ -192,26 +193,23 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
                       : () => url.isNotEmpty
                             ? showModalBottomSheet(
                                 context: context,
-                                builder: (_) => SafeArea(
+                                useRootNavigator: true,
+                                builder: (sheetContext) => SafeArea(
                                   child: Wrap(
                                     children: [
                                       ListTile(
-                                        leading: const AppIcon(AppIcons.swap),
-                                        title: const Text(
-                                          AppStrings.replacePhoto,
-                                        ),
+                                        leading: AppIcon(AppIcons.swap),
+                                        title: Text(AppStrings.replacePhoto),
                                         onTap: () {
-                                          Navigator.pop(context);
+                                          Navigator.pop(sheetContext);
                                           pickImage(index);
                                         },
                                       ),
                                       ListTile(
-                                        leading: const AppIcon(AppIcons.trash),
-                                        title: const Text(
-                                          AppStrings.removePhoto,
-                                        ),
+                                        leading: AppIcon(AppIcons.trash),
+                                        title: Text(AppStrings.removePhoto),
                                         onTap: () {
-                                          Navigator.pop(context);
+                                          Navigator.pop(sheetContext);
                                           removeImage(index);
                                         },
                                       ),
@@ -225,44 +223,40 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
                     child: Container(
                       width: AppSizes.productEditorPreviewSize,
                       height: AppSizes.productEditorPreviewSize,
-                      color: AppColors.white10,
+                      color: context.palette.separator,
                       child: url.isNotEmpty
                           ? CachedNetworkImage(imageUrl: url, fit: BoxFit.cover)
-                          : const AppIcon(
+                          : AppIcon(
                               AppIcons.imagePlus,
                               size: AppSizes.s28,
-                              color: AppColors.grey,
+                              color: context.palette.textSecondary,
                             ),
                     ),
                   ),
                 );
               }),
             ),
-            const SizedBox(height: AppSizes.s24),
+            SizedBox(height: AppSizes.s24),
             TextFormField(
               controller: name,
-              decoration: const InputDecoration(
-                labelText: AppStrings.productName,
-              ),
+              decoration: InputDecoration(labelText: AppStrings.productName),
               validator: Validators.required,
             ),
-            const SizedBox(height: AppSizes.s16),
+            SizedBox(height: AppSizes.s16),
             TextFormField(
               controller: description,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: AppStrings.descriptionOptional,
               ),
               maxLines: AppSizes.descriptionInputLines,
             ),
-            const SizedBox(height: AppSizes.s16),
+            SizedBox(height: AppSizes.s16),
             TextFormField(
               controller: price,
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
-              decoration: const InputDecoration(
-                labelText: AppStrings.priceInUsd,
-              ),
+              decoration: InputDecoration(labelText: AppStrings.priceInUsd),
               onChanged: (_) => setState(() {}),
               validator: (v) =>
                   double.tryParse(v ?? '') != null && double.parse(v!) > 0
@@ -271,9 +265,9 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
             ),
             DropdownButtonFormField<String>(
               initialValue: category,
-              decoration: const InputDecoration(labelText: AppStrings.category),
+              decoration: InputDecoration(labelText: AppStrings.category),
               items: [
-                const DropdownMenuItem(
+                DropdownMenuItem(
                   value: 'other',
                   child: Text(AppStrings.otherNoSizes),
                 ),
@@ -288,12 +282,12 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
               }),
             ),
             if (category != 'other') ...[
-              const SizedBox(height: AppSizes.s12),
+              SizedBox(height: AppSizes.s12),
               Text(
                 AppStrings.uiAvailableSizesUs,
                 style: Theme.of(context).textTheme.labelLarge,
               ),
-              const SizedBox(height: AppSizes.s8),
+              SizedBox(height: AppSizes.s8),
               Wrap(
                 spacing: AppSizes.s8,
                 runSpacing: AppSizes.s8,
@@ -302,6 +296,14 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
                     FilterChip(
                       label: Text(size),
                       selected: selectedSizes.contains(size),
+                      selectedColor: context.palette.accent,
+                      backgroundColor: context.palette.elevated,
+                      checkmarkColor: Theme.of(context).colorScheme.onPrimary,
+                      labelStyle: TextStyle(
+                        color: selectedSizes.contains(size)
+                            ? Theme.of(context).colorScheme.onPrimary
+                            : context.palette.textPrimary,
+                      ),
                       onSelected: (v) => setState(
                         () => v
                             ? selectedSizes.add(size)
@@ -311,29 +313,27 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
                 ],
               ),
             ],
-            const SizedBox(height: AppSizes.s16),
+            SizedBox(height: AppSizes.s16),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text(AppStrings.activeVisibleInTheStore),
+              title: Text(AppStrings.activeVisibleInTheStore),
               value: isActive,
               onChanged: (v) => setState(() => isActive = v),
             ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text(AppStrings.featureOnHomeProductAd),
-              subtitle: const Text(
-                AppStrings.uiShowsThisProductAsABannerNearThe,
-              ),
+              title: Text(AppStrings.featureOnHomeProductAd),
+              subtitle: Text(AppStrings.uiShowsThisProductAsABannerNearThe),
               value: isFeatured,
               onChanged: (v) => setState(() => isFeatured = v),
             ),
-            const SizedBox(height: AppSizes.s16),
+            SizedBox(height: AppSizes.s16),
             TextFormField(
               controller: discountPercent,
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: AppStrings.discountOptional,
               ),
               onChanged: (_) => setState(() {}),
@@ -347,7 +347,7 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
             ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text(AppStrings.showDiscountBadge),
+              title: Text(AppStrings.showDiscountBadge),
               subtitle: Text(
                 (double.tryParse(discountPercent.text) ?? 0) > 0 &&
                         (double.tryParse(price.text) ?? 0) > 0
@@ -357,7 +357,7 @@ class _ProductEditorState extends ConsumerState<ProductEditorScreen> {
               value: discountActive,
               onChanged: (v) => setState(() => discountActive = v),
             ),
-            const SizedBox(height: AppSizes.s16),
+            SizedBox(height: AppSizes.s16),
             JbbButton(
               label: AppStrings.saveProduct,
               busy: busy,

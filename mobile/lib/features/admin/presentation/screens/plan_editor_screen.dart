@@ -83,6 +83,7 @@ class _PlanEditorState extends ConsumerState<PlanEditorScreen> {
   Future<void> delete() async {
     final confirmed = await showDialog<bool>(
       context: context,
+      useRootNavigator: true,
       builder: (context) => AlertDialog(
         title: const Text(AppStrings.deletePlan),
         content: Text(AppStrings.removePlan(name.text)),

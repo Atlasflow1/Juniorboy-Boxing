@@ -1,5 +1,5 @@
+import '../../../../core/theme/app_palette.dart';
 import 'package:flutter/material.dart';
-import '../../../../core/resources/app_colors.dart';
 import '../../../../core/resources/app_icons.dart';
 import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/resources/app_strings.dart';
@@ -27,33 +27,33 @@ class MembershipSummaryCard extends StatelessWidget {
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const AppIcon(AppIcons.crown, color: AppColors.materialRed),
-        const SizedBox(width: AppSizes.s12),
+        AppIcon(AppIcons.crown, color: context.palette.accent),
+        SizedBox(width: AppSizes.s12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 planName ?? AppStrings.uiYourMembership,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: AppSizes.font16,
                 ),
               ),
-              const SizedBox(height: AppSizes.s4),
+              SizedBox(height: AppSizes.s4),
               Text(AppStrings.sessionsRemaining(sessionsRemaining)),
               if (sessionsReserved > 0)
                 Text(
                   '$sessionsReserved reserved for upcoming classes',
-                  style: const TextStyle(
-                    color: AppColors.grey,
+                  style: TextStyle(
+                    color: context.palette.textSecondary,
                     fontSize: AppSizes.font12,
                   ),
                 ),
             ],
           ),
         ),
-        const AppIcon(AppIcons.chevronRight, color: AppColors.grey),
+        AppIcon(AppIcons.chevronRight, color: context.palette.textSecondary),
       ],
     ),
   );

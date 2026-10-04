@@ -1,10 +1,10 @@
+import '../theme/app_palette.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/profile/presentation/providers/profile_provider.dart';
-import '../resources/app_colors.dart';
 import '../resources/app_sizes.dart';
 import '../resources/app_strings.dart';
 import '../widgets/jbb_bottom_nav.dart';
@@ -33,17 +33,18 @@ class AppShell extends ConsumerWidget {
         if (didPop) return;
         final confirmed = await showDialog<bool>(
           context: context,
+          useRootNavigator: true,
           builder: (context) => AlertDialog(
-            title: const Text(AppStrings.exitApp),
-            content: const Text(AppStrings.areYouSureYouWantToExit),
+            title: Text(AppStrings.exitApp),
+            content: Text(AppStrings.areYouSureYouWantToExit),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: const Text(AppStrings.no),
+                child: Text(AppStrings.no),
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
-                child: const Text(AppStrings.yes),
+                child: Text(AppStrings.yes),
               ),
             ],
           ),
@@ -57,17 +58,15 @@ class AppShell extends ConsumerWidget {
               if (offline)
                 Container(
                   width: double.infinity,
-                  color: AppColors.offlineBanner,
+                  color: context.palette.warning,
                   padding: const EdgeInsets.all(AppSizes.s8),
-                  child: const Text(
+                  child: Text(
                     AppStrings.offlineSavedData,
                     textAlign: TextAlign.center,
                   ),
                 ),
               if (user?.isActive == false)
-                const Expanded(
-                  child: Center(child: Text(AppStrings.inactiveAccount)),
-                )
+                Expanded(child: Center(child: Text(AppStrings.inactiveAccount)))
               else
                 Expanded(child: navigationShell),
             ],

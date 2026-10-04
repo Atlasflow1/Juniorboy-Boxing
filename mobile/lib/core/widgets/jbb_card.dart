@@ -1,3 +1,4 @@
+import '../theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import '../resources/app_colors.dart';
 import '../resources/app_sizes.dart';
@@ -16,10 +17,10 @@ class JbbCard extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     margin: const EdgeInsets.only(bottom: AppSizes.s12),
     decoration: BoxDecoration(
-      color: AppColors.card,
+      color: context.palette.surface,
       borderRadius: BorderRadius.circular(AppSizes.radiusCard),
       border: Border.all(
-        color: selected ? AppColors.red : AppColors.border,
+        color: selected ? context.palette.accent : context.palette.separator,
         width: selected ? 2 : 1,
       ),
     ),

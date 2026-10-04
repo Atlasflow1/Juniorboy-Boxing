@@ -1,7 +1,7 @@
+import '../../../../core/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/resources/app_colors.dart';
 import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/resources/app_strings.dart';
 import '../../../../core/router/app_routes.dart';
@@ -56,7 +56,7 @@ class _BookClassState extends ConsumerState<BookClassScreen> {
   Widget build(BuildContext context) {
     ref.watch(waiverProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text(AppStrings.bookClass)),
+      appBar: AppBar(title: Text(AppStrings.bookClass)),
       body: ref
           .watch(sessionProvider(widget.scheduleId))
           .when(
@@ -82,7 +82,7 @@ class _BookClassState extends ConsumerState<BookClassScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: AppSizes.s20),
+                  SizedBox(height: AppSizes.s20),
                   JbbCard(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -92,7 +92,7 @@ class _BookClassState extends ConsumerState<BookClassScreen> {
                           style: Theme.of(context).textTheme.headlineMedium,
                         ),
                         Text(program.ageGroup ?? ''),
-                        const SizedBox(height: AppSizes.s22),
+                        SizedBox(height: AppSizes.s22),
                         for (final item in [
                           (AppStrings.uiDate, dateLabel(session.date)),
                           (
@@ -114,13 +114,13 @@ class _BookClassState extends ConsumerState<BookClassScreen> {
                               children: [
                                 Text(
                                   item.$1,
-                                  style: const TextStyle(
-                                    color: AppColors.materialRed,
+                                  style: TextStyle(
+                                    color: context.palette.accent,
                                     fontSize: AppSizes.font11,
                                     letterSpacing: AppSizes.labelTracking,
                                   ),
                                 ),
-                                const SizedBox(height: AppSizes.s5),
+                                SizedBox(height: AppSizes.s5),
                                 Text(item.$2),
                               ],
                             ),
@@ -145,7 +145,7 @@ class _BookClassState extends ConsumerState<BookClassScreen> {
               message: friendlyError(e),
               onRetry: () => ref.invalidate(sessionProvider(widget.scheduleId)),
             ),
-            loading: () => const JbbLoading(),
+            loading: () => JbbLoading(),
           ),
     );
   }

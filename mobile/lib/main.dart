@@ -27,7 +27,9 @@ Future<void> main() async {
   } catch (_) {
     runApp(
       MaterialApp(
-        theme: buildTheme(),
+        theme: lightTheme,
+        darkTheme: darkTheme,
+        themeMode: ThemeMode.system,
         home: const Scaffold(
           body: SafeArea(
             child: Padding(
@@ -46,7 +48,7 @@ class JbbApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
-    final background = ref.watch(backgroundColorProvider);
+    final themeMode = ref.watch(themeModeProvider);
     NotificationService.instance.navigate = (path) => router.go(path);
     ref.listen(profileProvider, (previous, next) {
       if (next.value?.isActive == true &&
@@ -59,7 +61,9 @@ class JbbApp extends ConsumerWidget {
     return MaterialApp.router(
       title: AppStrings.gymName,
       debugShowCheckedModeBanner: false,
-      theme: buildTheme(background: background),
+      theme: lightTheme,
+      darkTheme: darkTheme,
+      themeMode: themeMode,
       routerConfig: router,
     );
   }

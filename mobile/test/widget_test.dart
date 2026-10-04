@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:junior_boy_boxing/core/utils/validators.dart';
+import 'package:junior_boy_boxing/core/theme/app_theme.dart';
 import 'package:junior_boy_boxing/features/auth/presentation/screens/welcome_screen.dart';
 
 void main() {
@@ -17,7 +18,9 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    await tester.pumpWidget(const MaterialApp(home: WelcomeScreen()));
+    await tester.pumpWidget(
+      MaterialApp(theme: lightTheme, home: const WelcomeScreen()),
+    );
     await tester.pumpAndSettle();
     expect(find.text('Continue with Google'), findsOneWidget);
     expect(find.text('Skip'), findsOneWidget);

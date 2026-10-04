@@ -1,5 +1,5 @@
+import '../../../../core/theme/app_palette.dart';
 import 'package:flutter/material.dart';
-import '../../../../core/resources/app_colors.dart';
 import '../../../../core/resources/app_icons.dart';
 import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/widgets/app_icon.dart';
@@ -34,7 +34,7 @@ class StarRating extends StatelessWidget {
               rating >= star
                   ? AppIcons.starFilled
                   : (rating >= star - 0.5 ? AppIcons.starHalf : AppIcons.star),
-              color: AppColors.red,
+              color: context.palette.accent,
               size: size,
             ),
           ),

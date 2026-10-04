@@ -1,50 +1,10 @@
 import 'package:flutter/material.dart';
 
-/// Colors used by the current UI. Existing names retain their original values.
+/// Mode-independent colors used by brand assets and photographic overlays.
 abstract final class AppColors {
-  static const red = Color(0xFFE50914);
-  static const background = Color(0xFF194051);
-  static const blackBackground = Color(0xFF0D0D0D);
-  static const card = Color(0xFF181818);
-  static const border = Color(0xFF2A2A2A);
-  static const muted = Color(0xFFA0A0A0);
-  static const green = Color(0xFF4CAF50);
-  static const yellow = Color(0xFFFABD02);
-  static const crimsonRedDark = Color(0xFFD32F2F);
-  static const crimsonRedLight = Color(0xFFFF1744);
-  static const secondaryBackground = Color(0xFF1A1A1A);
-  static const elevatedBackground = Color(0xFF222222);
-  static const white = Colors.white;
-  static const black = Colors.black;
+  static const brandRed = Color(0xFFE50914);
   static const transparent = Colors.transparent;
-  static const grey = Colors.grey;
-  static const materialRed = Colors.red;
-  static const materialGreen = Colors.green;
-  static const amber = Colors.amber;
-  static final amberDark = Colors.amber.shade900;
-  static const materialYellow = Colors.yellow;
-  static const white10 = Colors.white10;
-  static const white24 = Colors.white24;
-  static const white54 = Colors.white54;
-  static const white70 = Colors.white70;
-  static final offlineBanner = amberDark;
-  static const warning = amber;
-  static final heroScrimStart = black.withValues(alpha: 0.85);
-  static final heroScrimEnd = black.withValues(alpha: 0);
-  static const crimsonRed = red;
-  static const bgPrimary = blackBackground;
-  static const bgSecondary = secondaryBackground;
-  static const bgCard = card;
-  static const bgCardBorder = border;
-  static const bgElevated = elevatedBackground;
-  static const textWhite = white;
-  static const textLightGray = muted;
-  static const textMediumGray = Color(0xFF808080);
-  static const textDarkGray = Color(0xFF555555);
-  static const textGreen = green;
-  static const redAccent = Color(0xFFFF0000);
-  static const statusLimited = Color(0xFFFF9800);
-  static const inputBorder = Color(0xFF333333);
-  static const tagBackground = Color(0xFF1E1E1E);
-  static const divider = border;
+  static const onAccent = Colors.white;
+  static final heroScrimStart = Colors.black.withValues(alpha: 0.85);
+  static final heroScrimEnd = Colors.black.withValues(alpha: 0);
 }

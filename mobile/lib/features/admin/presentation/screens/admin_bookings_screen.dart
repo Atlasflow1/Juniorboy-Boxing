@@ -1,6 +1,6 @@
+import '../../../../core/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/resources/app_colors.dart';
 import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/resources/app_strings.dart';
 import '../../../../core/utils/date_utils.dart';
@@ -22,11 +22,11 @@ class AdminBookingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final bookings = ref.watch(adminBookingsProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text(AppStrings.bookings)),
+      appBar: AppBar(title: Text(AppStrings.bookings)),
       body: bookings.when(
         data: (rows) {
           if (rows.isEmpty) {
-            return const JbbEmptyState(
+            return JbbEmptyState(
               message: AppStrings.noBookingsYetTheyWillAppearHere,
             );
           }
@@ -37,6 +37,7 @@ class AdminBookingsScreen extends ConsumerWidget {
                   (booking) => JbbCard(
                     onTap: () => showModalBottomSheet(
                       context: context,
+                      useRootNavigator: true,
                       isScrollControlled: true,
                       builder: (_) => _BookingDetailSheet(booking: booking),
                     ),
@@ -51,18 +52,18 @@ class AdminBookingsScreen extends ConsumerWidget {
                                 booking.className.isEmpty
                                     ? AppStrings.uiClass
                                     : booking.className,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: AppSizes.font16,
                                 ),
                               ),
-                              const SizedBox(height: AppSizes.s4),
+                              SizedBox(height: AppSizes.s4),
                               BuyerName(userId: booking.userId),
-                              const SizedBox(height: AppSizes.s4),
+                              SizedBox(height: AppSizes.s4),
                               Text(
                                 '${dateLabel(readDate(booking.date))} · ${timeLabel(readDate(booking.date))}',
-                                style: const TextStyle(
-                                  color: AppColors.grey,
+                                style: TextStyle(
+                                  color: context.palette.textSecondary,
                                   fontSize: AppSizes.font12,
                                 ),
                               ),
@@ -71,9 +72,9 @@ class AdminBookingsScreen extends ConsumerWidget {
                         ),
                         Text(
                           booking.status,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: AppSizes.font12,
-                            color: AppColors.grey,
+                            color: context.palette.textSecondary,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -88,7 +89,7 @@ class AdminBookingsScreen extends ConsumerWidget {
           message: friendlyError(e),
           onRetry: () => ref.invalidate(adminBookingsProvider),
         ),
-        loading: () => const JbbLoading(),
+        loading: () => JbbLoading(),
       ),
     );
   }
@@ -144,18 +145,19 @@ class _BookingDetailSheetState extends ConsumerState<_BookingDetailSheet> {
   Future<void> cancel() async {
     final reason = await showDialog<String>(
       context: context,
+      useRootNavigator: true,
       builder: (context) {
         final controller = TextEditingController();
         return AlertDialog(
-          title: const Text(AppStrings.cancelThisBooking),
+          title: Text(AppStrings.cancelThisBooking),
           content: TextField(
             controller: controller,
-            decoration: const InputDecoration(labelText: AppStrings.reason),
+            decoration: InputDecoration(labelText: AppStrings.reason),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text(AppStrings.back),
+              child: Text(AppStrings.back),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(
@@ -163,7 +165,7 @@ class _BookingDetailSheetState extends ConsumerState<_BookingDetailSheet> {
                     ? AppStrings.uiCancelledByAdmin
                     : controller.text.trim(),
               ),
-              child: const Text(AppStrings.cancelBooking2),
+              child: Text(AppStrings.cancelBooking2),
             ),
           ],
         );
@@ -205,23 +207,23 @@ class _BookingDetailSheetState extends ConsumerState<_BookingDetailSheet> {
               widget.booking.className.isEmpty
                   ? AppStrings.uiBooking
                   : widget.booking.className,
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: AppSizes.font18,
               ),
             ),
             Text(
               '${dateLabel(widget.booking.date)} · ${timeLabel(widget.booking.date)}–${timeLabel(widget.booking.endAt)} · $status',
-              style: const TextStyle(color: AppColors.grey),
+              style: TextStyle(color: context.palette.textSecondary),
             ),
-            const SizedBox(height: AppSizes.s16),
+            SizedBox(height: AppSizes.s16),
             if (loading)
-              const Center(child: JbbLoading())
+              Center(child: JbbLoading())
             else
               Container(
                 padding: const EdgeInsets.all(AppSizes.s12),
                 decoration: BoxDecoration(
-                  color: AppColors.white10,
+                  color: context.palette.separator,
                   borderRadius: BorderRadius.circular(AppSizes.radius10),
                 ),
                 child: Column(
@@ -230,23 +232,23 @@ class _BookingDetailSheetState extends ConsumerState<_BookingDetailSheet> {
                     Text(
                       '${member?.fullName ?? ''} ${member?.lastName ?? ''}'
                           .trim(),
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(height: AppSizes.s4),
+                    SizedBox(height: AppSizes.s4),
                     Text(
                       (member?.phone ?? '').isNotEmpty
                           ? member!.phone!
                           : AppStrings.uiNoPhoneOnFile,
                     ),
                     Text(member?.email ?? ''),
-                    const SizedBox(height: AppSizes.s4),
+                    SizedBox(height: AppSizes.s4),
                     Text(
                       (member?.address ?? '').isNotEmpty
                           ? '${member!.address}${(member?.zipCode ?? '').isNotEmpty ? ', ${member!.zipCode}' : ''}'
                           : AppStrings.uiNoAddressOnFile,
                     ),
                     if ((member?.childName ?? '').isNotEmpty) ...[
-                      const SizedBox(height: AppSizes.s4),
+                      SizedBox(height: AppSizes.s4),
                       Text(
                         'Participant: ${member!.childName}${(member?.childAge ?? 0) > 0 ? ' (${member!.childAge})' : ''}',
                       ),
@@ -254,7 +256,7 @@ class _BookingDetailSheetState extends ConsumerState<_BookingDetailSheet> {
                   ],
                 ),
               ),
-            const SizedBox(height: AppSizes.s16),
+            SizedBox(height: AppSizes.s16),
             if (status == 'confirmed') ...[
               if (ended)
                 Row(
@@ -264,24 +266,24 @@ class _BookingDetailSheetState extends ConsumerState<_BookingDetailSheet> {
                         onPressed: busy
                             ? null
                             : () => markAttendance('completed'),
-                        child: const Text(AppStrings.present),
+                        child: Text(AppStrings.present),
                       ),
                     ),
-                    const SizedBox(width: AppSizes.s12),
+                    SizedBox(width: AppSizes.s12),
                     Expanded(
                       child: OutlinedButton(
                         onPressed: busy
                             ? null
                             : () => markAttendance('no-show'),
-                        child: const Text(AppStrings.noShow),
+                        child: Text(AppStrings.noShow),
                       ),
                     ),
                   ],
                 ),
-              const SizedBox(height: AppSizes.s12),
+              SizedBox(height: AppSizes.s12),
               TextButton(
                 onPressed: busy ? null : cancel,
-                child: const Text(AppStrings.cancelBooking2),
+                child: Text(AppStrings.cancelBooking2),
               ),
             ],
           ],

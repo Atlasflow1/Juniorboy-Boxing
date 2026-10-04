@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import './app_sizes.dart';
-import 'app_colors.dart';
 
 abstract final class AppTextStyles {
   static TextStyle title = GoogleFonts.oswald(
@@ -13,10 +12,9 @@ abstract final class AppTextStyles {
     fontSize: AppSizes.font22,
     fontWeight: FontWeight.w600,
   );
-  static TextStyle label = GoogleFonts.roboto(
+  static TextStyle label = GoogleFonts.inter(
     fontSize: AppSizes.font11,
     fontWeight: FontWeight.w500,
     letterSpacing: 1.5,
-    color: AppColors.red,
   );
 }

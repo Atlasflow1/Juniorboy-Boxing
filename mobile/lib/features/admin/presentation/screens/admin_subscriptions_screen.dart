@@ -1,6 +1,6 @@
+import '../../../../core/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/resources/app_colors.dart';
 import '../../../../core/resources/app_icons.dart';
 import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/resources/app_strings.dart';
@@ -31,9 +31,10 @@ class _AdminSubscriptionsScreenState
   Future<void> delete(Payment order) async {
     final confirmed = await showDialog<bool>(
       context: context,
+      useRootNavigator: true,
       builder: (context) => AlertDialog(
-        title: const Text(AppStrings.deleteThisSubscriptionRecord),
-        content: const Text(
+        title: Text(AppStrings.deleteThisSubscriptionRecord),
+        content: Text(
           'This removes the payment record only. It does not remove '
           'session credits already added — use Refund first if the '
           'purchase itself needs to be undone.',
@@ -41,11 +42,11 @@ class _AdminSubscriptionsScreenState
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text(AppStrings.cancel),
+            child: Text(AppStrings.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text(AppStrings.delete),
+            child: Text(AppStrings.delete),
           ),
         ],
       ),
@@ -65,19 +66,17 @@ class _AdminSubscriptionsScreenState
   @override
   Widget build(BuildContext context) {
     final orders = ref.watch(adminOrdersProvider);
-    final plans = ref.watch(adminPlansProvider).value ?? const [];
+    final plans = ref.watch(adminPlansProvider).value ?? [];
     final planNames = {
       for (final p in plans) p.id: p.name.isNotEmpty ? p.name : 'Plan',
     };
     return Scaffold(
-      appBar: AppBar(title: const Text(AppStrings.membershipSubscriptions)),
+      appBar: AppBar(title: Text(AppStrings.membershipSubscriptions)),
       body: orders.when(
         data: (rows) {
           final subs = rows.where((p) => p.membershipPlanId != null).toList();
           if (subs.isEmpty) {
-            return const JbbEmptyState(
-              message: AppStrings.noMembershipPurchasesYet,
-            );
+            return JbbEmptyState(message: AppStrings.noMembershipPurchasesYet);
           }
           return ListView(
             padding: const EdgeInsets.all(AppSizes.s16),
@@ -94,18 +93,18 @@ class _AdminSubscriptionsScreenState
                               Text(
                                 planNames[order.membershipPlanId] ??
                                     AppStrings.navMembership,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: AppSizes.font16,
                                 ),
                               ),
-                              const SizedBox(height: AppSizes.s4),
+                              SizedBox(height: AppSizes.s4),
                               BuyerName(userId: order.userId),
-                              const SizedBox(height: AppSizes.s4),
+                              SizedBox(height: AppSizes.s4),
                               Text(
                                 '${dateLabel(readDate(order.createdAt))} · ${timeLabel(readDate(order.createdAt))}',
-                                style: const TextStyle(
-                                  color: AppColors.grey,
+                                style: TextStyle(
+                                  color: context.palette.textSecondary,
                                   fontSize: AppSizes.font12,
                                 ),
                               ),
@@ -117,24 +116,22 @@ class _AdminSubscriptionsScreenState
                           children: [
                             Text(
                               '\$${(order.amount / 100).toStringAsFixed(2)}',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: TextStyle(fontWeight: FontWeight.bold),
                             ),
-                            const SizedBox(height: AppSizes.s4),
+                            SizedBox(height: AppSizes.s4),
                             if (order.credits != null)
                               Text(
                                 '${order.credits} credits',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: AppSizes.font12,
-                                  color: AppColors.grey,
+                                  color: context.palette.textSecondary,
                                 ),
                               ),
                             Text(
                               order.status,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: AppSizes.font12,
-                                color: AppColors.grey,
+                                color: context.palette.textSecondary,
                               ),
                             ),
                           ],
@@ -144,16 +141,16 @@ class _AdminSubscriptionsScreenState
                               ? null
                               : () => delete(order),
                           icon: busyId == order.id
-                              ? const SizedBox(
+                              ? SizedBox(
                                   width: AppSizes.s18,
                                   height: AppSizes.s18,
                                   child: CircularProgressIndicator(
                                     strokeWidth: AppSizes.s2,
                                   ),
                                 )
-                              : const AppIcon(
+                              : AppIcon(
                                   AppIcons.trash,
-                                  color: AppColors.grey,
+                                  color: context.palette.textSecondary,
                                   size: AppSizes.s20,
                                 ),
                         ),
@@ -168,7 +165,7 @@ class _AdminSubscriptionsScreenState
           message: friendlyError(e),
           onRetry: () => ref.invalidate(adminOrdersProvider),
         ),
-        loading: () => const JbbLoading(),
+        loading: () => JbbLoading(),
       ),
     );
   }

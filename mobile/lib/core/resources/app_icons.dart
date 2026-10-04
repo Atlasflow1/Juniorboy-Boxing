@@ -10,6 +10,7 @@ abstract final class AppIcons {
   static const navMore = '$_dir/ic_nav_more.svg';
 
   static const admin = '$_dir/ic_admin.svg';
+  static const appearance = '$_dir/ic_appearance.svg';
   static const boxingGlove = '$_dir/ic_boxing_glove.svg';
   static const calendar = '$_dir/ic_calendar.svg';
   static const calendarCheck = '$_dir/ic_calendar_check.svg';

@@ -1,6 +1,6 @@
+import '../../../../core/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
-import '../../../../core/resources/app_colors.dart';
 import '../../../../core/resources/app_sizes.dart';
 
 /// Plays a directly-hosted video file (e.g. an mp4 URL) as a silent,
@@ -50,7 +50,7 @@ class _DirectVideoBackgroundPlayerState
       aspectRatio: ready ? controller.value.aspectRatio : 16 / 9,
       child: ready
           ? VideoPlayer(controller)
-          : const ColoredBox(color: AppColors.black),
+          : ColoredBox(color: context.palette.background),
     ),
   );
 }

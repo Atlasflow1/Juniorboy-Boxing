@@ -1,7 +1,7 @@
+import '../../../../core/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import '../../../../core/resources/app_colors.dart';
 import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/resources/app_strings.dart';
 import '../../../../core/utils/date_utils.dart';
@@ -44,12 +44,12 @@ class _ScheduleState extends ConsumerState<ScheduleScreen> {
       children: [
         MonthNavigator(date: day, onChange: (v) => setState(() => day = v)),
         DaySelector(date: day, onChange: (v) => setState(() => day = v)),
-        const SizedBox(height: AppSizes.s24),
+        SizedBox(height: AppSizes.s24),
         Text(
           '${DateFormat('EEEE, MMM d').format(day)} · Pacific time',
-          style: const TextStyle(color: AppColors.grey),
+          style: TextStyle(color: context.palette.textSecondary),
         ),
-        const SizedBox(height: AppSizes.s14),
+        SizedBox(height: AppSizes.s14),
         sessions.when(
           data: (allRows) {
             final rows = allRows
@@ -59,7 +59,7 @@ class _ScheduleState extends ConsumerState<ScheduleScreen> {
                 )
                 .toList();
             return rows.isEmpty
-                ? const JbbEmptyState(
+                ? JbbEmptyState(
                     message: AppStrings
                         .uiNoClassesScheduledForThisSelectionContactThe,
                   )
@@ -81,7 +81,7 @@ class _ScheduleState extends ConsumerState<ScheduleScreen> {
             message: friendlyError(e),
             onRetry: () => ref.invalidate(scheduleProvider(key)),
           ),
-          loading: () => const JbbLoading(),
+          loading: () => JbbLoading(),
         ),
       ],
     );

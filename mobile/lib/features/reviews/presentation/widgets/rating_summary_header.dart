@@ -1,5 +1,5 @@
+import '../../../../core/theme/app_palette.dart';
 import 'package:flutter/material.dart';
-import '../../../../core/resources/app_colors.dart';
 import '../../../../core/resources/app_icons.dart';
 import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/resources/app_strings.dart';
@@ -19,14 +19,14 @@ class RatingSummaryHeader extends StatelessWidget {
     padding: const EdgeInsets.all(AppSizes.s20),
     margin: const EdgeInsets.only(bottom: AppSizes.s20),
     decoration: BoxDecoration(
-      color: AppColors.card,
+      color: context.palette.surface,
       borderRadius: BorderRadius.circular(AppSizes.radius12),
-      border: Border.all(color: AppColors.border),
+      border: Border.all(color: context.palette.separator),
     ),
     child: stats.count == 0
-        ? const Text(
+        ? Text(
             AppStrings.uiNoReviewsYetBeTheFirstToShare,
-            style: TextStyle(color: AppColors.muted),
+            style: TextStyle(color: context.palette.textSecondary),
           )
         : Row(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -36,25 +36,25 @@ class RatingSummaryHeader extends StatelessWidget {
                 children: [
                   Text(
                     stats.average.toStringAsFixed(1),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: AppSizes.font40,
                       fontWeight: FontWeight.bold,
                       height: AppSizes.s1,
                     ),
                   ),
-                  const SizedBox(height: AppSizes.s4),
+                  SizedBox(height: AppSizes.s4),
                   StarRating(rating: stats.average, size: AppSizes.s16),
-                  const SizedBox(height: AppSizes.s4),
+                  SizedBox(height: AppSizes.s4),
                   Text(
                     '${stats.count} ${stats.count == 1 ? 'review' : 'reviews'}',
-                    style: const TextStyle(
-                      color: AppColors.muted,
+                    style: TextStyle(
+                      color: context.palette.textSecondary,
                       fontSize: AppSizes.font12,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(width: AppSizes.s24),
+              SizedBox(width: AppSizes.s24),
               Expanded(
                 child: Column(
                   children: [
@@ -94,38 +94,38 @@ class _DistributionBar extends StatelessWidget {
             width: AppSizes.s10,
             child: Text(
               '$star',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: AppSizes.font11,
-                color: AppColors.muted,
+                color: context.palette.textSecondary,
               ),
             ),
           ),
-          const SizedBox(width: AppSizes.s4),
-          const AppIcon(
+          SizedBox(width: AppSizes.s4),
+          AppIcon(
             AppIcons.starFilled,
             size: AppSizes.s10,
-            color: AppColors.red,
+            color: context.palette.accent,
           ),
-          const SizedBox(width: AppSizes.s6),
+          SizedBox(width: AppSizes.s6),
           Expanded(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(AppSizes.radius4),
               child: LinearProgressIndicator(
                 value: fraction,
                 minHeight: AppSizes.progressBarHeight,
-                backgroundColor: AppColors.border,
-                valueColor: const AlwaysStoppedAnimation(AppColors.red),
+                backgroundColor: context.palette.separator,
+                valueColor: AlwaysStoppedAnimation(context.palette.accent),
               ),
             ),
           ),
-          const SizedBox(width: AppSizes.s6),
+          SizedBox(width: AppSizes.s6),
           SizedBox(
             width: AppSizes.s20,
             child: Text(
               '$count',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: AppSizes.font11,
-                color: AppColors.muted,
+                color: context.palette.textSecondary,
               ),
             ),
           ),

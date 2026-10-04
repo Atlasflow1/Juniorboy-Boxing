@@ -1,5 +1,5 @@
+import '../../../../core/theme/app_palette.dart';
 import 'package:flutter/material.dart';
-import '../../../../core/resources/app_colors.dart';
 import '../../../../core/resources/app_icons.dart';
 import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/resources/app_strings.dart';
@@ -19,25 +19,25 @@ class NextSessionCard extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Row(
+        Row(
           children: [
-            AppIcon(AppIcons.calendar, color: AppColors.materialRed),
+            AppIcon(AppIcons.calendar, color: context.palette.accent),
             SizedBox(width: AppSizes.s8),
             Text(AppStrings.nextSession),
           ],
         ),
-        const SizedBox(height: AppSizes.s12),
+        SizedBox(height: AppSizes.s12),
         Text(
           dateLabel(booking.date),
           style: Theme.of(context).textTheme.headlineMedium,
         ),
         Text('${timeLabel(booking.date)} – ${timeLabel(booking.endAt)}'),
-        const SizedBox(height: AppSizes.s6),
-        const Text(AppStrings.juniorBoyBoxingTracyCa),
-        const SizedBox(height: AppSizes.s16),
+        SizedBox(height: AppSizes.s6),
+        Text(AppStrings.juniorBoyBoxingTracyCa),
+        SizedBox(height: AppSizes.s16),
         FilledButton(
           onPressed: () => context.safeNavigate(AppRoutes.bookings),
-          child: const Text(AppStrings.viewBooking),
+          child: Text(AppStrings.viewBooking),
         ),
       ],
     ),

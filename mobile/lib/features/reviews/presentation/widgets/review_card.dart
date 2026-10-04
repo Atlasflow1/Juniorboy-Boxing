@@ -1,6 +1,6 @@
+import '../../../../core/theme/app_palette.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import '../../../../core/resources/app_colors.dart';
 import '../../../../core/resources/app_icons.dart';
 import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/resources/app_strings.dart';
@@ -23,9 +23,9 @@ class ReviewCard extends StatelessWidget {
     margin: const EdgeInsets.only(bottom: AppSizes.s12),
     padding: const EdgeInsets.all(AppSizes.s16),
     decoration: BoxDecoration(
-      color: AppColors.card,
+      color: context.palette.surface,
       borderRadius: BorderRadius.circular(AppSizes.radius12),
-      border: Border.all(color: AppColors.border),
+      border: Border.all(color: context.palette.separator),
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -35,42 +35,42 @@ class ReviewCard extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: AppSizes.avatarRadiusMedium,
-              backgroundColor: AppColors.border,
+              backgroundColor: context.palette.separator,
               backgroundImage: review.userAvatarUrl.isNotEmpty
                   ? CachedNetworkImageProvider(review.userAvatarUrl)
                   : null,
               child: review.userAvatarUrl.isEmpty
-                  ? const AppIcon(
+                  ? AppIcon(
                       AppIcons.user,
-                      color: AppColors.muted,
+                      color: context.palette.textSecondary,
                       size: AppSizes.s20,
                     )
                   : null,
             ),
-            const SizedBox(width: AppSizes.s12),
+            SizedBox(width: AppSizes.s12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     review.userName,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: AppSizes.font15,
                     ),
                   ),
-                  const SizedBox(height: AppSizes.s2),
+                  SizedBox(height: AppSizes.s2),
                   Row(
                     children: [
                       StarRating(
                         rating: review.rating.toDouble(),
                         size: AppSizes.s14,
                       ),
-                      const SizedBox(width: AppSizes.s8),
+                      SizedBox(width: AppSizes.s8),
                       Text(
                         dateLabel(review.createdAt),
-                        style: const TextStyle(
-                          color: AppColors.muted,
+                        style: TextStyle(
+                          color: context.palette.textSecondary,
                           fontSize: AppSizes.font12,
                         ),
                       ),
@@ -81,10 +81,10 @@ class ReviewCard extends StatelessWidget {
             ),
             if (onDelete != null)
               IconButton(
-                icon: const AppIcon(
+                icon: AppIcon(
                   AppIcons.trash,
                   size: AppSizes.s20,
-                  color: AppColors.muted,
+                  color: context.palette.textSecondary,
                 ),
                 tooltip: AppStrings.deleteYourReview,
                 onPressed: onDelete,
@@ -92,10 +92,10 @@ class ReviewCard extends StatelessWidget {
           ],
         ),
         if (review.comment.isNotEmpty) ...[
-          const SizedBox(height: AppSizes.s12),
+          SizedBox(height: AppSizes.s12),
           Text(
             review.comment,
-            style: const TextStyle(height: AppSizes.lineHeightBody),
+            style: TextStyle(height: AppSizes.lineHeightBody),
           ),
         ],
       ],

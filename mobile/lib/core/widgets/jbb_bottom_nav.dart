@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../resources/app_colors.dart';
 import '../resources/app_icons.dart';
 import '../resources/app_sizes.dart';
 import '../resources/app_strings.dart';
+import '../theme/app_palette.dart';
 import 'app_icon.dart';
 
 class JbbBottomNav extends StatelessWidget {
@@ -11,29 +11,66 @@ class JbbBottomNav extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
   @override
   Widget build(BuildContext context) {
-    return NavigationBar(
-      height: AppSizes.bottomNavHeight,
-      backgroundColor: AppColors.background,
-      indicatorColor: AppColors.transparent,
-      selectedIndex: navigationShell.currentIndex,
-      onDestinationSelected: (index) => navigationShell.goBranch(
-        index,
-        initialLocation: index == navigationShell.currentIndex,
-      ),
-      destinations: [
-        for (final item in [
-          (AppStrings.navHome, AppIcons.navHome),
-          (AppStrings.navSchedule, AppIcons.navSchedule),
-          (AppStrings.navBook, AppIcons.navBook),
-          (AppStrings.navMembership, AppIcons.navMembership),
-          (AppStrings.navMore, AppIcons.navMore),
-        ])
-          NavigationDestination(
-            icon: AppIcon(item.$2, color: AppColors.grey),
-            selectedIcon: AppIcon(item.$2, color: AppColors.red),
-            label: item.$1,
+    final items = [
+      (AppStrings.navHome, AppIcons.navHome),
+      (AppStrings.navSchedule, AppIcons.navSchedule),
+      (AppStrings.navBook, AppIcons.navBook),
+      (AppStrings.navMembership, AppIcons.navMembership),
+      (AppStrings.navMore, AppIcons.navMore),
+    ];
+    return Container(
+      decoration: BoxDecoration(
+        color: context.palette.tabBar,
+        border: Border(
+          top: BorderSide(
+            color: context.palette.separator,
+            width: AppSizes.separatorWidth,
           ),
-      ],
+        ),
+      ),
+      child: SafeArea(
+        top: false,
+        child: SizedBox(
+          height: AppSizes.bottomNavHeight,
+          child: Row(
+            children: [
+              for (var index = 0; index < items.length; index++)
+                Expanded(
+                  child: InkWell(
+                    onTap: () => navigationShell.goBranch(
+                      index,
+                      initialLocation: index == navigationShell.currentIndex,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        AppIcon(
+                          items[index].$2,
+                          size: AppSizes.iconMedium,
+                          color: index == navigationShell.currentIndex
+                              ? context.palette.accent
+                              : context.palette.textSecondary,
+                        ),
+                        const SizedBox(height: AppSizes.s4),
+                        Text(
+                          items[index].$1,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: AppSizes.font10,
+                            color: index == navigationShell.currentIndex
+                                ? context.palette.accent
+                                : context.palette.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

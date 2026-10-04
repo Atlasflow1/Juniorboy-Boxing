@@ -1,5 +1,5 @@
+import '../../../../core/theme/app_palette.dart';
 import 'package:flutter/material.dart';
-import '../../../../core/resources/app_colors.dart';
 import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/resources/app_strings.dart';
 import '../../../../core/router/app_routes.dart';
@@ -30,54 +30,56 @@ class JbbClassCard extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: AppSizes.s14),
+          SizedBox(width: AppSizes.s14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   '${session.startTime} – ${session.endTime}',
-                  style: const TextStyle(
-                    color: AppColors.red,
+                  style: TextStyle(
+                    color: context.palette.accent,
                     fontSize: AppSizes.font12,
                   ),
                 ),
-                const SizedBox(height: AppSizes.s5),
+                SizedBox(height: AppSizes.s5),
                 Text(
                   program.className ?? AppStrings.uiBoxingClass,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: AppSizes.font17,
                   ),
                 ),
                 Text(
                   program.ageGroup ?? '',
-                  style: const TextStyle(color: AppColors.muted),
+                  style: TextStyle(color: context.palette.textSecondary),
                 ),
-                const SizedBox(height: AppSizes.s6),
+                SizedBox(height: AppSizes.s6),
                 Text(
                   spots > 0
                       ? '$spots spots available'
                       : AppStrings.uiFullyBooked,
                   style: TextStyle(
-                    color: spots > 0 ? AppColors.green : AppColors.red,
+                    color: spots > 0
+                        ? context.palette.success
+                        : context.palette.accent,
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: AppSizes.s8),
+          SizedBox(width: AppSizes.s8),
           SizedBox(
             width: AppSizes.classActionWidth,
             child: FilledButton(
               style: FilledButton.styleFrom(
-                minimumSize: const Size(64, 42),
+                minimumSize: Size(64, 42),
                 padding: EdgeInsets.zero,
               ),
               onPressed: spots > 0
                   ? () => context.safeNavigate(AppRoutes.booking(session.id))
                   : null,
-              child: const Text(AppStrings.book),
+              child: Text(AppStrings.book),
             ),
           ),
         ],

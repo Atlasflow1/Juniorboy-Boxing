@@ -1,7 +1,8 @@
+import '../../../../core/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../../../core/resources/app_colors.dart';
 import '../../../../core/resources/app_icons.dart';
+import '../../../../core/resources/app_colors.dart';
 import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/resources/app_strings.dart';
 import '../../../../core/widgets/app_icon.dart';
@@ -18,17 +19,17 @@ class DaySelector extends StatelessWidget {
         Row(
           children: [
             IconButton(
-              onPressed: () => onChange(date.subtract(const Duration(days: 7))),
+              onPressed: () => onChange(date.subtract(Duration(days: 7))),
               tooltip: AppStrings.previousWeek,
-              icon: const AppIcon(AppIcons.chevronLeft),
+              icon: AppIcon(AppIcons.chevronLeft),
             ),
-            const Spacer(),
-            const Text(AppStrings.chooseYourTrainingDay),
-            const Spacer(),
+            Spacer(),
+            Text(AppStrings.chooseYourTrainingDay),
+            Spacer(),
             IconButton(
-              onPressed: () => onChange(date.add(const Duration(days: 7))),
+              onPressed: () => onChange(date.add(Duration(days: 7))),
               tooltip: AppStrings.nextWeek,
-              icon: const AppIcon(AppIcons.chevronRight),
+              icon: AppIcon(AppIcons.chevronRight),
             ),
           ],
         ),
@@ -47,21 +48,31 @@ class DaySelector extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: AppSizes.s14),
                     margin: const EdgeInsets.symmetric(horizontal: AppSizes.s2),
                     decoration: BoxDecoration(
-                      color: selected ? AppColors.red : AppColors.card,
+                      color: selected
+                          ? context.palette.accent
+                          : context.palette.surface,
                       borderRadius: BorderRadius.circular(AppSizes.radius8),
                     ),
                     child: Column(
                       children: [
                         Text(
                           DateFormat('EEE').format(day).toUpperCase(),
-                          style: const TextStyle(fontSize: AppSizes.font10),
+                          style: TextStyle(
+                            fontSize: AppSizes.font10,
+                            color: selected
+                                ? AppColors.onAccent
+                                : context.palette.textPrimary,
+                          ),
                         ),
-                        const SizedBox(height: AppSizes.s7),
+                        SizedBox(height: AppSizes.s7),
                         Text(
                           '${day.day}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: AppSizes.font20,
                             fontWeight: FontWeight.bold,
+                            color: selected
+                                ? AppColors.onAccent
+                                : context.palette.textPrimary,
                           ),
                         ),
                       ],

@@ -2,9 +2,10 @@ abstract final class AppSizes {
   static const screenPadding = 16.0;
   static const cardPadding = 16.0;
   static const radiusCard = 12.0;
+  static const radiusSheet = 14.0;
   static const radiusInput = 12.0;
-  static const radiusButton = 30.0;
-  static const buttonHeight = 56.0;
+  static const radiusButton = 12.0;
+  static const buttonHeight = 50.0;
   static const outlinedButtonHeight = 54.0;
   static const bottomNavHeight = 64.0;
   static const iconSmall = 20.0;
@@ -34,6 +35,7 @@ abstract final class AppSizes {
   static const s36 = 36.0;
   static const s40 = 40.0;
   static const s48 = 48.0;
+  static const s56 = 56.0;
   static const font10 = 10.0;
   static const font11 = 11.0;
   static const font12 = 12.0;
@@ -45,6 +47,10 @@ abstract final class AppSizes {
   static const font20 = 20.0;
   static const font22 = 22.0;
   static const font28 = 28.0;
+  static const font32 = 32.0;
+  static const iconChip = 30.0;
+  static const iconChipRadius = 7.0;
+  static const separatorWidth = 0.5;
   static const font40 = 40.0;
   static const radius2 = 2.0;
   static const radius4 = 4.0;

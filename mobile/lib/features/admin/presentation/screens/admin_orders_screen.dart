@@ -1,6 +1,6 @@
+import '../../../../core/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/resources/app_colors.dart';
 import '../../../../core/resources/app_icons.dart';
 import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/resources/app_strings.dart';
@@ -25,12 +25,12 @@ class AdminOrdersScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final orders = ref.watch(adminOrdersProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text(AppStrings.storeOrders)),
+      appBar: AppBar(title: Text(AppStrings.storeOrders)),
       body: orders.when(
         data: (rows) {
           final products = rows.where((p) => p.productId != null).toList();
           if (products.isEmpty) {
-            return const JbbEmptyState(
+            return JbbEmptyState(
               message: AppStrings.uiNoStoreOrdersYetTheyWillAppearHere,
             );
           }
@@ -41,6 +41,7 @@ class AdminOrdersScreen extends ConsumerWidget {
                   (order) => JbbCard(
                     onTap: () => showModalBottomSheet(
                       context: context,
+                      useRootNavigator: true,
                       isScrollControlled: true,
                       builder: (_) => _OrderDetailSheet(order: order),
                     ),
@@ -55,18 +56,18 @@ class AdminOrdersScreen extends ConsumerWidget {
                                 order.size != null
                                     ? '${order.productName ?? AppStrings.uiProduct} · Size ${order.size}'
                                     : order.productName ?? AppStrings.uiProduct,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: AppSizes.font16,
                                 ),
                               ),
-                              const SizedBox(height: AppSizes.s4),
+                              SizedBox(height: AppSizes.s4),
                               BuyerName(userId: order.userId),
-                              const SizedBox(height: AppSizes.s4),
+                              SizedBox(height: AppSizes.s4),
                               Text(
                                 '${dateLabel(readDate(order.createdAt))} · ${timeLabel(readDate(order.createdAt))}',
-                                style: const TextStyle(
-                                  color: AppColors.grey,
+                                style: TextStyle(
+                                  color: context.palette.textSecondary,
                                   fontSize: AppSizes.font12,
                                 ),
                               ),
@@ -77,8 +78,8 @@ class AdminOrdersScreen extends ConsumerWidget {
                                   ),
                                   child: Text(
                                     'Delivery: ${dateLabel(readDate(order.estimatedDeliveryDate))}',
-                                    style: const TextStyle(
-                                      color: AppColors.red,
+                                    style: TextStyle(
+                                      color: context.palette.accent,
                                       fontWeight: FontWeight.w600,
                                       fontSize: AppSizes.font12,
                                     ),
@@ -92,16 +93,14 @@ class AdminOrdersScreen extends ConsumerWidget {
                           children: [
                             Text(
                               '\$${(order.amount / 100).toStringAsFixed(2)}',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: TextStyle(fontWeight: FontWeight.bold),
                             ),
-                            const SizedBox(height: AppSizes.s4),
+                            SizedBox(height: AppSizes.s4),
                             Text(
                               order.status,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: AppSizes.font12,
-                                color: AppColors.grey,
+                                color: context.palette.textSecondary,
                               ),
                             ),
                           ],
@@ -117,7 +116,7 @@ class AdminOrdersScreen extends ConsumerWidget {
           message: friendlyError(e),
           onRetry: () => ref.invalidate(adminOrdersProvider),
         ),
-        loading: () => const JbbLoading(),
+        loading: () => JbbLoading(),
       ),
     );
   }
@@ -186,9 +185,10 @@ class _OrderDetailSheetState extends ConsumerState<_OrderDetailSheet> {
   Future<void> delete() async {
     final confirmed = await showDialog<bool>(
       context: context,
+      useRootNavigator: true,
       builder: (context) => AlertDialog(
-        title: const Text(AppStrings.deleteThisOrder),
-        content: const Text(
+        title: Text(AppStrings.deleteThisOrder),
+        content: Text(
           'This removes the order record only. It does not refund the '
           'customer or reverse fulfillment — use Refund first if the '
           'purchase itself needs to be undone.',
@@ -196,11 +196,11 @@ class _OrderDetailSheetState extends ConsumerState<_OrderDetailSheet> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text(AppStrings.cancel),
+            child: Text(AppStrings.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text(AppStrings.delete),
+            child: Text(AppStrings.delete),
           ),
         ],
       ),
@@ -239,7 +239,7 @@ class _OrderDetailSheetState extends ConsumerState<_OrderDetailSheet> {
                   widget.order.size != null
                       ? '${widget.order.productName ?? AppStrings.uiOrder} · Size ${widget.order.size}'
                       : widget.order.productName ?? AppStrings.uiOrder,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: AppSizes.font18,
                   ),
@@ -247,22 +247,22 @@ class _OrderDetailSheetState extends ConsumerState<_OrderDetailSheet> {
               ),
               IconButton(
                 onPressed: busy ? null : delete,
-                icon: const AppIcon(AppIcons.trash),
+                icon: AppIcon(AppIcons.trash),
               ),
             ],
           ),
           Text(
             '\$${(widget.order.amount / 100).toStringAsFixed(2)} · ${widget.order.status}',
-            style: const TextStyle(color: AppColors.grey),
+            style: TextStyle(color: context.palette.textSecondary),
           ),
-          const SizedBox(height: AppSizes.s16),
+          SizedBox(height: AppSizes.s16),
           if (loading)
-            const Center(child: JbbLoading())
+            Center(child: JbbLoading())
           else
             Container(
               padding: const EdgeInsets.all(AppSizes.s12),
               decoration: BoxDecoration(
-                color: AppColors.white10,
+                color: context.palette.separator,
                 borderRadius: BorderRadius.circular(AppSizes.radius10),
               ),
               child: Column(
@@ -270,16 +270,16 @@ class _OrderDetailSheetState extends ConsumerState<_OrderDetailSheet> {
                 children: [
                   Text(
                     '${buyer?.fullName ?? ''} ${buyer?.lastName ?? ''}'.trim(),
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: AppSizes.s4),
+                  SizedBox(height: AppSizes.s4),
                   Text(
                     (buyer?.phone ?? '').isNotEmpty
                         ? buyer!.phone!
                         : AppStrings.uiNoPhoneOnFile,
                   ),
                   Text(buyer?.email ?? ''),
-                  const SizedBox(height: AppSizes.s4),
+                  SizedBox(height: AppSizes.s4),
                   Text(
                     (buyer?.address ?? '').isNotEmpty
                         ? '${buyer!.address}${(buyer?.zipCode ?? '').isNotEmpty ? ', ${buyer!.zipCode}' : ''}'
@@ -288,7 +288,7 @@ class _OrderDetailSheetState extends ConsumerState<_OrderDetailSheet> {
                 ],
               ),
             ),
-          const SizedBox(height: AppSizes.s16),
+          SizedBox(height: AppSizes.s16),
           ListTile(
             contentPadding: EdgeInsets.zero,
             title: Text(
@@ -296,25 +296,25 @@ class _OrderDetailSheetState extends ConsumerState<_OrderDetailSheet> {
                   ? 'Set expected delivery / pickup date'
                   : 'Expected ${dateLabel(deliveryDate!)}',
             ),
-            trailing: const AppIcon(AppIcons.calendar),
+            trailing: AppIcon(AppIcons.calendar),
             onTap: () async {
               final picked = await showDatePicker(
                 context: context,
                 initialDate: deliveryDate ?? DateTime.now(),
-                firstDate: DateTime.now().subtract(const Duration(days: 1)),
-                lastDate: DateTime.now().add(const Duration(days: 365)),
+                firstDate: DateTime.now().subtract(Duration(days: 1)),
+                lastDate: DateTime.now().add(Duration(days: 365)),
               );
               if (picked != null) setState(() => deliveryDate = picked);
             },
           ),
           TextField(
             controller: note,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: AppStrings.noteForTheBuyerOptional,
               hintText: AppStrings.eGShipsViaUspsOrReady,
             ),
           ),
-          const SizedBox(height: AppSizes.s16),
+          SizedBox(height: AppSizes.s16),
           JbbButton(
             label: AppStrings.saveDeliveryDate,
             busy: busy,

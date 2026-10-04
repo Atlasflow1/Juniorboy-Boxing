@@ -1,6 +1,7 @@
+import '../../../../core/theme/app_palette.dart';
 import 'package:flutter/material.dart';
-import '../../../../core/resources/app_colors.dart';
 import '../../../../core/resources/app_icons.dart';
+import '../../../../core/resources/app_colors.dart';
 import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/resources/app_strings.dart';
 import '../../../../core/widgets/app_icon.dart';
@@ -28,15 +29,27 @@ class PlanCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (plan.isRecommended == true)
-            const Padding(
-              padding: EdgeInsets.only(bottom: AppSizes.s10),
-              child: Text(
-                AppStrings.uiRecommended,
-                style: TextStyle(
-                  color: AppColors.materialRed,
-                  fontSize: AppSizes.font11,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: AppSizes.labelTracking,
+            Padding(
+              padding: const EdgeInsets.only(bottom: AppSizes.s10),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: context.palette.accent,
+                  borderRadius: BorderRadius.circular(AppSizes.radius4),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSizes.s8,
+                    vertical: AppSizes.s4,
+                  ),
+                  child: Text(
+                    AppStrings.uiRecommended,
+                    style: const TextStyle(
+                      color: AppColors.onAccent,
+                      fontSize: AppSizes.font11,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: AppSizes.labelTracking,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -44,13 +57,15 @@ class PlanCard extends StatelessWidget {
             children: [
               AppIcon(
                 selected ? AppIcons.checkCircle : AppIcons.circle,
-                color: selected ? AppColors.materialRed : AppColors.grey,
+                color: selected
+                    ? context.palette.accent
+                    : context.palette.textSecondary,
               ),
-              const SizedBox(width: AppSizes.s12),
+              SizedBox(width: AppSizes.s12),
               Expanded(
                 child: Text(
                   plan.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: AppSizes.font17,
                   ),
@@ -58,7 +73,7 @@ class PlanCard extends StatelessWidget {
               ),
               Text(
                 plan.priceLabel,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: AppSizes.font22,
                   fontWeight: FontWeight.bold,
                 ),
@@ -72,7 +87,7 @@ class PlanCard extends StatelessWidget {
             ),
             child: Text(
               plan.perSessionLabel,
-              style: const TextStyle(color: AppColors.grey),
+              style: TextStyle(color: context.palette.textSecondary),
             ),
           ),
         ],

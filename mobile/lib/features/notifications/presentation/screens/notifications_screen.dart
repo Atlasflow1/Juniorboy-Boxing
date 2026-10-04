@@ -1,6 +1,6 @@
+import '../../../../core/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/resources/app_colors.dart';
 import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/resources/app_strings.dart';
 import '../../../../core/utils/snackbar_utils.dart';
@@ -14,7 +14,7 @@ class NotificationsScreen extends ConsumerWidget {
   const NotificationsScreen({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
-    appBar: AppBar(title: const Text(AppStrings.notifications)),
+    appBar: AppBar(title: Text(AppStrings.notifications)),
     body: ListView(
       padding: const EdgeInsets.all(AppSizes.s16),
       children: [
@@ -22,7 +22,7 @@ class NotificationsScreen extends ConsumerWidget {
             .watch(notificationsProvider)
             .when(
               data: (items) => items.isEmpty
-                  ? const JbbEmptyState(message: AppStrings.youReAllCaughtUp)
+                  ? JbbEmptyState(message: AppStrings.youReAllCaughtUp)
                   : Column(
                       children: items
                           .map(
@@ -44,21 +44,21 @@ class NotificationsScreen extends ConsumerWidget {
                                 children: [
                                   Text(
                                     n.title,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  const SizedBox(height: AppSizes.s8),
+                                  SizedBox(height: AppSizes.s8),
                                   Text(n.body),
                                   if (n.isRead != true)
-                                    const Padding(
+                                    Padding(
                                       padding: EdgeInsets.only(
                                         top: AppSizes.s10,
                                       ),
                                       child: Text(
                                         AppStrings.uiTapToMarkAsRead,
                                         style: TextStyle(
-                                          color: AppColors.materialRed,
+                                          color: context.palette.accent,
                                           fontSize: AppSizes.font12,
                                         ),
                                       ),
@@ -73,7 +73,7 @@ class NotificationsScreen extends ConsumerWidget {
                 message: friendlyError(e),
                 onRetry: () => ref.invalidate(notificationsProvider),
               ),
-              loading: () => const JbbLoading(),
+              loading: () => JbbLoading(),
             ),
       ],
     ),

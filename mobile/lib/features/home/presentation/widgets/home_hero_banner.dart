@@ -1,3 +1,4 @@
+import '../../../../core/theme/app_palette.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/resources/app_assets.dart';
@@ -54,23 +55,24 @@ class HomeHeroBanner extends StatelessWidget {
                     Text.rich(
                       TextSpan(
                         children: [
-                          const TextSpan(
+                          TextSpan(
                             text: 'Welcome Back, ',
-                            style: TextStyle(color: AppColors.white),
+                            style: TextStyle(color: Colors.white),
                           ),
                           TextSpan(
                             text: '$name!',
-                            style: const TextStyle(color: AppColors.red),
+                            style: TextStyle(color: context.palette.accent),
                           ),
                         ],
                       ),
-                      style: Theme.of(context).textTheme.headlineMedium
-                          ?.copyWith(color: AppColors.white),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.headlineMedium?.copyWith(color: Colors.white),
                     ),
-                    const SizedBox(height: AppSizes.s6),
-                    const Text(
+                    SizedBox(height: AppSizes.s6),
+                    Text(
                       AppStrings.uiKeepTrainingKeepImproving,
-                      style: TextStyle(color: AppColors.white70),
+                      style: TextStyle(color: Colors.white70),
                     ),
                   ],
                 ),

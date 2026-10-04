@@ -1,8 +1,8 @@
+import '../../../../core/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/programs.dart';
-import '../../../../core/resources/app_colors.dart';
 import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/resources/app_strings.dart';
 import '../../../../core/router/app_routes.dart';
@@ -93,33 +93,36 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
           Text(
             _programDescriptions[widget.id] ??
                 AppStrings.uiContactTheGymForProgramDetails,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: AppSizes.font16,
               height: AppSizes.lineHeightDescription,
             ),
           ),
-          const SizedBox(height: AppSizes.s8),
-          const Text(
+          SizedBox(height: AppSizes.s8),
+          Text(
             AppStrings.uiAvailabilityAndSuitabilityAreConfirmedByTheGym,
-            style: TextStyle(color: AppColors.grey, fontSize: AppSizes.font13),
+            style: TextStyle(
+              color: context.palette.textSecondary,
+              fontSize: AppSizes.font13,
+            ),
           ),
-          const SizedBox(height: AppSizes.s24),
+          SizedBox(height: AppSizes.s24),
           JbbButton(
             label: AppStrings.viewAvailableSessions,
             onPressed: () =>
                 context.safeNavigate(AppRoutes.schedule(programId: widget.id)),
           ),
-          const SizedBox(height: AppSizes.s12),
+          SizedBox(height: AppSizes.s12),
           TextButton(
             onPressed: () => context.safeNavigate(AppRoutes.contact),
-            child: const Text(AppStrings.askTheCoach),
+            child: Text(AppStrings.askTheCoach),
           ),
-          const SizedBox(height: AppSizes.s24),
+          SizedBox(height: AppSizes.s24),
           Text(
             'Subscribe to $title',
             style: Theme.of(context).textTheme.titleLarge,
           ),
-          const SizedBox(height: AppSizes.s12),
+          SizedBox(height: AppSizes.s12),
           ref
               .watch(plansProvider)
               .when(
@@ -134,7 +137,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                         }).toList()
                         ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
                   if (plans.isEmpty) {
-                    return const JbbEmptyState(
+                    return JbbEmptyState(
                       message:
                           AppStrings.uiPlansForThisProgramWillAppearHereWhen,
                     );
@@ -155,7 +158,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                               ? () {}
                               : () => setState(() => selected = plan.id),
                         ),
-                      const SizedBox(height: AppSizes.s8),
+                      SizedBox(height: AppSizes.s8),
                       JbbButton(
                         label: AppStrings.continueAction,
                         busy: busy,
@@ -168,7 +171,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                   message: friendlyError(e),
                   onRetry: () => ref.invalidate(plansProvider),
                 ),
-                loading: () => const JbbLoading(),
+                loading: () => JbbLoading(),
               ),
         ],
       ),

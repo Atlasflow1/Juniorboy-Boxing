@@ -1,8 +1,8 @@
+import '../../../../core/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/resources/app_assets.dart';
-import '../../../../core/resources/app_colors.dart';
 import '../../../../core/resources/app_icons.dart';
 import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/resources/app_strings.dart';
@@ -54,13 +54,13 @@ class _WelcomeState extends ConsumerState<WelcomeScreen> {
         padding: const EdgeInsets.all(AppSizes.s28),
         child: Column(
           children: [
-            const Spacer(),
+            Spacer(),
             Image.asset(
               AppAssets.welcome,
               width: AppSizes.welcomeLogoWidth,
               semanticLabel: AppStrings.gymName,
             ),
-            const Spacer(),
+            Spacer(),
             // Google sign-in button
             SizedBox(
               width: double.infinity,
@@ -68,22 +68,22 @@ class _WelcomeState extends ConsumerState<WelcomeScreen> {
               child: OutlinedButton.icon(
                 onPressed: (busy || googleBusy) ? null : signInGoogle,
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.white,
-                  side: const BorderSide(color: AppColors.white54),
+                  foregroundColor: context.palette.textPrimary,
+                  side: BorderSide(color: context.palette.textSecondary),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(AppSizes.radius12),
                   ),
                 ),
                 icon: googleBusy
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: AppSizes.s18,
                         height: AppSizes.s18,
                         child: CircularProgressIndicator(
                           strokeWidth: AppSizes.s2,
                         ),
                       )
-                    : const AppIcon(AppIcons.logIn),
-                label: const Text(
+                    : AppIcon(AppIcons.logIn),
+                label: Text(
                   AppStrings.uiContinueWithGoogle,
                   style: TextStyle(
                     fontSize: AppSizes.font17,
@@ -92,7 +92,7 @@ class _WelcomeState extends ConsumerState<WelcomeScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: AppSizes.s12),
+            SizedBox(height: AppSizes.s12),
             // Skip button (guest)
             SizedBox(
               width: double.infinity,
@@ -100,23 +100,23 @@ class _WelcomeState extends ConsumerState<WelcomeScreen> {
               child: ElevatedButton.icon(
                 onPressed: (busy || googleBusy) ? null : skip,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.yellow,
-                  foregroundColor: AppColors.black,
+                  backgroundColor: context.palette.accent,
+                  foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(AppSizes.radius12),
                   ),
                 ),
                 icon: busy
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: AppSizes.s18,
                         height: AppSizes.s18,
                         child: CircularProgressIndicator(
                           strokeWidth: AppSizes.s2,
-                          color: AppColors.black,
+                          color: Colors.white,
                         ),
                       )
-                    : const AppIcon(AppIcons.fastForward),
-                label: const Text(
+                    : AppIcon(AppIcons.fastForward),
+                label: Text(
                   AppStrings.uiSkip,
                   style: TextStyle(
                     fontSize: AppSizes.font17,
@@ -125,7 +125,7 @@ class _WelcomeState extends ConsumerState<WelcomeScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: AppSizes.s24),
+            SizedBox(height: AppSizes.s24),
           ],
         ),
       ),

@@ -1,6 +1,6 @@
+import '../../../../core/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/resources/app_colors.dart';
 import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/resources/app_strings.dart';
 import '../../../../core/router/app_routes.dart';
@@ -57,11 +57,11 @@ class _WaiverState extends ConsumerState<WaiverScreen> {
   Widget build(BuildContext context) {
     final profile = ref.watch(profileProvider).value;
     return Scaffold(
-      appBar: AppBar(title: const Text(AppStrings.waiverDisclaimer)),
+      appBar: AppBar(title: Text(AppStrings.waiverDisclaimer)),
       body: ref
           .watch(waiverProvider)
           .when(
-            loading: () => const Center(child: CircularProgressIndicator()),
+            loading: () => Center(child: CircularProgressIndicator()),
             error: (e, s) => Center(child: Text(friendlyError(e))),
             data: (waiver) {
               if (version != waiver.version) {
@@ -79,18 +79,18 @@ class _WaiverState extends ConsumerState<WaiverScreen> {
                 padding: const EdgeInsets.all(AppSizes.s24),
                 children: [
                   if (!published)
-                    const Text(
+                    Text(
                       AppStrings.uiDraftSigningOpensAfterTheGymApprovesAnd,
-                      style: TextStyle(color: AppColors.amber),
+                      style: TextStyle(color: context.palette.warning),
                     ),
-                  const SizedBox(height: AppSizes.s16),
+                  SizedBox(height: AppSizes.s16),
                   Text(
                     published ? waiver.body! : AppStrings.waiver,
-                    style: const TextStyle(height: AppSizes.lineHeightLegal),
+                    style: TextStyle(height: AppSizes.lineHeightLegal),
                   ),
-                  const SizedBox(height: AppSizes.s24),
+                  SizedBox(height: AppSizes.s24),
                   if (accepted)
-                    const Text(AppStrings.yourAgreementToThisVersionIsRecorded)
+                    Text(AppStrings.yourAgreementToThisVersionIsRecorded)
                   else if (published &&
                       ref
                               .read(authRepositoryProvider)
@@ -102,11 +102,11 @@ class _WaiverState extends ConsumerState<WaiverScreen> {
                     ),
                     TextButton(
                       onPressed: () => context.safeNavigate(AppRoutes.profile),
-                      child: const Text(AppStrings.editParticipantDetails),
+                      child: Text(AppStrings.editParticipantDetails),
                     ),
                     TextField(
                       controller: name,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: AppStrings.yourFullLegalName,
                       ),
                       maxLength: 100,
@@ -116,7 +116,7 @@ class _WaiverState extends ConsumerState<WaiverScreen> {
                       onChanged: busy
                           ? null
                           : (v) => setState(() => guardian = v ?? false),
-                      title: const Text(
+                      title: Text(
                         AppStrings.uiIAmTheParentOrLegalGuardianRequired,
                       ),
                     ),
@@ -125,16 +125,14 @@ class _WaiverState extends ConsumerState<WaiverScreen> {
                       onChanged: busy
                           ? null
                           : (v) => setState(() => adult = v ?? false),
-                      title: const Text(
-                        AppStrings.uiIAm18OrOlderAndAuthorizedTo,
-                      ),
+                      title: Text(AppStrings.uiIAm18OrOlderAndAuthorizedTo),
                     ),
                     CheckboxListTile(
                       value: agree,
                       onChanged: busy
                           ? null
                           : (v) => setState(() => agree = v ?? false),
-                      title: const Text(
+                      title: Text(
                         AppStrings.uiIReadUnderstandAndAgreeToThisVersion,
                       ),
                     ),
@@ -144,7 +142,7 @@ class _WaiverState extends ConsumerState<WaiverScreen> {
                       onPressed: () => sign(waiver),
                     ),
                   ] else if (published)
-                    const Text(AppStrings.uiSignInWithARegisteredAccountToSign),
+                    Text(AppStrings.uiSignInWithARegisteredAccountToSign),
                 ],
               );
             },

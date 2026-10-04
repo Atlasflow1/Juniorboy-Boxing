@@ -1,6 +1,6 @@
+import '../../../../core/theme/app_palette.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import '../../../../core/resources/app_colors.dart';
 import '../../../../core/resources/app_icons.dart';
 import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/resources/app_strings.dart';
@@ -28,12 +28,12 @@ class ProductAdBanner extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(AppSizes.radius16),
       child: Material(
-        color: AppColors.card,
+        color: context.palette.surface,
         child: InkWell(
           onTap: () => context.safeNavigate(AppRoutes.store),
           child: Container(
             decoration: BoxDecoration(
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: context.palette.separator),
               borderRadius: BorderRadius.circular(AppSizes.radius16),
             ),
             padding: const EdgeInsets.all(AppSizes.s14),
@@ -50,55 +50,55 @@ class ProductAdBanner extends StatelessWidget {
                             fit: BoxFit.cover,
                           )
                         : Container(
-                            color: AppColors.white10,
-                            child: const AppIcon(
+                            color: context.palette.separator,
+                            child: AppIcon(
                               AppIcons.shoppingBag,
-                              color: AppColors.grey,
+                              color: context.palette.textSecondary,
                             ),
                           ),
                   ),
                 ),
-                const SizedBox(width: AppSizes.s14),
+                SizedBox(width: AppSizes.s14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         AppStrings.uiFromTheGymStore,
                         style: TextStyle(
-                          color: AppColors.red,
+                          color: context.palette.accent,
                           fontSize: AppSizes.font11,
                           fontWeight: FontWeight.bold,
                           letterSpacing: AppSizes.badgeTracking,
                         ),
                       ),
-                      const SizedBox(height: AppSizes.s2),
+                      SizedBox(height: AppSizes.s2),
                       Text(
                         product.name ?? '',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: AppSizes.font16,
                         ),
                         maxLines: AppSizes.bannerTextLines,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: AppSizes.s4),
+                      SizedBox(height: AppSizes.s4),
                       if (hasDiscount)
                         Row(
                           children: [
                             Text(
                               '\$${(priceCents / 100).toStringAsFixed(2)}',
-                              style: const TextStyle(
-                                color: AppColors.muted,
+                              style: TextStyle(
+                                color: context.palette.textSecondary,
                                 fontSize: AppSizes.font12,
                                 decoration: TextDecoration.lineThrough,
                               ),
                             ),
-                            const SizedBox(width: AppSizes.s6),
+                            SizedBox(width: AppSizes.s6),
                             Text(
                               '\$${(saleCents / 100).toStringAsFixed(2)}',
-                              style: const TextStyle(
-                                color: AppColors.materialGreen,
+                              style: TextStyle(
+                                color: context.palette.success,
                                 fontWeight: FontWeight.bold,
                                 fontSize: AppSizes.font13,
                               ),
@@ -108,15 +108,18 @@ class ProductAdBanner extends StatelessWidget {
                       else
                         Text(
                           product.priceLabel ?? '',
-                          style: const TextStyle(
-                            color: AppColors.muted,
+                          style: TextStyle(
+                            color: context.palette.textSecondary,
                             fontSize: AppSizes.font13,
                           ),
                         ),
                     ],
                   ),
                 ),
-                const AppIcon(AppIcons.chevronRight, color: AppColors.grey),
+                AppIcon(
+                  AppIcons.chevronRight,
+                  color: context.palette.textSecondary,
+                ),
               ],
             ),
           ),

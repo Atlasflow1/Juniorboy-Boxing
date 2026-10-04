@@ -1,7 +1,7 @@
+import '../../../../core/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/resources/app_assets.dart';
-import '../../../../core/resources/app_colors.dart';
 import '../../../../core/resources/app_icons.dart';
 import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/resources/app_strings.dart';
@@ -27,7 +27,7 @@ class ProgramsSection extends StatelessWidget {
         AppStrings.ourPrograms,
         style: Theme.of(context).textTheme.titleLarge,
       ),
-      const SizedBox(height: AppSizes.s12),
+      SizedBox(height: AppSizes.s12),
       for (final item in [
         (AppAssets.junior, AppStrings.uiJuniorBoxingKidsTeens),
         (AppAssets.group, AppStrings.uiGroupTraining34People),
@@ -69,22 +69,25 @@ class ProgramsSection extends StatelessWidget {
                 'assets/icons/${item.$1}.svg',
                 width: AppSizes.programIconSize,
                 height: AppSizes.programIconSize,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.red,
+                colorFilter: ColorFilter.mode(
+                  context.palette.accent,
                   BlendMode.srcIn,
                 ),
               ),
-              const SizedBox(width: AppSizes.s14),
+              SizedBox(width: AppSizes.s14),
               Expanded(
                 child: Text(
                   item.$2,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: AppSizes.font15,
                   ),
                 ),
               ),
-              const AppIcon(AppIcons.chevronRight, color: AppColors.muted),
+              AppIcon(
+                AppIcons.chevronRight,
+                color: context.palette.textSecondary,
+              ),
             ],
           ),
         ),

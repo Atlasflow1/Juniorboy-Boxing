@@ -1,6 +1,6 @@
+import '../../../../core/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../core/resources/app_colors.dart';
 import '../../../../core/resources/app_icons.dart';
 import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/resources/app_strings.dart';
@@ -18,29 +18,29 @@ class BookingConfirmationScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const AppIcon(
+            AppIcon(
               AppIcons.checkCircle,
-              color: AppColors.materialGreen,
+              color: context.palette.success,
               size: AppSizes.confirmationIconSize,
             ),
-            const SizedBox(height: AppSizes.s24),
+            SizedBox(height: AppSizes.s24),
             Text(
               "You’re booked in.",
               style: Theme.of(context).textTheme.headlineMedium,
             ),
-            const SizedBox(height: AppSizes.s12),
-            const Text(
+            SizedBox(height: AppSizes.s12),
+            Text(
               AppStrings.uiYourSessionCreditIsReservedSeeYouAt,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: AppSizes.s32),
+            SizedBox(height: AppSizes.s32),
             FilledButton(
               onPressed: () => context.safeNavigate(AppRoutes.home),
-              child: const Text(AppStrings.backToHome),
+              child: Text(AppStrings.backToHome),
             ),
             TextButton(
               onPressed: () => context.safeNavigate(AppRoutes.bookings),
-              child: const Text(AppStrings.viewMyBookings),
+              child: Text(AppStrings.viewMyBookings),
             ),
           ],
         ),

@@ -1,7 +1,7 @@
+import '../../../../core/theme/app_palette.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/resources/app_colors.dart';
 import '../../../../core/resources/app_icons.dart';
 import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/resources/app_strings.dart';
@@ -95,7 +95,7 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
                   )
                 : const _ProductPlaceholder(),
           ),
-          const SizedBox(width: AppSizes.s14),
+          SizedBox(width: AppSizes.s14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -105,31 +105,31 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
                     Expanded(
                       child: Text(
                         product.name ?? '',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: AppSizes.font16,
                         ),
                       ),
                     ),
                     if (isAdmin && product.isActive != true)
-                      const Padding(
+                      Padding(
                         padding: EdgeInsets.only(left: AppSizes.s8),
                         child: Text(
                           AppStrings.uiHidden,
                           style: TextStyle(
-                            color: AppColors.amber,
+                            color: context.palette.warning,
                             fontSize: AppSizes.font11,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
                     if (isAdmin && product.isFeatured == true)
-                      const Padding(
+                      Padding(
                         padding: EdgeInsets.only(left: AppSizes.s8),
                         child: Text(
                           AppStrings.uiFeatured,
                           style: TextStyle(
-                            color: AppColors.materialRed,
+                            color: context.palette.accent,
                             fontSize: AppSizes.font11,
                             fontWeight: FontWeight.bold,
                           ),
@@ -140,8 +140,8 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
                         padding: const EdgeInsets.only(left: AppSizes.s8),
                         child: Text(
                           '${discountPercent.toStringAsFixed(0)}% OFF',
-                          style: const TextStyle(
-                            color: AppColors.materialGreen,
+                          style: TextStyle(
+                            color: context.palette.success,
                             fontSize: AppSizes.font11,
                             fontWeight: FontWeight.bold,
                           ),
@@ -150,36 +150,36 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
                   ],
                 ),
                 if ((product.description ?? '').isNotEmpty) ...[
-                  const SizedBox(height: AppSizes.s4),
+                  SizedBox(height: AppSizes.s4),
                   Text(
                     product.description!,
-                    style: const TextStyle(
-                      color: AppColors.grey,
+                    style: TextStyle(
+                      color: context.palette.textSecondary,
                       fontSize: AppSizes.font13,
                     ),
                     maxLines: AppSizes.cardTextLines,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
-                const SizedBox(height: AppSizes.s8),
+                SizedBox(height: AppSizes.s8),
                 if (hasDiscount)
                   Row(
                     children: [
                       Text(
                         '\$${(priceCents / 100).toStringAsFixed(2)}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: AppSizes.font13,
-                          color: AppColors.grey,
+                          color: context.palette.textSecondary,
                           decoration: TextDecoration.lineThrough,
                         ),
                       ),
-                      const SizedBox(width: AppSizes.s8),
+                      SizedBox(width: AppSizes.s8),
                       Text(
                         '\$${(saleCents / 100).toStringAsFixed(2)}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: AppSizes.font16,
-                          color: AppColors.materialGreen,
+                          color: context.palette.success,
                         ),
                       ),
                     ],
@@ -187,15 +187,15 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
                 else
                   Text(
                     product.priceLabel ?? '',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: AppSizes.font16,
-                      color: AppColors.materialRed,
+                      color: context.palette.accent,
                     ),
                   ),
                 if (!isAdmin) ...[
                   if (product.sizes.isNotEmpty) ...[
-                    const SizedBox(height: AppSizes.s8),
+                    SizedBox(height: AppSizes.s8),
                     Wrap(
                       spacing: AppSizes.s6,
                       runSpacing: AppSizes.s6,
@@ -204,13 +204,20 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
                           ChoiceChip(
                             label: Text(size),
                             selected: selectedSize[product.id] == size,
+                            selectedColor: context.palette.accent,
+                            backgroundColor: context.palette.elevated,
+                            labelStyle: TextStyle(
+                              color: selectedSize[product.id] == size
+                                  ? Theme.of(context).colorScheme.onPrimary
+                                  : context.palette.textPrimary,
+                            ),
                             onSelected: (_) =>
                                 setState(() => selectedSize[product.id] = size),
                           ),
                       ],
                     ),
                   ],
-                  const SizedBox(height: AppSizes.s10),
+                  SizedBox(height: AppSizes.s10),
                   SizedBox(
                     width: double.infinity,
                     child: JbbButton(
@@ -226,7 +233,10 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
             ),
           ),
           if (isAdmin)
-            const AppIcon(AppIcons.chevronRight, color: AppColors.grey),
+            AppIcon(
+              AppIcons.chevronRight,
+              color: context.palette.textSecondary,
+            ),
         ],
       ),
     );
@@ -239,14 +249,14 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
       isAdmin ? productsAdminProvider : productsProvider,
     );
     return Scaffold(
-      appBar: AppBar(title: const Text(AppStrings.gymStore)),
+      appBar: AppBar(title: Text(AppStrings.gymStore)),
       floatingActionButton: isAdmin
           ? FloatingActionButton.extended(
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const ProductEditorScreen()),
-              ),
-              icon: const AppIcon(AppIcons.plus),
-              label: const Text(AppStrings.addProduct),
+              onPressed: () => Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => ProductEditorScreen())),
+              icon: AppIcon(AppIcons.plus),
+              label: Text(AppStrings.addProduct),
             )
           : null,
       body: PageContent(
@@ -266,10 +276,10 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
                 children: [
                   for (final product in sorted) productCard(product, isAdmin),
                   if (!isAdmin) ...[
-                    const SizedBox(height: AppSizes.s8),
+                    SizedBox(height: AppSizes.s8),
                     TextButton(
                       onPressed: () => context.safeNavigate(AppRoutes.contact),
-                      child: const Text(
+                      child: Text(
                         AppStrings.uiQuestionAboutAnOrderContactTheGym,
                       ),
                     ),
@@ -283,7 +293,7 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
                 isAdmin ? productsAdminProvider : productsProvider,
               ),
             ),
-            loading: () => const JbbLoading(),
+            loading: () => JbbLoading(),
           ),
         ],
       ),
@@ -297,7 +307,7 @@ class _ProductPlaceholder extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     width: AppSizes.productThumbnailSize,
     height: AppSizes.productThumbnailSize,
-    color: AppColors.white10,
-    child: const AppIcon(AppIcons.shoppingBag, color: AppColors.grey),
+    color: context.palette.separator,
+    child: AppIcon(AppIcons.shoppingBag, color: context.palette.textSecondary),
   );
 }

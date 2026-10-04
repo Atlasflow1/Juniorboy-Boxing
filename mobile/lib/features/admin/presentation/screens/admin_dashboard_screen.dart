@@ -1,9 +1,9 @@
+import '../../../../core/theme/app_palette.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../core/constants/programs.dart';
-import '../../../../core/resources/app_colors.dart';
 import '../../../../core/resources/app_icons.dart';
 import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/resources/app_strings.dart';
@@ -12,6 +12,7 @@ import '../../../../core/widgets/app_icon.dart';
 import '../../../../core/widgets/jbb_button.dart';
 import '../../../../core/widgets/jbb_card.dart';
 import '../../../../core/widgets/jbb_loading.dart';
+import '../../../../core/widgets/settings_group.dart';
 import '../../../profile/presentation/providers/profile_provider.dart';
 import '../../../store/presentation/screens/store_screen.dart';
 import '../providers/admin_provider.dart';
@@ -38,95 +39,54 @@ class AdminDashboardScreen extends ConsumerWidget {
     final plans = ref.watch(adminPlansProvider);
     final templates = ref.watch(adminTemplatesProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text(AppStrings.adminDashboard)),
+      appBar: AppBar(title: Text(AppStrings.adminDashboard)),
       body: ListView(
         padding: const EdgeInsets.all(AppSizes.s20),
         children: [
-          JbbCard(
-            onTap: () => Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (_) => const StoreScreen())),
-            child: const Row(
-              children: [
-                AppIcon(AppIcons.shoppingBag, color: AppColors.red),
-                SizedBox(width: AppSizes.s14),
-                Expanded(
-                  child: Text(
-                    AppStrings.uiManageStoreProducts,
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                AppIcon(AppIcons.chevronRight, color: AppColors.muted),
-              ],
-            ),
-          ),
-          const SizedBox(height: AppSizes.s12),
-          JbbCard(
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const AdminOrdersScreen()),
-            ),
-            child: const Row(
-              children: [
-                AppIcon(AppIcons.truck, color: AppColors.red),
-                SizedBox(width: AppSizes.s14),
-                Expanded(
-                  child: Text(
-                    AppStrings.storeOrders,
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                AppIcon(AppIcons.chevronRight, color: AppColors.muted),
-              ],
-            ),
-          ),
-          const SizedBox(height: AppSizes.s12),
-          JbbCard(
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => const AdminSubscriptionsScreen(),
+          SettingsGroup(
+            children: [
+              SettingsRow(
+                icon: AppIcons.shoppingBag,
+                title: AppStrings.uiManageStoreProducts,
+                onTap: () => Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (_) => const StoreScreen())),
               ),
-            ),
-            child: const Row(
-              children: [
-                AppIcon(AppIcons.crown, color: AppColors.red),
-                SizedBox(width: AppSizes.s14),
-                Expanded(
-                  child: Text(
-                    AppStrings.membershipSubscriptions,
-                    style: TextStyle(fontWeight: FontWeight.bold),
+              SettingsRow(
+                icon: AppIcons.truck,
+                title: AppStrings.storeOrders,
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const AdminOrdersScreen()),
+                ),
+              ),
+              SettingsRow(
+                icon: AppIcons.crown,
+                title: AppStrings.membershipSubscriptions,
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const AdminSubscriptionsScreen(),
                   ),
                 ),
-                AppIcon(AppIcons.chevronRight, color: AppColors.muted),
-              ],
-            ),
-          ),
-          const SizedBox(height: AppSizes.s12),
-          JbbCard(
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const AdminBookingsScreen()),
-            ),
-            child: const Row(
-              children: [
-                AppIcon(AppIcons.calendarCheck, color: AppColors.red),
-                SizedBox(width: AppSizes.s14),
-                Expanded(
-                  child: Text(
-                    AppStrings.bookings,
-                    style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              SettingsRow(
+                icon: AppIcons.calendarCheck,
+                title: AppStrings.bookings,
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const AdminBookingsScreen(),
                   ),
                 ),
-                AppIcon(AppIcons.chevronRight, color: AppColors.muted),
-              ],
-            ),
+              ),
+            ],
           ),
-          const SizedBox(height: AppSizes.s24),
+          SizedBox(height: AppSizes.s24),
           const _GymInfoSection(),
-          const SizedBox(height: AppSizes.s24),
+          SizedBox(height: AppSizes.s24),
           const _PromoVideoSection(),
-          const SizedBox(height: AppSizes.s24),
+          SizedBox(height: AppSizes.s24),
           Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Text(
                   AppStrings.uiMembershipPrices,
                   style: TextStyle(
@@ -136,15 +96,15 @@ class AdminDashboardScreen extends ConsumerWidget {
                 ),
               ),
               TextButton.icon(
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const PlanEditorScreen()),
-                ),
-                icon: const AppIcon(AppIcons.plus, size: AppSizes.s18),
-                label: const Text(AppStrings.add),
+                onPressed: () => Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (_) => PlanEditorScreen())),
+                icon: AppIcon(AppIcons.plus, size: AppSizes.s18),
+                label: Text(AppStrings.add),
               ),
             ],
           ),
-          const SizedBox(height: AppSizes.s8),
+          SizedBox(height: AppSizes.s8),
           plans.when(
             data: (rows) {
               final sorted = [...rows]
@@ -166,23 +126,21 @@ class AdminDashboardScreen extends ConsumerWidget {
                               children: [
                                 Text(
                                   plan.name,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                  style: TextStyle(fontWeight: FontWeight.bold),
                                 ),
                                 Text(
                                   '${plan.priceLabel} · ${plan.isActive == true ? AppStrings.uiActive : AppStrings.uiHidden2} · ${Programs.categories[plan.category] ?? AppStrings.uiGeneral}',
-                                  style: const TextStyle(
-                                    color: AppColors.muted,
+                                  style: TextStyle(
+                                    color: context.palette.textSecondary,
                                     fontSize: AppSizes.font12,
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          const AppIcon(
+                          AppIcon(
                             AppIcons.chevronRight,
-                            color: AppColors.muted,
+                            color: context.palette.textSecondary,
                           ),
                         ],
                       ),
@@ -191,12 +149,12 @@ class AdminDashboardScreen extends ConsumerWidget {
               );
             },
             error: (e, s) => Text(AppStrings.couldNotLoadPlans(e)),
-            loading: () => const JbbLoading(),
+            loading: () => JbbLoading(),
           ),
-          const SizedBox(height: AppSizes.s24),
+          SizedBox(height: AppSizes.s24),
           Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Text(
                   AppStrings.uiClassScheduleTimes,
                   style: TextStyle(
@@ -207,16 +165,14 @@ class AdminDashboardScreen extends ConsumerWidget {
               ),
               TextButton.icon(
                 onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const TemplateEditorScreen(),
-                  ),
+                  MaterialPageRoute(builder: (_) => TemplateEditorScreen()),
                 ),
-                icon: const AppIcon(AppIcons.plus, size: AppSizes.s18),
-                label: const Text(AppStrings.add),
+                icon: AppIcon(AppIcons.plus, size: AppSizes.s18),
+                label: Text(AppStrings.add),
               ),
             ],
           ),
-          const SizedBox(height: AppSizes.s8),
+          SizedBox(height: AppSizes.s8),
           templates.when(
             data: (rows) {
               final sorted = [...rows]
@@ -227,9 +183,9 @@ class AdminDashboardScreen extends ConsumerWidget {
                       : (a.startTime ?? '').compareTo(b.startTime ?? '');
                 });
               if (sorted.isEmpty) {
-                return const Text(
+                return Text(
                   AppStrings.uiNoClassTimesSetUpYet,
-                  style: TextStyle(color: AppColors.muted),
+                  style: TextStyle(color: context.palette.textSecondary),
                 );
               }
               return Column(
@@ -249,23 +205,21 @@ class AdminDashboardScreen extends ConsumerWidget {
                               children: [
                                 Text(
                                   '${_weekdayNames[t.dayOfWeek] ?? ''} · ${t.startTime}',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                  style: TextStyle(fontWeight: FontWeight.bold),
                                 ),
                                 Text(
                                   '${t.classId} · ${t.maxSpots} spots · ${t.isActive == true ? AppStrings.uiActive : AppStrings.uiPaused}',
-                                  style: const TextStyle(
-                                    color: AppColors.muted,
+                                  style: TextStyle(
+                                    color: context.palette.textSecondary,
                                     fontSize: AppSizes.font12,
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          const AppIcon(
+                          AppIcon(
                             AppIcons.chevronRight,
-                            color: AppColors.muted,
+                            color: context.palette.textSecondary,
                           ),
                         ],
                       ),
@@ -274,7 +228,7 @@ class AdminDashboardScreen extends ConsumerWidget {
               );
             },
             error: (e, s) => Text(AppStrings.couldNotLoadScheduleTimes(e)),
-            loading: () => const JbbLoading(),
+            loading: () => JbbLoading(),
           ),
         ],
       ),
@@ -327,30 +281,33 @@ class _GymInfoSectionState extends ConsumerState<_GymInfoSection> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             AppStrings.uiGymInfo,
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: AppSizes.font15,
             ),
           ),
-          const SizedBox(height: AppSizes.s4),
-          const Text(
+          SizedBox(height: AppSizes.s4),
+          Text(
             AppStrings.uiShownOnTheContactScreenAndTheWebsite,
-            style: TextStyle(color: AppColors.muted, fontSize: AppSizes.font12),
+            style: TextStyle(
+              color: context.palette.textSecondary,
+              fontSize: AppSizes.font12,
+            ),
           ),
-          const SizedBox(height: AppSizes.s12),
+          SizedBox(height: AppSizes.s12),
           TextField(
             controller: address,
-            decoration: const InputDecoration(labelText: AppStrings.address2),
+            decoration: InputDecoration(labelText: AppStrings.address2),
           ),
-          const SizedBox(height: AppSizes.s12),
+          SizedBox(height: AppSizes.s12),
           TextField(
             controller: phone,
             keyboardType: TextInputType.phone,
-            decoration: const InputDecoration(labelText: AppStrings.phone),
+            decoration: InputDecoration(labelText: AppStrings.phone),
           ),
-          const SizedBox(height: AppSizes.s12),
+          SizedBox(height: AppSizes.s12),
           JbbButton(label: AppStrings.saveGymInfo, busy: busy, onPressed: save),
         ],
       ),
@@ -434,43 +391,49 @@ class _PromoVideoSectionState extends ConsumerState<_PromoVideoSection> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             AppStrings.uiPromoVideo,
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: AppSizes.font15,
             ),
           ),
-          const SizedBox(height: AppSizes.s4),
-          const Text(
+          SizedBox(height: AppSizes.s4),
+          Text(
             'Plays silently on loop at the top of Home. Upload a video from '
             'your phone (most reliable — no embedding restrictions), or '
             'paste a YouTube / direct video link instead. If a YouTube '
             'video shows "video unavailable" on Home, YouTube itself is '
             'blocking it from being embedded — upload the file instead.',
-            style: TextStyle(color: AppColors.muted, fontSize: AppSizes.font12),
+            style: TextStyle(
+              color: context.palette.textSecondary,
+              fontSize: AppSizes.font12,
+            ),
           ),
-          const SizedBox(height: AppSizes.s12),
+          SizedBox(height: AppSizes.s12),
           JbbButton(
             label: AppStrings.uploadVideoFromPhone,
             busy: busy,
             onPressed: pickAndUpload,
           ),
-          const SizedBox(height: AppSizes.s16),
-          const Text(
+          SizedBox(height: AppSizes.s16),
+          Text(
             AppStrings.uiOrPasteALink,
-            style: TextStyle(color: AppColors.muted, fontSize: AppSizes.font12),
+            style: TextStyle(
+              color: context.palette.textSecondary,
+              fontSize: AppSizes.font12,
+            ),
           ),
-          const SizedBox(height: AppSizes.s8),
+          SizedBox(height: AppSizes.s8),
           TextField(
             controller: url,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: AppStrings.videoLink,
               hintText:
                   'https://www.youtube.com/watch?v=... or https://.../video.mp4',
             ),
           ),
-          const SizedBox(height: AppSizes.s12),
+          SizedBox(height: AppSizes.s12),
           JbbButton(label: AppStrings.saveLink, busy: busy, onPressed: save),
         ],
       ),

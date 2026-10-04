@@ -1,6 +1,6 @@
+import '../../../../core/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/resources/app_colors.dart';
 import '../../../../core/resources/app_icons.dart';
 import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/resources/app_strings.dart';
@@ -27,17 +27,18 @@ class _BookingsState extends ConsumerState<MyBookingsScreen> {
   Future<bool> cancel(Booking booking) async {
     final confirmed = await showDialog<bool>(
       context: context,
+      useRootNavigator: true,
       builder: (context) => AlertDialog(
-        title: const Text(AppStrings.cancelThisBooking),
-        content: const Text(AppStrings.yourReservedSessionCreditWillBeReleased),
+        title: Text(AppStrings.cancelThisBooking),
+        content: Text(AppStrings.yourReservedSessionCreditWillBeReleased),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text(AppStrings.keepBooking),
+            child: Text(AppStrings.keepBooking),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text(AppStrings.cancelBooking),
+            child: Text(AppStrings.cancelBooking),
           ),
         ],
       ),
@@ -57,19 +58,19 @@ class _BookingsState extends ConsumerState<MyBookingsScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text(AppStrings.myBookings)),
+    appBar: AppBar(title: Text(AppStrings.myBookings)),
     body: ListView(
       padding: const EdgeInsets.all(AppSizes.s16),
       children: [
         SegmentedButton<int>(
-          segments: const [
+          segments: [
             ButtonSegment(value: 0, label: Text(AppStrings.upcoming)),
             ButtonSegment(value: 1, label: Text(AppStrings.past)),
           ],
           selected: {selected},
           onSelectionChanged: (s) => setState(() => selected = s.first),
         ),
-        const SizedBox(height: AppSizes.s20),
+        SizedBox(height: AppSizes.s20),
         ref
             .watch(bookingsProvider)
             .when(
@@ -79,9 +80,7 @@ class _BookingsState extends ConsumerState<MyBookingsScreen> {
                   return selected == 0 ? upcoming : !upcoming;
                 }).toList();
                 if (items.isEmpty) {
-                  return const JbbEmptyState(
-                    message: AppStrings.noBookingsHereYet,
-                  );
+                  return JbbEmptyState(message: AppStrings.noBookingsHereYet);
                 }
                 return Column(
                   children: items.map((b) {
@@ -99,10 +98,10 @@ class _BookingsState extends ConsumerState<MyBookingsScreen> {
                           : DismissDirection.none,
                       confirmDismiss: (_) => cancel(b),
                       background: Container(
-                        color: AppColors.materialRed,
+                        color: context.palette.accent,
                         alignment: Alignment.centerRight,
                         padding: const EdgeInsets.all(AppSizes.s20),
-                        child: const AppIcon(AppIcons.circleX),
+                        child: AppIcon(AppIcons.circleX),
                       ),
                       child: JbbCard(
                         child: Column(
@@ -110,22 +109,22 @@ class _BookingsState extends ConsumerState<MyBookingsScreen> {
                           children: [
                             Text(
                               b.className,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: AppSizes.font18,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            const SizedBox(height: AppSizes.s8),
+                            SizedBox(height: AppSizes.s8),
                             Text(
                               '${dateLabel(b.date)} · ${timeLabel(b.date)} PT',
                             ),
-                            const SizedBox(height: AppSizes.s8),
+                            SizedBox(height: AppSizes.s8),
                             Text(
                               b.status.toString().toUpperCase(),
                               style: TextStyle(
                                 color: b.status == 'cancelled'
-                                    ? AppColors.materialRed
-                                    : AppColors.materialGreen,
+                                    ? context.palette.accent
+                                    : context.palette.success,
                                 fontSize: AppSizes.font12,
                               ),
                             ),
@@ -134,14 +133,16 @@ class _BookingsState extends ConsumerState<MyBookingsScreen> {
                                 onPressed: pending.contains(b.id)
                                     ? null
                                     : () => cancel(b),
-                                child: const Text(AppStrings.cancelBooking),
+                                child: Text(AppStrings.cancelBooking),
                               ),
                             if (!allowed && b.status == 'confirmed')
-                              const Padding(
+                              Padding(
                                 padding: EdgeInsets.only(top: AppSizes.s8),
                                 child: Text(
                                   AppStrings.uiForLateChangesContactTheGym,
-                                  style: TextStyle(color: AppColors.grey),
+                                  style: TextStyle(
+                                    color: context.palette.textSecondary,
+                                  ),
                                 ),
                               ),
                           ],
@@ -155,7 +156,7 @@ class _BookingsState extends ConsumerState<MyBookingsScreen> {
                 message: friendlyError(e),
                 onRetry: () => ref.invalidate(bookingsProvider),
               ),
-              loading: () => const JbbLoading(),
+              loading: () => JbbLoading(),
             ),
       ],
     ),

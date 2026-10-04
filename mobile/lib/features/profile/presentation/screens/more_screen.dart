@@ -1,8 +1,8 @@
+import '../../../../core/theme/app_palette.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/resources/app_colors.dart';
 import '../../../../core/resources/app_icons.dart';
 import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/resources/app_strings.dart';
@@ -14,6 +14,7 @@ import '../../../../core/utils/snackbar_utils.dart';
 import '../../../../core/widgets/app_icon.dart';
 import '../../../../core/widgets/jbb_card.dart';
 import '../../../../core/widgets/page_content.dart';
+import '../../../../core/widgets/settings_group.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../providers/profile_provider.dart';
 
@@ -22,7 +23,7 @@ class MoreScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(profileProvider).value;
-    final useBlackBackground = ref.watch(useBlackBackgroundProvider);
+    final themeMode = ref.watch(themeModeProvider);
     return PageContent(
       title: AppStrings.more,
       children: [
@@ -31,21 +32,22 @@ class MoreScreen extends ConsumerWidget {
             children: [
               CircleAvatar(
                 radius: AppSizes.avatarRadiusLarge,
+                backgroundColor: context.palette.accentTint,
                 backgroundImage: (user?.avatarUrl ?? '').isNotEmpty
                     ? CachedNetworkImageProvider(user!.avatarUrl!)
                     : null,
                 child: (user?.avatarUrl ?? '').isEmpty
-                    ? const AppIcon(AppIcons.user)
+                    ? AppIcon(AppIcons.user, color: context.palette.accent)
                     : null,
               ),
-              const SizedBox(width: AppSizes.s16),
+              SizedBox(width: AppSizes.s16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       user?.fullName ?? AppStrings.uiMember,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: AppSizes.font20,
                         fontWeight: FontWeight.bold,
                       ),
@@ -53,14 +55,14 @@ class MoreScreen extends ConsumerWidget {
                     if (user != null)
                       Text(
                         'Member since ${dateLabel(readDate(user.memberSince))}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: AppSizes.font12,
-                          color: AppColors.grey,
+                          color: context.palette.textSecondary,
                         ),
                       ),
                     TextButton(
                       onPressed: () => context.safeNavigate(AppRoutes.profile),
-                      child: const Text(AppStrings.editProfile),
+                      child: Text(AppStrings.editProfile),
                     ),
                   ],
                 ),
@@ -68,44 +70,88 @@ class MoreScreen extends ConsumerWidget {
             ],
           ),
         ),
-        for (final item in [
-          (AppStrings.myBookings, AppIcons.calendar, AppRoutes.bookings),
-          (AppStrings.navMembership, AppIcons.crown, AppRoutes.membership),
-          (AppStrings.gymStore, AppIcons.shoppingBag, AppRoutes.store),
-          (AppStrings.reviewsRatings, AppIcons.star, AppRoutes.reviews),
-          (AppStrings.myAccount, AppIcons.receipt, AppRoutes.payments),
-          (
-            AppStrings.notifications,
-            AppIcons.notification,
-            AppRoutes.notifications,
-          ),
-          (AppStrings.contactUs, AppIcons.phone, AppRoutes.contact),
-          (AppStrings.uiLocation, AppIcons.location, AppRoutes.contact),
-          (AppStrings.uiAboutUs, AppIcons.info, AppRoutes.about),
-          (AppStrings.uiPrivacyPolicy, AppIcons.shield, AppRoutes.privacy),
-          (AppStrings.uiTermsOfService, AppIcons.document, AppRoutes.terms),
-          (AppStrings.waiverDisclaimer, AppIcons.gavel, AppRoutes.waiver),
-          if (user?.role == 'admin')
-            (AppStrings.adminDashboard, AppIcons.admin, AppRoutes.admin),
-        ])
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: AppIcon(item.$2, color: AppColors.materialRed),
-            title: Text(item.$1),
-            trailing: const AppIcon(AppIcons.chevronRight),
-            onTap: () => context.safeNavigate(item.$3),
-          ),
-        SwitchListTile(
-          contentPadding: EdgeInsets.zero,
-          title: const Text(AppStrings.blackBackground),
-          subtitle: const Text(
-            'Switch between black and the app\'s teal background.',
-          ),
-          value: useBlackBackground,
-          onChanged: (value) =>
-              ref.read(useBlackBackgroundProvider.notifier).toggle(value),
+        SettingsGroup(
+          children: [
+            for (final item in [
+              (AppStrings.myBookings, AppIcons.calendar, AppRoutes.bookings),
+              (AppStrings.navMembership, AppIcons.crown, AppRoutes.membership),
+              (AppStrings.gymStore, AppIcons.shoppingBag, AppRoutes.store),
+              (AppStrings.reviewsRatings, AppIcons.star, AppRoutes.reviews),
+              (AppStrings.myAccount, AppIcons.receipt, AppRoutes.payments),
+              (
+                AppStrings.notifications,
+                AppIcons.notification,
+                AppRoutes.notifications,
+              ),
+              (AppStrings.contactUs, AppIcons.phone, AppRoutes.contact),
+              (AppStrings.uiLocation, AppIcons.location, AppRoutes.contact),
+              (AppStrings.uiAboutUs, AppIcons.info, AppRoutes.about),
+              (AppStrings.uiPrivacyPolicy, AppIcons.shield, AppRoutes.privacy),
+              (AppStrings.uiTermsOfService, AppIcons.document, AppRoutes.terms),
+              (AppStrings.waiverDisclaimer, AppIcons.gavel, AppRoutes.waiver),
+              if (user?.role == 'admin')
+                (AppStrings.adminDashboard, AppIcons.admin, AppRoutes.admin),
+            ])
+              SettingsRow(
+                icon: item.$2,
+                title: item.$1,
+                onTap: () => context.safeNavigate(item.$3),
+              ),
+            SettingsRow(
+              icon: AppIcons.appearance,
+              title: 'Appearance',
+              trailing: Text(
+                themeMode.name[0].toUpperCase() + themeMode.name.substring(1),
+                style: TextStyle(color: context.palette.textSecondary),
+              ),
+              onTap: () => showModalBottomSheet<void>(
+                context: context,
+                useRootNavigator: true,
+                showDragHandle: true,
+                builder: (sheetContext) => SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSizes.s16),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Appearance',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        const SizedBox(height: AppSizes.s16),
+                        SegmentedButton<ThemeMode>(
+                          showSelectedIcon: false,
+                          segments: const [
+                            ButtonSegment(
+                              value: ThemeMode.system,
+                              label: Text('System'),
+                            ),
+                            ButtonSegment(
+                              value: ThemeMode.light,
+                              label: Text('Light'),
+                            ),
+                            ButtonSegment(
+                              value: ThemeMode.dark,
+                              label: Text('Dark'),
+                            ),
+                          ],
+                          selected: {themeMode},
+                          onSelectionChanged: (value) {
+                            ref
+                                .read(themeModeProvider.notifier)
+                                .setMode(value.first);
+                            Navigator.pop(sheetContext);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: AppSizes.s20),
+        SizedBox(height: AppSizes.s20),
         OutlinedButton(
           onPressed: () async {
             try {
@@ -115,9 +161,9 @@ class MoreScreen extends ConsumerWidget {
               if (context.mounted) showMessage(context, friendlyError(e));
             }
           },
-          child: const Text(
+          child: Text(
             AppStrings.signOut,
-            style: TextStyle(color: AppColors.materialRed),
+            style: TextStyle(color: context.palette.accent),
           ),
         ),
       ],

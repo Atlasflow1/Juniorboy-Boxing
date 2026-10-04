@@ -70,6 +70,7 @@ class _TemplateEditorState extends ConsumerState<TemplateEditorScreen> {
   Future<void> delete() async {
     final confirmed = await showDialog<bool>(
       context: context,
+      useRootNavigator: true,
       builder: (context) => AlertDialog(
         title: const Text(AppStrings.removeThisClassTime),
         content: const Text(

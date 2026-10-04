@@ -1,6 +1,6 @@
+import '../../../../core/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/resources/app_colors.dart';
 import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/resources/app_strings.dart';
 import '../../../../core/utils/date_utils.dart';
@@ -17,7 +17,7 @@ class PaymentsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(profileProvider).value;
     return Scaffold(
-      appBar: AppBar(title: const Text(AppStrings.myAccount)),
+      appBar: AppBar(title: Text(AppStrings.myAccount)),
       body: ListView(
         padding: const EdgeInsets.all(AppSizes.s16),
         children: [
@@ -26,39 +26,39 @@ class PaymentsScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     AppStrings.navMembership,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: AppSizes.font16,
                     ),
                   ),
-                  const SizedBox(height: AppSizes.s8),
+                  SizedBox(height: AppSizes.s8),
                   Text(AppStrings.sessionsRemaining(user.sessionsRemaining)),
                   Text(
                     '${user.sessionsReserved} reserved for upcoming classes',
-                    style: const TextStyle(
-                      color: AppColors.grey,
+                    style: TextStyle(
+                      color: context.palette.textSecondary,
                       fontSize: AppSizes.font13,
                     ),
                   ),
                 ],
               ),
             ),
-          const SizedBox(height: AppSizes.s20),
-          const Text(
+          SizedBox(height: AppSizes.s20),
+          Text(
             AppStrings.uiPaymentHistory,
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: AppSizes.font16,
             ),
           ),
-          const SizedBox(height: AppSizes.s8),
+          SizedBox(height: AppSizes.s8),
           ref
               .watch(paymentsProvider)
               .when(
                 data: (rows) => rows.isEmpty
-                    ? const JbbEmptyState(message: AppStrings.noPaymentsYet)
+                    ? JbbEmptyState(message: AppStrings.noPaymentsYet)
                     : Column(
                         children: rows
                             .map(
@@ -94,8 +94,8 @@ class PaymentsScreen extends ConsumerWidget {
                                           children: [
                                             Text(
                                               'Expected ${dateLabel(p.estimatedDeliveryDate!)}',
-                                              style: const TextStyle(
-                                                color: AppColors.materialRed,
+                                              style: TextStyle(
+                                                color: context.palette.accent,
                                                 fontWeight: FontWeight.w600,
                                                 fontSize: AppSizes.font13,
                                               ),
@@ -104,8 +104,10 @@ class PaymentsScreen extends ConsumerWidget {
                                                 .isNotEmpty)
                                               Text(
                                                 p.deliveryNote!,
-                                                style: const TextStyle(
-                                                  color: AppColors.grey,
+                                                style: TextStyle(
+                                                  color: context
+                                                      .palette
+                                                      .textSecondary,
                                                   fontSize: AppSizes.font12,
                                                 ),
                                               ),
@@ -122,7 +124,7 @@ class PaymentsScreen extends ConsumerWidget {
                   message: friendlyError(e),
                   onRetry: () => ref.invalidate(paymentsProvider),
                 ),
-                loading: () => const JbbLoading(),
+                loading: () => JbbLoading(),
               ),
         ],
       ),

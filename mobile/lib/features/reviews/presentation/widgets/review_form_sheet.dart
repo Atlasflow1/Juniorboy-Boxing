@@ -1,6 +1,6 @@
+import '../../../../core/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/resources/app_colors.dart';
 import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/resources/app_strings.dart';
 import '../../../../core/utils/snackbar_utils.dart';
@@ -14,8 +14,8 @@ import 'star_rating.dart';
 Future<void> showReviewFormSheet(BuildContext context, {Review? existing}) {
   return showModalBottomSheet(
     context: context,
+    useRootNavigator: true,
     isScrollControlled: true,
-    backgroundColor: AppColors.transparent,
     builder: (context) => ReviewFormSheet(existing: existing),
   );
 }
@@ -71,8 +71,8 @@ class _ReviewFormSheetState extends ConsumerState<ReviewFormSheet> {
         AppSizes.s24,
         AppSizes.s32,
       ),
-      decoration: const BoxDecoration(
-        color: AppColors.card,
+      decoration: BoxDecoration(
+        color: context.palette.surface,
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(AppSizes.radius20),
         ),
@@ -87,7 +87,7 @@ class _ReviewFormSheetState extends ConsumerState<ReviewFormSheet> {
               height: AppSizes.s4,
               margin: const EdgeInsets.only(bottom: AppSizes.s20),
               decoration: BoxDecoration(
-                color: AppColors.white24,
+                color: context.palette.separator,
                 borderRadius: BorderRadius.circular(AppSizes.radius2),
               ),
             ),
@@ -99,7 +99,7 @@ class _ReviewFormSheetState extends ConsumerState<ReviewFormSheet> {
             style: Theme.of(context).textTheme.headlineSmall,
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: AppSizes.s16),
+          SizedBox(height: AppSizes.s16),
           Center(
             child: StarRating(
               rating: rating.toDouble(),
@@ -107,17 +107,17 @@ class _ReviewFormSheetState extends ConsumerState<ReviewFormSheet> {
               onChanged: (value) => setState(() => rating = value),
             ),
           ),
-          const SizedBox(height: AppSizes.s20),
+          SizedBox(height: AppSizes.s20),
           TextField(
             controller: comment,
             maxLines: AppSizes.reviewInputLines,
             maxLength: 500,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: AppStrings.shareYourExperienceOptional,
               alignLabelWithHint: true,
             ),
           ),
-          const SizedBox(height: AppSizes.s12),
+          SizedBox(height: AppSizes.s12),
           JbbButton(
             label: AppStrings.submitReview,
             busy: busy,
