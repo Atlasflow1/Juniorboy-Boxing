@@ -264,7 +264,10 @@ class _PlanEditorState extends ConsumerState<PlanEditorScreen> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
-              initialValue: category,
+              initialValue:
+                  category == 'general' || Programs.categories.containsKey(category)
+                  ? category
+                  : 'general',
               decoration: const InputDecoration(labelText: 'Program'),
               items: [
                 const DropdownMenuItem(

@@ -46,10 +46,12 @@ class _ProgramEditorState extends ConsumerState<ProgramEditorScreen> {
   late final durationMinutes = TextEditingController(
     text: '${widget.program?['durationMinutes'] ?? 60}',
   );
-  late String category = widget.program?['category']?.toString().isNotEmpty == true
+  static const _categories = ['Team', 'Individual', 'Weight Loss'];
+  static const _trainingTypes = ['private', 'group', 'duo'];
+  late String category = _categories.contains(widget.program?['category'])
       ? widget.program!['category']
       : 'Individual';
-  late String trainingType = widget.program?['trainingType']?.toString().isNotEmpty == true
+  late String trainingType = _trainingTypes.contains(widget.program?['trainingType'])
       ? widget.program!['trainingType']
       : 'private';
   late String imageUrl = widget.program?['imageUrl'] ?? '';

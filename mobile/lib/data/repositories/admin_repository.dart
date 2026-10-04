@@ -90,6 +90,12 @@ class AdminRepository extends CachedRepository {
   Future<void> deleteTemplate(String id) =>
       db.doc('recurringTemplates/$id').delete();
 
+  /// Immediately generates next week's bookable sessions from the active
+  /// recurring templates, instead of waiting for the Sunday cron — needed
+  /// right after adding/fixing a class time so it shows up without delay.
+  Future<void> generateScheduleNow() =>
+      FirebaseFunctions.instance.httpsCallable('generateScheduleNow').call();
+
   Future<void> savePromoVideoUrl(String url) =>
       db.doc('gymSettings/config').set({
         'promoVideoUrl': url,

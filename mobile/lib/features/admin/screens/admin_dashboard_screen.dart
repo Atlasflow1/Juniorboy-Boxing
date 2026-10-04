@@ -293,6 +293,20 @@ class AdminDashboardScreen extends ConsumerWidget {
                 ),
               ),
               TextButton.icon(
+                onPressed: () async {
+                  try {
+                    await ref.read(adminRepositoryProvider).generateScheduleNow();
+                    if (context.mounted) {
+                      showMessage(context, 'Next week\'s sessions generated.');
+                    }
+                  } catch (e) {
+                    if (context.mounted) showMessage(context, friendlyError(e));
+                  }
+                },
+                icon: const Icon(Icons.refresh, size: 18),
+                label: const Text('Generate Next Week'),
+              ),
+              TextButton.icon(
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (_) => const TemplateEditorScreen(),

@@ -124,8 +124,20 @@ class _TemplateEditorState extends ConsumerState<TemplateEditorScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               DropdownButtonFormField<String>(
-                initialValue: classId,
-                decoration: const InputDecoration(labelText: 'Program'),
+                // A template can reference a program that was since deleted
+                // (or never existed). Passing that stale id as initialValue
+                // would crash the dropdown (no matching item) — fall back to
+                // unselected and let the admin pick a real program instead.
+                initialValue: classes.any((c) => c['id'] == classId)
+                    ? classId
+                    : null,
+                decoration: InputDecoration(
+                  labelText: 'Program',
+                  helperText:
+                      classId != null && !classes.any((c) => c['id'] == classId)
+                      ? 'The program this was set to no longer exists — choose one.'
+                      : null,
+                ),
                 items: [
                   for (final c in classes)
                     DropdownMenuItem(
