@@ -4,7 +4,7 @@ import '../../domain/booking.dart';
 import '../../domain/booking_repository.dart';
 import '../../data/booking_repository_impl.dart';
 import '../../data/booking_remote_data_source.dart';
-import '../../../auth/providers/auth_provider.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 
 final bookingRepositoryProvider = Provider<BookingRepository>(
   (ref) => BookingRepositoryImpl(BookingRemoteDataSource()),

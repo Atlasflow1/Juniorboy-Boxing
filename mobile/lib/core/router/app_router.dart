@@ -1,28 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../data/repositories/user_repository.dart';
-import '../../features/admin/screens/admin_dashboard_screen.dart';
-import '../../features/auth/providers/auth_provider.dart';
-import '../../features/auth/screens/welcome_screen.dart';
+import '../../features/admin/presentation/screens/admin_dashboard_screen.dart';
+import '../../features/auth/presentation/providers/auth_provider.dart';
+import '../../features/auth/presentation/screens/welcome_screen.dart';
 import '../../features/booking/presentation/screens/book_class_screen.dart';
 import '../../features/booking/presentation/screens/booking_confirmation_screen.dart';
-import '../../features/home/screens/home_screen.dart';
-import '../../features/home/screens/program_screen.dart';
-import '../../features/membership/screens/membership_screen.dart';
-import '../../features/profile/providers/profile_provider.dart';
-import '../../features/profile/screens/complete_profile_screen.dart';
-import '../../features/profile/screens/contact_screen.dart';
-import '../../features/profile/screens/edit_profile_screen.dart';
-import '../../features/profile/screens/information_screen.dart';
-import '../../features/profile/screens/more_screen.dart';
-import '../../features/profile/screens/my_bookings_screen.dart';
-import '../../features/profile/screens/notifications_screen.dart';
-import '../../features/profile/screens/payments_screen.dart';
-import '../../features/profile/screens/waiver_screen.dart';
+import '../../features/home/presentation/screens/home_screen.dart';
+import '../../features/home/presentation/screens/program_screen.dart';
+import '../../features/membership/presentation/screens/membership_screen.dart';
+import '../../features/profile/presentation/providers/profile_provider.dart';
+import '../../features/profile/presentation/screens/complete_profile_screen.dart';
+import '../../features/profile/presentation/screens/contact_screen.dart';
+import '../../features/profile/presentation/screens/edit_profile_screen.dart';
+import '../../features/profile/presentation/screens/information_screen.dart';
+import '../../features/profile/presentation/screens/more_screen.dart';
+import '../../features/profile/presentation/screens/my_bookings_screen.dart';
+import '../../features/notifications/presentation/screens/notifications_screen.dart';
+import '../../features/payments/presentation/screens/payments_screen.dart';
+import '../../features/profile/presentation/screens/waiver_screen.dart';
 import '../../features/reviews/presentation/screens/reviews_screen.dart';
-import '../../features/schedule/screens/schedule_screen.dart';
-import '../../features/store/screens/store_screen.dart';
+import '../../features/schedule/presentation/screens/schedule_screen.dart';
+import '../../features/store/presentation/screens/store_screen.dart';
 import '../resources/app_strings.dart';
 import 'app_routes.dart';
 import 'app_shell.dart';
@@ -42,9 +41,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       final user = auth.value;
       if (user == null && !isAuth) return AppRoutes.welcome;
       final signedInWithGoogle =
-          user != null &&
-          !user.isAnonymous &&
-          user.providerData.any((p) => p.providerId == 'google.com');
+          user != null && !user.isAnonymous && user.hasGoogleProvider;
       if (signedInWithGoogle &&
           ![
             AppRoutes.completeProfile,
@@ -53,12 +50,11 @@ final routerProvider = Provider<GoRouter>((ref) {
             AppRoutes.terms,
             AppRoutes.contact,
           ].contains(state.uri.path) &&
-          (profile.value != null && !isProfileComplete(profile.value!))) {
+          (profile.value != null && !profile.value!.isProfileComplete)) {
         return AppRoutes.completeProfile;
       }
       if (user != null && isAuth) return AppRoutes.home;
-      if (state.uri.path == AppRoutes.admin &&
-          profile.value?['role'] != 'admin') {
+      if (state.uri.path == AppRoutes.admin && profile.value?.role != 'admin') {
         return AppRoutes.home;
       }
       return null;

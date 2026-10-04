@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:junior_boy_boxing/core/utils/validators.dart';
-import 'package:junior_boy_boxing/features/auth/screens/welcome_screen.dart';
+import 'package:junior_boy_boxing/features/auth/presentation/screens/welcome_screen.dart';
 
 void main() {
   test('registration rejects malformed email and short password', () {

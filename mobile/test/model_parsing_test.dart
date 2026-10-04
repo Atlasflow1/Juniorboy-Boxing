@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:junior_boy_boxing/features/booking/data/booking_model.dart';
 import 'package:junior_boy_boxing/features/booking/domain/booking_eligibility.dart';
 import 'package:junior_boy_boxing/features/membership/data/membership_plan_model.dart';
+import 'package:junior_boy_boxing/features/home/data/home_repository_impl.dart';
 import 'package:junior_boy_boxing/features/profile/data/member_model.dart';
 import 'package:junior_boy_boxing/features/schedule/data/session_model.dart';
 
@@ -39,6 +40,7 @@ void main() {
       'isRecommended': true,
     });
     expect(plan.sessionCount, isNull);
+    expect(plan.category, isNull);
     expect(plan.isRecommended, true);
     expect(plan.sortOrder, 2);
     expect(MembershipPlanModel.fromMap({}).perSessionLabel, '');
@@ -68,5 +70,26 @@ void main() {
       false,
     );
     expect(canCancelBooking(booking, now, 25), false);
+  });
+  test('home selects the nearest confirmed future booking', () {
+    final now = DateTime.utc(2026, 10, 4, 12);
+    final rows = [
+      BookingModel.fromMap({
+        'date': now.add(const Duration(days: 3)).toIso8601String(),
+        'status': 'confirmed',
+      }),
+      BookingModel.fromMap({
+        'date': now.add(const Duration(days: 1)).toIso8601String(),
+        'status': 'confirmed',
+      }),
+      BookingModel.fromMap({
+        'date': now.add(const Duration(hours: 2)).toIso8601String(),
+        'status': 'cancelled',
+      }),
+    ];
+    expect(
+      HomeRepositoryImpl().nextBooking(rows, now)?.date,
+      now.add(const Duration(days: 1)),
+    );
   });
 }

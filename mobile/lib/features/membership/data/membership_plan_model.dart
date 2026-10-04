@@ -3,22 +3,34 @@ import '../domain/membership_plan.dart';
 class MembershipPlanModel extends MembershipPlan {
   const MembershipPlanModel({
     required super.id,
+    required super.description,
+    required super.price,
+    required super.isActive,
+    required super.planType,
+    required super.createdAt,
     required super.name,
     required super.priceLabel,
     required super.perSessionLabel,
     required super.sortOrder,
     required super.isRecommended,
     required super.sessionCount,
+    required super.category,
   });
 
   factory MembershipPlanModel.fromMap(Map<String, dynamic> map) =>
       MembershipPlanModel(
         id: map['id'] as String? ?? '',
+        description: map['description'] as String?,
+        price: map['price'] as num?,
+        isActive: map['isActive'] as bool?,
+        planType: map['planType'] as String?,
+        createdAt: map['createdAt'],
         name: map['name'] as String? ?? '',
         priceLabel: map['priceLabel'] as String? ?? '',
         perSessionLabel: map['perSessionLabel'] as String? ?? '',
         sortOrder: (map['sortOrder'] as num?)?.toInt() ?? 0,
         isRecommended: map['isRecommended'] == true,
         sessionCount: (map['sessionCount'] as num?)?.toInt(),
+        category: map['category'] as String?,
       );
 }

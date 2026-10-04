@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -8,8 +7,11 @@ import 'package:go_router/go_router.dart';
 import 'package:junior_boy_boxing/core/router/app_router.dart';
 import 'package:junior_boy_boxing/core/router/app_routes.dart';
 import 'package:junior_boy_boxing/core/utils/nav_debounce.dart';
-import 'package:junior_boy_boxing/features/auth/providers/auth_provider.dart';
-import 'package:junior_boy_boxing/features/profile/providers/profile_provider.dart';
+import 'package:junior_boy_boxing/features/auth/presentation/providers/auth_provider.dart';
+import 'package:junior_boy_boxing/features/auth/domain/auth_account.dart';
+import 'package:junior_boy_boxing/features/profile/presentation/providers/profile_provider.dart';
+import 'package:junior_boy_boxing/features/profile/data/member_model.dart';
+import 'package:junior_boy_boxing/features/profile/domain/member.dart';
 
 void main() {
   testWidgets('tab roots switch branches and detail pages still push', (
@@ -79,20 +81,22 @@ void main() {
   testWidgets(
     'profile updates preserve the existing router and navigation state',
     (tester) async {
-      final profiles = StreamController<Map<String, dynamic>>.broadcast(
-        sync: true,
-      );
+      final profiles = StreamController<Member>.broadcast(sync: true);
       final container = ProviderContainer(
         overrides: [
-          authProvider.overrideWith((ref) => Stream<User?>.value(null)),
+          authProvider.overrideWith((ref) => Stream<AuthAccount?>.value(null)),
           profileProvider.overrideWith((ref) => profiles.stream),
         ],
       );
       final router = container.read(routerProvider);
-      profiles.add({'id': 'member', 'sessionsRemaining': 3});
+      profiles.add(
+        MemberModel.fromMap({'id': 'member', 'sessionsRemaining': 3}),
+      );
       await tester.pump();
       expect(identical(container.read(routerProvider), router), isTrue);
-      profiles.add({'id': 'member', 'sessionsRemaining': 4});
+      profiles.add(
+        MemberModel.fromMap({'id': 'member', 'sessionsRemaining': 4}),
+      );
       await tester.pump();
       expect(identical(container.read(routerProvider), router), isTrue);
       // Dispose first: awaiting close() while Riverpod still listens never completes.

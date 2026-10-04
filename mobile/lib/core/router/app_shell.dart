@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../features/profile/providers/profile_provider.dart';
+import '../../features/profile/presentation/providers/profile_provider.dart';
 import '../resources/app_colors.dart';
 import '../resources/app_sizes.dart';
 import '../resources/app_strings.dart';
@@ -64,7 +64,7 @@ class AppShell extends ConsumerWidget {
                     textAlign: TextAlign.center,
                   ),
                 ),
-              if (user?['isActive'] == false)
+              if (user?.isActive == false)
                 const Expanded(
                   child: Center(child: Text(AppStrings.inactiveAccount)),
                 )

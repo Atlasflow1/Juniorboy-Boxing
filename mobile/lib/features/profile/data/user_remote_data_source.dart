@@ -1,0 +1,32 @@
+import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import '../../../core/data/cached_repository.dart';
+import 'member_model.dart';
+import '../domain/member.dart';
+
+class UserRemoteDataSource extends CachedRepository {
+  Future<Member?> fetchProfile() async {
+    final data = (await db.doc('users/$uid').get()).data();
+    return data == null ? null : MemberModel.fromMap(data);
+  }
+
+  Stream<Map<String, dynamic>> watch() =>
+      watchDocument(db.doc('users/$uid'), 'profile');
+  Stream<Map<String, dynamic>> settings() =>
+      watchDocument(db.doc('gymSettings/config'), 'settings');
+  Future<void> save(Map<String, dynamic> values) => db.doc('users/$uid').update(
+    {...values, 'updatedAt': FieldValue.serverTimestamp()},
+  );
+  Future<void> changeEmail(String email) =>
+      FirebaseAuth.instance.currentUser!.verifyBeforeUpdateEmail(email);
+  Future<void> uploadAvatar(File file) async {
+    if (await file.length() > 5 * 1024 * 1024) {
+      throw const FormatException('Image must be smaller than 5 MB');
+    }
+    final image = FirebaseStorage.instance.ref('avatars/$uid/profile.jpg');
+    await image.putFile(file, SettableMetadata(contentType: 'image/jpeg'));
+    await save({'avatarUrl': await image.getDownloadURL()});
+  }
+}

@@ -7,6 +7,8 @@ class Session {
     required this.maxSpots,
     required this.bookedSpots,
     required this.isCancelled,
+    required this.startTime,
+    required this.endTime,
   });
 
   final String id;
@@ -16,4 +18,6 @@ class Session {
   final int maxSpots;
   final int bookedSpots;
   final bool isCancelled;
+  final String startTime;
+  final String endTime;
 }

@@ -8,9 +8,9 @@ import 'core/resources/app_strings.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
-import 'data/services/firebase_service.dart';
-import 'data/services/notification_service.dart';
-import 'features/profile/providers/profile_provider.dart';
+import 'core/services/firebase_service.dart';
+import 'core/services/notification_service.dart';
+import 'features/profile/presentation/providers/profile_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,9 +49,8 @@ class JbbApp extends ConsumerWidget {
     final background = ref.watch(backgroundColorProvider);
     NotificationService.instance.navigate = (path) => router.go(path);
     ref.listen(profileProvider, (previous, next) {
-      if (next.value?['isActive'] == true &&
-          (previous?.value == null ||
-              previous?.value?['id'] != next.value?['id'])) {
+      if (next.value?.isActive == true &&
+          (previous?.value == null || previous?.value?.id != next.value?.id)) {
         NotificationService.instance.register().catchError((Object error) {
           debugPrint('Notification registration failed: $error');
         });

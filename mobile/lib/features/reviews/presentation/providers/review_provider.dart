@@ -3,7 +3,7 @@ import '../../domain/review.dart';
 import '../../data/review_repository_impl.dart';
 import '../../data/review_remote_data_source.dart';
 import '../../domain/review_repository.dart';
-import '../../../auth/providers/auth_provider.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 
 final reviewRepositoryProvider = Provider<ReviewRepository>(
   (ref) => ReviewRepositoryImpl(ReviewRemoteDataSource()),

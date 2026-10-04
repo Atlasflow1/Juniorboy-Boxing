@@ -10,6 +10,8 @@ class SessionModel extends Session {
     required super.maxSpots,
     required super.bookedSpots,
     required super.isCancelled,
+    required super.startTime,
+    required super.endTime,
   });
 
   factory SessionModel.fromMap(Map<String, dynamic> map) => SessionModel(
@@ -20,5 +22,7 @@ class SessionModel extends Session {
     maxSpots: (map['maxSpots'] as num?)?.toInt() ?? 0,
     bookedSpots: (map['bookedSpots'] as num?)?.toInt() ?? 0,
     isCancelled: map['isCancelled'] == true,
+    startTime: map['startTime']?.toString() ?? 'null',
+    endTime: map['endTime']?.toString() ?? 'null',
   );
 }

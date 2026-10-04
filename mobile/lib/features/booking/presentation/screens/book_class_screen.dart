@@ -12,9 +12,9 @@ import '../../../../core/widgets/jbb_button.dart';
 import '../../../../core/widgets/jbb_card.dart';
 import '../../../../core/widgets/jbb_empty_state.dart';
 import '../../../../core/widgets/jbb_loading.dart';
-import '../../../profile/providers/profile_provider.dart';
-import '../../../profile/screens/waiver_screen.dart';
-import '../../../schedule/providers/schedule_provider.dart';
+import '../../../profile/presentation/providers/profile_provider.dart';
+import '../../../schedule/presentation/providers/schedule_provider.dart';
+import '../../../schedule/domain/program.dart';
 import '../providers/booking_provider.dart';
 
 class BookClassScreen extends ConsumerStatefulWidget {
@@ -28,17 +28,16 @@ class _BookClassState extends ConsumerState<BookClassScreen> {
   bool busy = false;
   Future<void> confirm() async {
     final user = ref.read(profileProvider).value;
-    final waiver = ref.read(waiverProvider).value?.data();
-    if (waiver?['published'] == true &&
-        waiver?['requiredOnBooking'] == true &&
-        (user?['waiverVersion'] != waiver?['version'] ||
-            user?['waiverParticipantName'] != user?['childName']?.trim() ||
-            user?['waiverParticipantAge'] != user?['childAge'])) {
+    final waiver = ref.read(waiverProvider).value;
+    if (waiver?.published == true &&
+        waiver?.requiredOnBooking == true &&
+        (user?.waiverVersion != waiver?.version ||
+            user?.waiverParticipantName != user?.childName.trim() ||
+            user?.waiverParticipantAge != user?.childAge)) {
       context.safeNavigate(AppRoutes.waiver);
       return;
     }
-    if ((user?['sessionsRemaining'] ?? 0) - (user?['sessionsReserved'] ?? 0) <
-        1) {
+    if ((user?.sessionsRemaining ?? 0) - (user?.sessionsReserved ?? 0) < 1) {
       context.safeNavigate(AppRoutes.membership);
       return;
     }
@@ -64,10 +63,10 @@ class _BookClassState extends ConsumerState<BookClassScreen> {
             data: (session) {
               final programs = ref.watch(classesProvider).value ?? [],
                   program = programs.firstWhere(
-                    (c) => c['id'] == session['classId'],
-                    orElse: () => <String, dynamic>{},
+                    (c) => c.id == session.classId,
+                    orElse: () => Program.empty,
                   );
-              final spots = session['maxSpots'] - session['bookedSpots'];
+              final spots = session.maxSpots - session.bookedSpots;
               return ListView(
                 padding: const EdgeInsets.all(AppSizes.s16),
                 children: [
@@ -89,23 +88,20 @@ class _BookClassState extends ConsumerState<BookClassScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          program['className'] ?? AppStrings.uiBoxingClass,
+                          program.className ?? AppStrings.uiBoxingClass,
                           style: Theme.of(context).textTheme.headlineMedium,
                         ),
-                        Text(program['ageGroup'] ?? ''),
+                        Text(program.ageGroup ?? ''),
                         const SizedBox(height: AppSizes.s22),
                         for (final item in [
-                          (
-                            AppStrings.uiDate,
-                            dateLabel(readDate(session['date'])),
-                          ),
+                          (AppStrings.uiDate, dateLabel(session.date)),
                           (
                             AppStrings.uiTime,
-                            '${timeLabel(readDate(session['date']))} – ${timeLabel(readDate(session['endAt']))} PT',
+                            '${timeLabel(session.date)} – ${timeLabel(session.endAt)} PT',
                           ),
                           (
                             AppStrings.uiLocation2,
-                            program['address'] ?? '3200 Naglee Rd, Tracy, CA',
+                            program.address ?? '3200 Naglee Rd, Tracy, CA',
                           ),
                           (AppStrings.uiAvailability, '$spots spots'),
                         ])
@@ -137,8 +133,8 @@ class _BookClassState extends ConsumerState<BookClassScreen> {
                     busy: busy,
                     onPressed:
                         spots > 0 &&
-                            session['isCancelled'] != true &&
-                            readDate(session['date']).isAfter(DateTime.now())
+                            session.isCancelled != true &&
+                            session.date.isAfter(DateTime.now())
                         ? confirm
                         : null,
                   ),
