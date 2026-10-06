@@ -55,3 +55,10 @@ html,body{background:var(--bg);color:var(--text);max-width:100%;overflow-x:clip}
 .auth-modal-close{position:absolute;right:14px;top:12px;z-index:1;border:0;background:transparent;color:var(--text);font-size:30px;line-height:1;padding:4px 10px}
 @media(max-width:700px){.auth-modal .auth-panel{padding:28px 20px 20px}.auth-modal .auth-panel h1{font-size:34px}}
 @media(min-width:701px){.site-footer{padding-inline:max(40px,calc((100vw - 1160px)/2))}}
+.parent-offer-cover,.parent-detail-cover,.parent-cover,.shop-plate img,.ads-banner-slide img{transition:transform .5s}
+.parent-offer-card:hover .parent-offer-cover{transform:scale(1.05)}
+.parent-detail-cover:hover{transform:scale(1.03)}
+.plan:hover .parent-cover{transform:scale(1.05)}
+.shop-card:hover .shop-plate img{transform:scale(1.08)}
+.ads-banner:hover .ads-banner-slide img{transform:scale(1.04)}
+@media(prefers-reduced-motion:reduce){.parent-offer-cover,.parent-detail-cover,.parent-cover,.shop-plate img,.ads-banner-slide img{transition:none}.parent-offer-card:hover .parent-offer-cover,.plan:hover .parent-cover,.shop-card:hover .shop-plate img,.ads-banner:hover .ads-banner-slide img{transform:none}}
