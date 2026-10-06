@@ -1,11 +1,11 @@
 /* ═══════ Junior Boy Boxing — motion layer (red × black) ═══════ */
-:root{--fx-red:#e50914;--fx-red-deep:#7a0006;--fx-ease:cubic-bezier(.16,1,.3,1)}
+:root{--fx-red:var(--red);--fx-red-deep:#7a0006;--fx-ease:cubic-bezier(.16,1,.3,1)}
 
 /* Scroll progress */
 .fx-progress{position:fixed;top:0;left:0;right:0;height:3px;z-index:200;transform:scaleX(0);transform-origin:0 50%;background:linear-gradient(90deg,var(--fx-red-deep),var(--fx-red) 60%,#ff5a5f);box-shadow:0 0 14px var(--fx-red),0 0 4px var(--fx-red);pointer-events:none}
 
 /* Intro */
-.fx-intro{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;cursor:pointer;animation:fxIntroFailsafe .01s 3.4s forwards}
+.fx-intro{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;cursor:pointer;animation:fxIntroFailsafe .01s 3.4s forwards}
 .fx-intro-panel{position:absolute;left:0;right:0;height:50.5%;background:#070707}
 .fx-intro-panel.top{top:0;border-bottom:1px solid #1a0204;background:radial-gradient(120% 90% at 50% 100%,#2a0306 0%,#070707 60%)}
 .fx-intro-panel.bottom{bottom:0;background:radial-gradient(120% 90% at 50% 0%,#2a0306 0%,#070707 60%)}
@@ -78,7 +78,7 @@
 
 /* Punch headline */
 .fx-punch{position:relative}
-.hero h1 .fx-word{display:inline-block;position:relative;color:#fff;font-style:normal;transform-origin:50% 60%;will-change:transform}
+.hero h1 .fx-word{display:inline-block;position:relative;color:var(--text);font-style:normal;transform-origin:50% 60%;will-change:transform}
 .hero h1 .fx-word.fx-champ{color:var(--fx-red);font-style:italic;padding-right:.08em}
 .hero.fx-go h1 .fx-champ{animation:fxGlow 3.2s 1.4s ease-in-out infinite}
 .fx-shock{position:absolute;left:50%;top:50%;width:1em;height:1em;margin:-.5em 0 0 -.5em;border-radius:50%;border:3px solid var(--fx-red);box-shadow:0 0 24px var(--fx-red),inset 0 0 18px rgba(229,9,20,.6);pointer-events:none}

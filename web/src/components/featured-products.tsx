@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { where } from 'firebase/firestore';
 import { useRows } from '@/lib/hooks';
 import { money } from '@/lib/utils';
+import { soldOut } from '@/lib/parent-data';
 export function FeaturedProductsCarousel() {
   const {rows} = useRows('products',[where('isActive','==',true),where('isFeatured','==',true)]);
   const [index,setIndex] = useState(0);
@@ -30,7 +31,7 @@ export function FeaturedProductsCarousel() {
       {rows.map(p=>{
         const hasDiscount=p.discountActive===true&&p.discountPercent>0;
         const saleCents=hasDiscount?Math.round(p.price*(1-p.discountPercent/100)):p.price;
-        return <a key={p.id} href="/store" className="featured-slide">
+        return <a key={p.id} href={`/store/product?id=${encodeURIComponent(p.id)}`} className="featured-slide">
           {p.imageUrl&&<img src={p.imageUrl} alt=""/>}
           <div>
             <span className="featured-eyebrow">From the gym store</span>
@@ -43,3 +44,5 @@ export function FeaturedProductsCarousel() {
     {rows.length>1&&<div className="featured-dots">{rows.map((p,i)=><button key={p.id} aria-label={`Go to slide ${i+1}`} className={i===index?'active':''} onClick={()=>setIndex(i)}/>)}</div>}
   </div>;
 }
+
+export function HomeShopSection(){const {rows,loading,error}=useRows('products',[where('isActive','==',true)]);const products=[...rows].sort((a,b)=>(a.sortOrder??0)-(b.sortOrder??0)).slice(0,3);return <section className="section"><div className="container"><div className="section-heading"><div><p className="eyebrow">Fight-night shop</p><h2>Wear your corner.</h2></div><a href="/store" className="section-link">Shop all products</a></div>{error&&<p role="alert">{error}</p>}{loading?<p className="muted">Loading products…</p>:products.length?<div className="shop-grid">{products.map(p=>{const price=p.discountActive&&p.discountPercent>0?Math.round(p.price*(1-p.discountPercent/100)):p.price;const out=soldOut(p);return <a className="shop-card" key={p.id} href={`/store/product?id=${encodeURIComponent(p.id)}`}><div className="shop-plate">{p.imageUrl&&<img src={p.imageUrl} alt="" loading="lazy"/>}</div><div className="shop-card-copy"><span className="featured-eyebrow">{p.category||'Gym shop'}</span><h3>{p.name}</h3><strong>{money(price)}</strong>{out&&<span className="shop-sold-out">Sold out</span>}</div></a>;})}</div>:<p className="muted">Products will appear here when available.</p>}</div></section>;}

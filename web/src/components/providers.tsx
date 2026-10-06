@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { onAuthStateChanged, User, signOut } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { auth, db, call } from '@/lib/firebase';
-import { Row } from '@/lib/types';
+import { Row, UserProfile } from '@/lib/types';
 import { errorMessage } from '@/lib/utils';
 
 const AuthContext = createContext<{user:User|null; profile:Row|null; loading:boolean; error:string; logout:()=>Promise<void>}>({user:null,profile:null,loading:true,error:'',logout:async()=>{await signOut(auth);}});

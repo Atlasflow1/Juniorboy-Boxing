@@ -7,24 +7,18 @@ import { useDocument } from '@/lib/hooks';
 import { gym } from '@/lib/types';
 import { isProfileComplete } from '@/lib/utils';
 import { Icon, SocialIcon } from './ui';
-import { SiteFX } from './fx';
 const PROFILE_GATE_EXEMPT = ['/complete-profile','/signin','/signup','/waiver','/privacy','/terms','/contact','/about','/blog','/programs','/pricing','/reviews','/store','/schedule','/'];
-function BackgroundToggle() {
-  const [isBlack,setIsBlack] = useState(false);
-  useEffect(()=>{setIsBlack(document.documentElement.getAttribute('data-theme')==='black');},[]);
-  function toggle() {
-    const next = !isBlack;
-    setIsBlack(next);
-    if (next) document.documentElement.setAttribute('data-theme','black');
-    else document.documentElement.removeAttribute('data-theme');
-    try { localStorage.setItem('jbb-bg-theme', next?'black':'teal'); } catch { /* storage blocked */ }
-  }
-  return <button type="button" className="icon-button" aria-label={isBlack?'Switch to teal background':'Switch to black background'} onClick={toggle}><Icon name={isBlack?'dark_mode':'circle'}/></button>;
+function ThemeToggle(){
+  const [dark,setDark]=useState(false);
+  useEffect(()=>{setDark(document.documentElement.getAttribute('data-theme')==='dark'||(!document.documentElement.hasAttribute('data-theme')&&matchMedia('(prefers-color-scheme: dark)').matches));},[]);
+  function toggle(){const next=!dark;setDark(next);document.documentElement.setAttribute('data-theme',next?'dark':'light');try{localStorage.setItem('jbb-theme',next?'dark':'light');}catch{}}
+  return <button type="button" className="icon-button" aria-label={dark?'Use light theme':'Use dark theme'} onClick={toggle}><Icon name={dark?'light_mode':'dark_mode'}/></button>;
 }
-export function SiteShell({children}:{children:ReactNode}) {
-  const [open,setOpen]=useState(false),path=usePathname(),router=useRouter(),{user,profile,loading}=useAuth(),settings=useDocument('gymSettings/config')||gym;
-  useEffect(()=>{if(!loading&&user&&profile&&!isProfileComplete(profile as any)&&!PROFILE_GATE_EXEMPT.includes(path))router.replace('/complete-profile');},[loading,user,profile,path,router]);
-  if(path.startsWith('/admin')) return <>{children}</>;
-  const isAdmin = profile?.role === 'admin';
-  return <><SiteFX/><header className="site-header"><Link className="wordmark" href="/" aria-label="Junior Boy Boxing home">JUNIOR BOY <em>BOXING</em></Link><nav className={open?'site-nav open':'site-nav'} aria-label="Main navigation">{[['Programs','/programs'],['Schedule','/schedule'],['Membership','/pricing'],['Store','/store'],['Reviews','/reviews'],['About','/about'],['Blog','/blog'],['Contact','/contact']].map(([label,href])=><Link onClick={()=>setOpen(false)} aria-current={path===href?'page':undefined} href={href} key={href}>{label}</Link>)}<Link onClick={()=>setOpen(false)} className="nav-cta" href={user?'/dashboard':'/signin'}>{user?'My Account':'Sign In'} <Icon name="north_east" size={16}/></Link></nav><BackgroundToggle/><button className="mobile-menu icon-button" aria-label={open?'Close menu':'Open menu'} aria-expanded={open} onClick={()=>setOpen(!open)}>{open?<Icon name="close"/>:<Icon name="menu"/>}</button></header><main id="main">{children}</main><footer className="site-footer"><div className="footer-top"><div><Link className="wordmark" href="/">JUNIOR BOY <em>BOXING</em></Link><p>Stronger kids. Brighter futures.</p></div><p><Icon name="mail" size={18}/> <a href={`mailto:${settings.email}`}>{settings.email}</a></p><div className="footer-social">{Object.entries(settings.socialLinks||{}).filter(([,url])=>url&&/^https:\/\//.test(String(url))).map(([name,url])=><a key={name} href={String(url)} target="_blank" rel="noreferrer" aria-label={name} className="social-icon-btn"><SocialIcon name={name as 'instagram'|'facebook'|'tiktok'|'youtube'}/></a>)}</div>{loading ? <span className="footer-cta skel-text" aria-hidden="true"/> : <Link href={user?'/schedule':'/signup'} className="footer-cta">{user?'Book a Class':'Step into your corner'} <Icon name="north_east"/></Link>}</div><div className="footer-bottom"><span>© {new Date().getFullYear()} Junior Boy Boxing</span><div><Link href="/about">About</Link><Link href="/blog">Blog</Link><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/waiver">Waiver & Disclaimer</Link><Link href="/contact">Contact</Link></div></div></footer>{isAdmin&&path==='/'&&<Link href="/admin/settings" className="admin-edit-fab"><Icon name="edit" size={18}/>Edit Page</Link>}</>;
+export function SocialLinks({links}:{links:Record<string,string>}){return <div className="footer-social">{(['instagram','facebook','tiktok'] as const).filter(name=>/^https:\/\//.test(links?.[name]||'')).map(name=><a key={name} href={links[name]} target="_blank" rel="noreferrer" aria-label={name} className="social-icon-btn"><SocialIcon name={name}/></a>)}</div>;}
+export function SiteShell({children}:{children:ReactNode}){
+  const path=usePathname(),router=useRouter(),{user,profile,loading}=useAuth(),settings=useDocument('gymSettings/config')||gym;
+  useEffect(()=>{if(!loading&&user&&profile&&!isProfileComplete(profile as any)&&!PROFILE_GATE_EXEMPT.includes(path)&&!['/offers','/calendar','/store/'].some(prefix=>path.startsWith(prefix)))router.replace('/complete-profile');},[loading,user,profile,path,router]);
+  if(path.startsWith('/admin'))return <>{children}</>;
+  const links=[['Sessions','/offers'],['Shop','/store'],['Account',user?'/dashboard':'/signin']];
+  return <><header className="site-header"><Link className="wordmark" href="/" aria-label="Junior Boy Boxing home">JUNIOR BOY <em>BOXING</em></Link><nav className="site-nav" aria-label="Main navigation">{links.map(([label,href])=><Link aria-current={path===href?'page':undefined} href={href} key={label}>{label}</Link>)}</nav><ThemeToggle/></header><main id="main">{children}</main><footer className="site-footer"><div className="footer-top"><Link className="wordmark" href="/">JUNIOR BOY <em>BOXING</em></Link><SocialLinks links={settings.socialLinks||{}}/></div><div className="footer-bottom"><span>© {new Date().getFullYear()} Junior Boy Boxing</span><div><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/waiver">Waiver</Link></div></div></footer></>;
 }
