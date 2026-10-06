@@ -1,32 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'app_colors.dart';
 
-const _useBlackBackgroundKey = 'useBlackBackground';
+const themeModeKey = 'themeMode';
+ThemeMode parseThemeMode(Object? value) => switch (value) {
+  'light' => ThemeMode.light,
+  'dark' => ThemeMode.dark,
+  _ => ThemeMode.system,
+};
 
-/// Whether the app is showing the plain black background instead of the
-/// gray/teal brand background. Black is the app's primary theme, so it's
-/// the default for anyone who hasn't chosen otherwise. Persisted locally
-/// so it survives app restarts.
-class BackgroundStyleNotifier extends Notifier<bool> {
+class ThemeModeNotifier extends Notifier<ThemeMode> {
   @override
-  bool build() =>
-      Hive.box('jbb_device').get(_useBlackBackgroundKey, defaultValue: true)
-          as bool;
-
-  Future<void> toggle(bool useBlack) async {
-    state = useBlack;
-    await Hive.box('jbb_device').put(_useBlackBackgroundKey, useBlack);
+  ThemeMode build() => parseThemeMode(Hive.box('jbb_device').get(themeModeKey));
+  Future<void> setMode(ThemeMode mode) async {
+    state = mode;
+    await Hive.box('jbb_device').put(themeModeKey, mode.name);
   }
 }
 
-final useBlackBackgroundProvider =
-    NotifierProvider<BackgroundStyleNotifier, bool>(
-      BackgroundStyleNotifier.new,
-    );
-
-final backgroundColorProvider = Provider<Color>((ref) {
-  final useBlack = ref.watch(useBlackBackgroundProvider);
-  return useBlack ? AppColors.blackBackground : AppColors.background;
-});
+final themeModeProvider = NotifierProvider<ThemeModeNotifier, ThemeMode>(
+  ThemeModeNotifier.new,
+);

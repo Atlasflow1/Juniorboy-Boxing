@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../resources/app_sizes.dart';
 
 class JbbButton extends StatelessWidget {
   const JbbButton({
@@ -14,11 +15,11 @@ class JbbButton extends StatelessWidget {
   Widget build(BuildContext context) => FilledButton(
     onPressed: busy ? null : onPressed,
     child: busy
-        ? const SizedBox(
-            width: 22,
-            height: 22,
+        ? SizedBox(
+            width: AppSizes.s22,
+            height: AppSizes.s22,
             child: CircularProgressIndicator(
-              strokeWidth: 2,
+              strokeWidth: AppSizes.s2,
               color: Colors.white,
             ),
           )

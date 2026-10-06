@@ -1,0 +1,172 @@
+import '../../../../core/theme/app_palette.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/resources/app_icons.dart';
+import '../../../../core/resources/app_sizes.dart';
+import '../../../../core/resources/app_strings.dart';
+import '../../../../core/utils/date_utils.dart';
+import '../../../../core/utils/snackbar_utils.dart';
+import '../../../../core/widgets/app_icon.dart';
+import '../../../../core/widgets/jbb_card.dart';
+import '../../../../core/widgets/jbb_empty_state.dart';
+import '../../../../core/widgets/jbb_loading.dart';
+import '../providers/admin_provider.dart';
+import '../../../payments/domain/payment.dart';
+import '../widgets/buyer_name.dart';
+
+/// Dedicated admin view of membership purchases, separate from store
+/// orders. Credits are added automatically on payment, so this is a
+/// record/reporting view rather than something the admin has to act on.
+class AdminSubscriptionsScreen extends ConsumerStatefulWidget {
+  const AdminSubscriptionsScreen({super.key});
+  @override
+  ConsumerState<AdminSubscriptionsScreen> createState() =>
+      _AdminSubscriptionsScreenState();
+}
+
+class _AdminSubscriptionsScreenState
+    extends ConsumerState<AdminSubscriptionsScreen> {
+  String? busyId;
+
+  Future<void> delete(Payment order) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      useRootNavigator: true,
+      builder: (context) => AlertDialog(
+        title: Text(AppStrings.deleteThisSubscriptionRecord),
+        content: Text(
+          'This removes the payment record only. It does not remove '
+          'session credits already added — use Refund first if the '
+          'purchase itself needs to be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(AppStrings.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(AppStrings.delete),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    setState(() => busyId = order.id);
+    try {
+      await ref.read(adminRepositoryProvider).deletePayment(order.id);
+      if (mounted) showMessage(context, AppStrings.recordDeleted);
+    } catch (e) {
+      if (mounted) showMessage(context, friendlyError(e));
+    } finally {
+      if (mounted) setState(() => busyId = null);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final orders = ref.watch(adminOrdersProvider);
+    final plans = ref.watch(adminPlansProvider).value ?? [];
+    final planNames = {
+      for (final p in plans) p.id: p.name.isNotEmpty ? p.name : 'Plan',
+    };
+    return Scaffold(
+      appBar: AppBar(title: Text(AppStrings.membershipSubscriptions)),
+      body: orders.when(
+        data: (rows) {
+          final subs = rows.where((p) => p.membershipPlanId != null).toList();
+          if (subs.isEmpty) {
+            return JbbEmptyState(message: AppStrings.noMembershipPurchasesYet);
+          }
+          return ListView(
+            padding: const EdgeInsets.all(AppSizes.s16),
+            children: subs
+                .map(
+                  (order) => JbbCard(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                planNames[order.membershipPlanId] ??
+                                    AppStrings.navMembership,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: AppSizes.font16,
+                                ),
+                              ),
+                              SizedBox(height: AppSizes.s4),
+                              BuyerName(userId: order.userId),
+                              SizedBox(height: AppSizes.s4),
+                              Text(
+                                '${dateLabel(readDate(order.createdAt))} · ${timeLabel(readDate(order.createdAt))}',
+                                style: TextStyle(
+                                  color: context.palette.textSecondary,
+                                  fontSize: AppSizes.font12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              '\$${(order.amount / 100).toStringAsFixed(2)}',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(height: AppSizes.s4),
+                            if (order.credits != null)
+                              Text(
+                                '${order.credits} credits',
+                                style: TextStyle(
+                                  fontSize: AppSizes.font12,
+                                  color: context.palette.textSecondary,
+                                ),
+                              ),
+                            Text(
+                              order.status,
+                              style: TextStyle(
+                                fontSize: AppSizes.font12,
+                                color: context.palette.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                        IconButton(
+                          onPressed: busyId != null
+                              ? null
+                              : () => delete(order),
+                          icon: busyId == order.id
+                              ? SizedBox(
+                                  width: AppSizes.s18,
+                                  height: AppSizes.s18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: AppSizes.s2,
+                                  ),
+                                )
+                              : AppIcon(
+                                  AppIcons.trash,
+                                  color: context.palette.textSecondary,
+                                  size: AppSizes.s20,
+                                ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+                .toList(),
+          );
+        },
+        error: (e, s) => JbbEmptyState(
+          message: friendlyError(e),
+          onRetry: () => ref.invalidate(adminOrdersProvider),
+        ),
+        loading: () => JbbLoading(),
+      ),
+    );
+  }
+}

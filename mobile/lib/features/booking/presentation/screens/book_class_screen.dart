@@ -1,0 +1,191 @@
+import '../../../../core/theme/app_palette.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/resources/app_sizes.dart';
+import '../../../../core/resources/app_strings.dart';
+import '../../../../core/router/app_routes.dart';
+import '../../../../core/utils/date_utils.dart';
+import '../../../../core/utils/nav_debounce.dart';
+import '../../../../core/utils/snackbar_utils.dart';
+import '../../../../core/widgets/jbb_button.dart';
+import '../../../../core/widgets/jbb_card.dart';
+import '../../../../core/widgets/jbb_empty_state.dart';
+import '../../../../core/widgets/jbb_loading.dart';
+import '../../../profile/presentation/providers/profile_provider.dart';
+import '../../../schedule/presentation/providers/schedule_provider.dart';
+import '../../../schedule/domain/program.dart';
+import '../providers/booking_provider.dart';
+
+class BookClassScreen extends ConsumerStatefulWidget {
+  const BookClassScreen({super.key, required this.scheduleId});
+  final String scheduleId;
+  @override
+  ConsumerState<BookClassScreen> createState() => _BookClassState();
+}
+
+class _BookClassState extends ConsumerState<BookClassScreen> {
+  bool busy = false;
+  Future<void> confirm() async {
+    final user = ref.read(profileProvider).value;
+    final waiver = ref.read(waiverProvider).value;
+    if (waiver?.published == true &&
+        waiver?.requiredOnBooking == true &&
+        (user?.waiverVersion != waiver?.version ||
+            user?.waiverParticipantName != user?.childName.trim() ||
+            user?.waiverParticipantAge != user?.childAge)) {
+      context.safeNavigate(AppRoutes.waiver);
+      return;
+    }
+    final session = ref.read(sessionProvider(widget.scheduleId)).value;
+    final program = (ref.read(classesProvider).value ?? const <Program>[])
+        .firstWhere(
+          (p) => p.id == session?.classId,
+          orElse: () => Program.empty,
+        );
+    if ((user?.availableSessions(program.trainingType) ?? 0) < 1) {
+      context.safeNavigate(AppRoutes.membership);
+      return;
+    }
+    setState(() => busy = true);
+    try {
+      await ref.read(bookingRepositoryProvider).create(widget.scheduleId);
+      if (mounted) context.safeNavigate(AppRoutes.bookingConfirmed);
+    } catch (e) {
+      if (mounted) showMessage(context, friendlyError(e));
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    ref.watch(waiverProvider);
+    return Scaffold(
+      appBar: AppBar(title: Text(AppStrings.bookClass)),
+      body: ref
+          .watch(sessionProvider(widget.scheduleId))
+          .when(
+            data: (session) {
+              final programs = ref.watch(classesProvider).value ?? [],
+                  program = programs.firstWhere(
+                    (c) => c.id == session.classId,
+                    orElse: () => Program.empty,
+                  );
+              final spots = session.maxSpots - session.bookedSpots;
+              final trainingType = program.trainingType ?? 'private';
+              final typeLabel = switch (trainingType) {
+                'group' => 'Group',
+                'duo' => 'Duo',
+                _ => 'Private',
+              };
+              final remaining =
+                  ref
+                      .watch(profileProvider)
+                      .value
+                      ?.availableSessions(trainingType) ??
+                  0;
+              return ListView(
+                padding: const EdgeInsets.all(AppSizes.s16),
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(AppSizes.radius12),
+                    child: Hero(
+                      tag: 'class-${widget.scheduleId}',
+                      child: Image.asset(
+                        'assets/images/photos/photo_kid_boxing.jpg',
+                        height: AppSizes.bookingProgramImageHeight,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: AppSizes.s20),
+                  JbbCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (program.category != null)
+                          Text(
+                            program.category!.toUpperCase(),
+                            style: TextStyle(
+                              color: context.palette.accent,
+                              fontSize: AppSizes.font11,
+                            ),
+                          ),
+                        Text(
+                          program.className ?? AppStrings.uiBoxingClass,
+                          style: Theme.of(context).textTheme.headlineMedium,
+                        ),
+                        if (program.ageGroup != null) Text(program.ageGroup!),
+                        SizedBox(height: AppSizes.s22),
+                        for (final item in [
+                          (AppStrings.uiDate, dateLabel(session.date)),
+                          (
+                            AppStrings.uiTime,
+                            '${timeLabel(session.date)} – ${timeLabel(session.endAt)} PT',
+                          ),
+                          (AppStrings.trainingType, typeLabel),
+                          (
+                            AppStrings.uiLocation2,
+                            program.address ??
+                                ref.watch(settingsProvider).value?.address ??
+                                AppStrings.gymName,
+                          ),
+                          (
+                            AppStrings.uiAvailability,
+                            '$spots of ${session.maxSpots} spots',
+                          ),
+                          (
+                            AppStrings.sessionsRemainingLabel,
+                            '$remaining remaining',
+                          ),
+                          if (program.priceLabel != null)
+                            (AppStrings.priceLabel, program.priceLabel!),
+                        ])
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              bottom: AppSizes.s18,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item.$1,
+                                  style: TextStyle(
+                                    color: context.palette.accent,
+                                    fontSize: AppSizes.font11,
+                                    letterSpacing: AppSizes.labelTracking,
+                                  ),
+                                ),
+                                SizedBox(height: AppSizes.s5),
+                                Text(item.$2),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  JbbButton(
+                    label: remaining < 1
+                        ? AppStrings.purchasePackage(typeLabel)
+                        : AppStrings.confirmBooking,
+                    busy: busy,
+                    onPressed:
+                        spots > 0 &&
+                            session.isCancelled != true &&
+                            session.date.isAfter(DateTime.now())
+                        ? confirm
+                        : null,
+                  ),
+                ],
+              );
+            },
+            error: (e, s) => JbbEmptyState(
+              message: friendlyError(e),
+              onRetry: () => ref.invalidate(sessionProvider(widget.scheduleId)),
+            ),
+            loading: () => JbbLoading(),
+          ),
+    );
+  }
+}
