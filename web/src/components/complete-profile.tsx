@@ -27,7 +27,7 @@ export function CompleteProfilePage() {
     const address = composeAddress(data);
     setBusy(true); setError('');
     try {
-      await updateDoc(doc(db,'users',user!.uid), {fullName:data.fullName||profile?.fullName||'Member', childName:data.childName, childAge:Number(data.childAge), phone:data.phone, address, avatarUrl, updatedAt:serverTimestamp()});
+      await updateDoc(doc(db,'users',user!.uid), {fullName:data.fullName||profile?.fullName||'Member', childName:data.childName, childAge:Number(data.childAge), phone:data.phone, address, zipCode:data.zipCode, avatarUrl, updatedAt:serverTimestamp()});
       const next = new URLSearchParams(window.location.search).get('next');
       router.push(next?.startsWith('/')&&!next.startsWith('//')?next:'/dashboard');
     } catch (e) { setError(errorMessage(e)); setBusy(false); }
@@ -41,7 +41,7 @@ export function CompleteProfilePage() {
     <label className="field">Participant name<input name="childName" required maxLength={100} defaultValue={profile?.childName||''}/></label>
     <label className="field">Participant age<input name="childAge" required type="number" min="1" max="120" defaultValue={profile?.childAge||''}/></label>
     <label className="field">Phone<input name="phone" required type="tel" pattern="[+0-9 ()-]{7,32}" autoComplete="tel" defaultValue={profile?.phone||''}/></label>
-    <AddressFields defaultStreet={profile?.address||''}/>
+    <AddressFields defaultStreet={profile?.address||''} defaultZipCode={profile?.zipCode||''}/>
     <Button busy={busy}>Continue →</Button>
   </form></div>;
 }

@@ -12,16 +12,6 @@ import { Button, Notice, PageHeading, Icon } from '../ui';
 import { useAuth } from '../providers';
 import { isSuperAdmin } from '@/lib/permissions';
 
-const offerFields = [
-  { key: 'offerCancelHoursGroup', label: 'Group and duo cancellation window · hours', defaultValue: 12, min: 1, max: 168 },
-  { key: 'offerCancelHoursPrivate', label: 'Private and request cancellation window · hours', defaultValue: 24, min: 1, max: 168 },
-  { key: 'offerGraceMinutes', label: 'Cancellation grace period · minutes', defaultValue: 15, min: 0, max: 120 },
-  { key: 'offerHoldMinutes', label: 'Checkout seat hold · minutes', defaultValue: 15, min: 5, max: 1440 },
-  { key: 'requestPayWindowHours', label: 'Request payment window · hours', defaultValue: 24, min: 1, max: 168 },
-  { key: 'requestPayCutoffHours', label: 'Request payment cutoff before start · hours', defaultValue: 2, min: 1, max: 168 },
-  { key: 'requestMinPayMinutes', label: 'Minimum request payment window · minutes', defaultValue: 60, min: 5, max: 1440 },
-] as const;
-
 export function AdminSettings() {
   const { profile } = useAuth();
   const canEdit = isSuperAdmin(profile as any);
@@ -76,9 +66,6 @@ export function AdminSettings() {
         ])
       );
       const address = (f.address || '').trim();
-      const offerConfig = Object.fromEntries(
-        offerFields.map((field) => [field.key, Number(f[field.key])])
-      );
 
       await setDoc(
         doc(db, 'gymSettings', 'config'),
@@ -100,7 +87,6 @@ export function AdminSettings() {
           },
           classRemindersEnabled: f.classRemindersEnabled === 'on',
           membershipAlertsEnabled: f.membershipAlertsEnabled === 'on',
-          ...offerConfig,
           updatedAt: serverTimestamp(),
         },
         { merge: true }
@@ -151,12 +137,6 @@ export function AdminSettings() {
               <Icon name="admin_panel_settings" size={16} /> Staff
             </Link>
           )}
-          <Link href="/admin/schedule" className="button secondary small">
-            <Icon name="calendar_month" size={16} /> Schedule
-          </Link>
-          <Link href="/admin/plans" className="button secondary small">
-            <Icon name="layers" size={16} /> Plans
-          </Link>
           <Link href="/admin/ads" className="button secondary small">
             <Icon name="campaign" size={16} /> Ads
           </Link>
@@ -261,26 +241,6 @@ export function AdminSettings() {
           ))}
         </div>
 
-        <h3>Sessions &amp; refunds</h3>
-        <div className="field-grid">
-          {offerFields.map((field) => (
-            <label className="field" key={field.key}>
-              {field.label}
-              <input
-                name={field.key}
-                type="number"
-                step="1"
-                min={field.min}
-                max={field.max}
-                defaultValue={
-                  typeof saved?.[field.key] === 'number' ? saved[field.key] : field.defaultValue
-                }
-                readOnly={!canEdit}
-                required
-              />
-            </label>
-          ))}
-        </div>
 
         <h3>Social links</h3>
         <p className="muted" style={{ fontSize: 13, margin: '0 0 8px' }}>

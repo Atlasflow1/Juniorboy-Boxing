@@ -1,3 +1,3 @@
-import { OffersPage } from '@/components/parent-offers';
+import { SessionsPage } from '@/components/sessions-public';
 export const metadata={title:'Sessions'};
-export default function Page(){return <OffersPage/>;}
+export default function Page(){return <SessionsPage/>;}

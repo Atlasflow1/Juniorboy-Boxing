@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { DateTime } from 'luxon';
-import { Timestamp, limit, orderBy, where } from 'firebase/firestore';
+import { limit, orderBy } from 'firebase/firestore';
 import {
   ResponsiveContainer,
   LineChart,
@@ -19,23 +19,14 @@ import { call } from '@/lib/firebase';
 import { useRows } from '@/lib/hooks';
 import { useMemberProfiles } from '@/lib/member-cache';
 import { Row } from '@/lib/types';
-import { dateLabel, timeLabel, money, errorMessage, zone } from '@/lib/utils';
-import { Loading, Notice, PageHeading, ActionLink, Empty, Icon } from '../ui';
+import { dateLabel, money, errorMessage, zone } from '@/lib/utils';
+import { Loading, Notice, PageHeading, Icon } from '../ui';
 import { MemberCell } from './member-cell';
 
 export function AdminOverview() {
   const [stats, setStats] = useState<Row | null>(null);
   const [error, setError] = useState('');
   const today = DateTime.now().setZone(zone).startOf('day');
-  const sessions = useRows(
-    'schedule',
-    [
-      where('date', '>=', Timestamp.fromMillis(today.toMillis())),
-      where('date', '<', Timestamp.fromMillis(today.plus({ days: 1 }).toMillis())),
-      orderBy('date'),
-    ],
-    today.toISODate()!
-  );
   const bookings = useRows('bookings', [orderBy('bookedAt', 'desc'), limit(10)]);
   const profiles = useMemberProfiles(bookings.rows.map((b) => b.userId as string));
 
@@ -101,14 +92,6 @@ export function AdminOverview() {
                 ...(stats.revenueThisMonth === null
                   ? []
                   : [['Revenue This Month', money(stats.revenueThisMonth)]]),
-                ...(stats.offerRevenueThisMonth === null
-                  ? []
-                  : [['Session revenue (month)', money(stats.offerRevenueThisMonth)]]),
-                ['Session bookings today', stats.offerBookingsToday],
-                [
-                  'Seats filled (7 days)',
-                  `${stats.seatsFilledNext7Days.taken} / ${stats.seatsFilledNext7Days.capacity}`,
-                ],
                 ['Active Plans', stats.activePlans],
               ].map(([title, value]) => (
                 <div className="card stat" key={title}>
@@ -170,34 +153,6 @@ export function AdminOverview() {
             </div>
           </>
         )
-      )}
-
-      <div className="section-heading">
-        <h2 style={{ fontSize: 26 }}>Today’s schedule</h2>
-        <ActionLink href="/admin/schedule" secondary>
-          Manage Schedule
-        </ActionLink>
-      </div>
-
-      {sessions.error && <Notice error>{sessions.error}</Notice>}
-      {sessions.rows.length ? (
-        <div className="class-list">
-          {sessions.rows.map((s) => (
-            <div className="card row spread" key={s.id}>
-              <div>
-                <strong>{s.classId}</strong>
-                <p className="muted" style={{ fontSize: 12, margin: 0 }}>
-                  {timeLabel(s.date)} – {timeLabel(s.endAt)}
-                </p>
-              </div>
-              <span>
-                {s.isCancelled ? 'Cancelled' : `${s.bookedSpots} / ${s.maxSpots} booked`}
-              </span>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <Empty>No classes today.</Empty>
       )}
 
       <h2 style={{ fontSize: 26, marginTop: 34 }}>Recent bookings</h2>

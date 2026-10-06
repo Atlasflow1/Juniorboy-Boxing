@@ -9,23 +9,9 @@ import { dateLabel, timeLabel, asDate, errorMessage, downloadCSV } from '@/lib/u
 import { Button, Notice, PageHeading, Loading, Empty, Modal } from '../ui';
 import { usePaged, Pagination, Status } from './data';
 import { MemberCell } from './member-cell';
-import { OfferAdminBookings } from './offer-bookings';
 
 export function AdminBookings() {
-  const [tab, setTab] = useState<'offers' | 'classes'>('offers');
-  return (
-    <>
-      <div className="admin-toolbar">
-        <Button className={tab === 'offers' ? '' : 'secondary'} onClick={() => setTab('offers')}>
-          Session bookings
-        </Button>
-        <Button className={tab === 'classes' ? '' : 'secondary'} onClick={() => setTab('classes')}>
-          Class bookings
-        </Button>
-      </div>
-      {tab === 'offers' ? <OfferAdminBookings /> : <ClassAdminBookings />}
-    </>
-  );
+  return <ClassAdminBookings />;
 }
 
 function ClassAdminBookings() {

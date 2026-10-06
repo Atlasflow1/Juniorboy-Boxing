@@ -24,9 +24,12 @@ service cloud.firestore {
         && request.resource.data.childAge is int && request.resource.data.childAge >= 0 && request.resource.data.childAge <= 120
         && request.resource.data.avatarUrl is string && request.resource.data.avatarUrl.size() <= 2048
         && (!('profilePicUrl' in request.resource.data) || (request.resource.data.profilePicUrl is string && request.resource.data.profilePicUrl.size() <= 2048))
-        && request.resource.data.notificationPreferences.keys().hasOnly(['push', 'email'])
+        && request.resource.data.notificationPreferences.keys().hasOnly(['push', 'email', 'offers', 'reminders', 'marketing'])
         && request.resource.data.notificationPreferences.push is bool
         && request.resource.data.notificationPreferences.email is bool
+        && (!('offers' in request.resource.data.notificationPreferences) || request.resource.data.notificationPreferences.offers is bool)
+        && (!('reminders' in request.resource.data.notificationPreferences) || request.resource.data.notificationPreferences.reminders is bool)
+        && (!('marketing' in request.resource.data.notificationPreferences) || request.resource.data.notificationPreferences.marketing is bool)
         && request.resource.data.updatedAt == request.time;
       match /devices/{deviceId} {
         allow read, delete: if active() && request.auth.uid == uid;
@@ -38,13 +41,14 @@ service cloud.firestore {
       }
     }
     match /classes/{id} { allow read: if active(); allow write: if admin(); }
-    match /sessions/{id} { allow read: if active(); allow write: if admin(); }
+    match /sessions/{id} { allow read: if true; allow write: if admin(); }
     match /schedule/{id} { allow read: if active(); }
     match /recurringTemplates/{id} { allow read, write: if admin(); }
     match /bookings/{id} { allow read: if owns() || admin(); }
     match /payments/{id} { allow read: if owns() || admin(); }
     match /membershipPlans/{id} { allow read: if resource.data.isActive == true || admin(); allow write: if admin(); }
     match /homeAds/{id} { allow read: if resource.data.isActive == true || admin(); allow write: if admin(); }
+    match /galleryPhotos/{id} { allow read: if resource.data.isVisible == true || admin(); allow write: if admin(); }
     match /products/{id} { allow read: if resource.data.isActive == true || admin(); allow write: if admin(); }
     match /reviews/{id} { allow read: if true; }
     match /reviewStats/{id} { allow read: if true; }

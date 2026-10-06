@@ -23,12 +23,6 @@ export const nav: AdminNavItem[] = [
     visible: (p) => can(p, 'manageOffers'),
   },
   {
-    title: 'Roster',
-    href: '/admin/roster',
-    icon: 'how_to_reg',
-    visible: (p) => can(p, 'checkIn') || can(p, 'manageOffers'),
-  },
-  {
     title: 'Bookings',
     href: '/admin/bookings',
     icon: 'assignment_turned_in',
@@ -37,12 +31,6 @@ export const nav: AdminNavItem[] = [
       can(p, 'bookForMember') ||
       can(p, 'viewRevenue') ||
       can(p, 'checkIn'),
-  },
-  {
-    title: 'Requests',
-    href: '/admin/requests',
-    icon: 'assignment_turned_in',
-    visible: (p) => can(p, 'approveRequests'),
   },
   {
     title: 'Store',
@@ -67,21 +55,9 @@ export const nav: AdminNavItem[] = [
 // Hidden from sidebar menu, but routes remain fully accessible via Gym Settings "More" list
 export const hiddenRoutes: AdminNavItem[] = [
   {
-    title: 'Schedule',
-    href: '/admin/schedule',
-    icon: 'calendar_month',
-    visible: (p) => can(p, 'manageOffers'),
-  },
-  {
     title: 'Members',
     href: '/admin/members',
     icon: 'group',
-    visible: (p) => can(p, 'manageMembers'),
-  },
-  {
-    title: 'Plans',
-    href: '/admin/plans',
-    icon: 'layers',
     visible: (p) => can(p, 'manageMembers'),
   },
   {

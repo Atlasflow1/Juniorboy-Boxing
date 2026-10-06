@@ -13,7 +13,7 @@ const labels:Record<Permission,string> = {
   viewRevenue:'View revenue and exports', manageMembers:'Manage members', manageStore:'Manage store', manageContent:'Manage content',
 };
 const permissionNames=Object.keys(labels) as Permission[];
-const emptyPermissions=()=>Object.fromEntries(permissionNames.map(name=>[name,false])) as Record<Permission,boolean>;
+const emptyPermissions=()=>Object.fromEntries(permissionNames.map(name=>[name,true])) as Record<Permission,boolean>;
 
 export function AdminStaff(){
   const {profile,user}=useAuth();
