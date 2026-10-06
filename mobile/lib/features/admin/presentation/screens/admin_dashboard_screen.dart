@@ -3,11 +3,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../../../core/constants/programs.dart';
+import 'package:intl/intl.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/utils/nav_debounce.dart';
 import '../../../home/domain/home_ad.dart';
-import '../../../schedule/domain/program.dart';
 import '../../../../core/resources/app_icons.dart';
 import '../../../../core/resources/app_sizes.dart';
 import '../../../../core/resources/app_strings.dart';
@@ -19,30 +18,19 @@ import '../../../../core/widgets/jbb_card.dart';
 import '../../../../core/widgets/jbb_loading.dart';
 import '../../../../core/widgets/settings_group.dart';
 import '../../../profile/presentation/providers/profile_provider.dart';
+import '../../../sessions/models/session_model.dart';
+import '../../../sessions/presentation/providers/session_provider.dart';
 import '../../../store/presentation/screens/store_screen.dart';
 import '../providers/admin_provider.dart';
 import 'admin_bookings_screen.dart';
 import 'admin_orders_screen.dart';
 import 'admin_subscriptions_screen.dart';
-import 'plan_editor_screen.dart';
-import 'template_editor_screen.dart';
-
-const _weekdayNames = {
-  1: 'Mon',
-  2: 'Tue',
-  3: 'Wed',
-  4: 'Thu',
-  5: 'Fri',
-  6: 'Sat',
-  7: 'Sun',
-};
 
 class AdminDashboardScreen extends ConsumerWidget {
   const AdminDashboardScreen({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final plans = ref.watch(adminPlansProvider);
-    final templates = ref.watch(adminTemplatesProvider);
+    final sessions = ref.watch(sessionsProvider);
     return Scaffold(
       appBar: AppBar(title: Text(AppStrings.adminDashboard)),
       body: ListView(
@@ -97,7 +85,7 @@ class AdminDashboardScreen extends ConsumerWidget {
             children: [
               Expanded(
                 child: Text(
-                  AppStrings.uiMembershipPrices,
+                  AppStrings.uiSessions,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: AppSizes.font17,
@@ -105,106 +93,31 @@ class AdminDashboardScreen extends ConsumerWidget {
                 ),
               ),
               TextButton.icon(
-                onPressed: () => Navigator.of(
-                  context,
-                ).push(MaterialPageRoute(builder: (_) => PlanEditorScreen())),
+                onPressed: () =>
+                    context.safeNavigate(AppRoutes.adminSessionEditor),
                 icon: AppIcon(AppIcons.plus, size: AppSizes.s18),
                 label: Text(AppStrings.add),
               ),
             ],
           ),
           SizedBox(height: AppSizes.s8),
-          plans.when(
+          sessions.when(
             data: (rows) {
               final sorted = [...rows]
-                ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
-              return Column(
-                children: [
-                  for (final plan in sorted)
-                    JbbCard(
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => PlanEditorScreen(plan: plan),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  plan.name,
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                Text(
-                                  '${plan.priceLabel} · ${plan.isActive == true ? AppStrings.uiActive : AppStrings.uiHidden2} · ${Programs.categories[plan.category] ?? AppStrings.uiGeneral}',
-                                  style: TextStyle(
-                                    color: context.palette.textSecondary,
-                                    fontSize: AppSizes.font12,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          AppIcon(
-                            AppIcons.chevronRight,
-                            color: context.palette.textSecondary,
-                          ),
-                        ],
-                      ),
-                    ),
-                ],
-              );
-            },
-            error: (e, s) => Text(AppStrings.couldNotLoadPlans(e)),
-            loading: () => JbbLoading(),
-          ),
-          SizedBox(height: AppSizes.s24),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  AppStrings.uiClassScheduleTimes,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: AppSizes.font17,
-                  ),
-                ),
-              ),
-              TextButton.icon(
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => TemplateEditorScreen()),
-                ),
-                icon: AppIcon(AppIcons.plus, size: AppSizes.s18),
-                label: Text(AppStrings.add),
-              ),
-            ],
-          ),
-          SizedBox(height: AppSizes.s8),
-          templates.when(
-            data: (rows) {
-              final sorted = [...rows]
-                ..sort((a, b) {
-                  final dayCompare = a.dayOfWeek.compareTo(b.dayOfWeek);
-                  return dayCompare != 0
-                      ? dayCompare
-                      : (a.startTime ?? '').compareTo(b.startTime ?? '');
-                });
+                ..sort((a, b) => a.startDate.compareTo(b.startDate));
               if (sorted.isEmpty) {
                 return Text(
-                  AppStrings.uiNoClassTimesSetUpYet,
+                  AppStrings.uiNoSessionsYet,
                   style: TextStyle(color: context.palette.textSecondary),
                 );
               }
               return Column(
                 children: [
-                  for (final t in sorted)
+                  for (final SessionModel s in sorted)
                     JbbCard(
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => TemplateEditorScreen(template: t),
-                        ),
+                      onTap: () => context.safeNavigate(
+                        AppRoutes.adminSessionEditor,
+                        extra: s,
                       ),
                       child: Row(
                         children: [
@@ -213,11 +126,11 @@ class AdminDashboardScreen extends ConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  '${_weekdayNames[t.dayOfWeek] ?? ''} · ${t.startTime}',
+                                  s.title,
                                   style: TextStyle(fontWeight: FontWeight.bold),
                                 ),
                                 Text(
-                                  '${t.classId} · ${t.maxSpots} spots · ${t.isActive == true ? AppStrings.uiActive : AppStrings.uiPaused}',
+                                  '${DateFormat('MMM d').format(s.startDate)}–${DateFormat('MMM d').format(s.endDate)} · ${s.startTime}-${s.endTime} · ${s.joinedUserIds.length}/${s.maxParticipants} joined',
                                   style: TextStyle(
                                     color: context.palette.textSecondary,
                                     fontSize: AppSizes.font12,
@@ -236,7 +149,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                 ],
               );
             },
-            error: (e, s) => Text(AppStrings.couldNotLoadScheduleTimes(e)),
+            error: (e, s) => Text(AppStrings.couldNotLoadSessions(e)),
             loading: () => JbbLoading(),
           ),
         ],
@@ -249,70 +162,10 @@ class _CatalogSection extends ConsumerWidget {
   const _CatalogSection();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final programs = ref.watch(adminProgramsProvider);
     final ads = ref.watch(adminAdsProvider);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _CatalogHeading(
-          title: AppStrings.programs,
-          onAdd: () => context.safeNavigate(AppRoutes.adminProgramEditor),
-        ),
-        programs.when(
-          data: (rows) => Column(
-            children: [
-              for (final Program p in rows)
-                JbbCard(
-                  onTap: () => context.safeNavigate(
-                    AppRoutes.adminProgramEditor,
-                    extra: p,
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(child: Text(p.className ?? p.id)),
-                      AppIcon(
-                        AppIcons.chevronRight,
-                        color: context.palette.textSecondary,
-                      ),
-                    ],
-                  ),
-                ),
-            ],
-          ),
-          loading: () => const JbbLoading(),
-          error: (e, _) => Text(friendlyError(e)),
-        ),
-        SizedBox(height: AppSizes.s20),
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                AppStrings.uiClassScheduleTimes,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-            TextButton(
-              onPressed: () =>
-                  context.safeNavigate(AppRoutes.adminSessionEditor),
-              child: const Text(AppStrings.addSession),
-            ),
-          ],
-        ),
-        TextButton.icon(
-          onPressed: () async {
-            try {
-              await ref.read(adminRepositoryProvider).generateScheduleNow();
-              if (context.mounted) {
-                showMessage(context, AppStrings.sessionsGenerated);
-              }
-            } catch (e) {
-              if (context.mounted) showMessage(context, friendlyError(e));
-            }
-          },
-          icon: const AppIcon(AppIcons.calendarCheck),
-          label: const Text(AppStrings.generateNextWeek),
-        ),
-        SizedBox(height: AppSizes.s20),
         _CatalogHeading(
           title: AppStrings.homeAds,
           onAdd: () => context.safeNavigate(AppRoutes.adminAdEditor),
@@ -558,7 +411,13 @@ class _PromoVideoSectionState extends ConsumerState<_PromoVideoSection> {
   }
 
   Future<void> save() async {
-    final trimmed = url.text.trim();
+    var trimmed = url.text.trim();
+    // Pasting from some apps/browsers drops the scheme (e.g.
+    // "youtube.com/watch?v=..." or "youtu.be/..."). Treat that as the
+    // admin's intent rather than silently rejecting it.
+    if (trimmed.isNotEmpty && !trimmed.contains('://')) {
+      trimmed = 'https://$trimmed';
+    }
     if (trimmed.isNotEmpty && Uri.tryParse(trimmed)?.hasScheme != true) {
       showMessage(context, AppStrings.thatDoesnTLookLikeAValid);
       return;
@@ -567,6 +426,7 @@ class _PromoVideoSectionState extends ConsumerState<_PromoVideoSection> {
     try {
       await ref.read(adminRepositoryProvider).savePromoVideoUrl(trimmed);
       if (mounted) {
+        url.text = trimmed;
         showMessage(
           context,
           trimmed.isEmpty

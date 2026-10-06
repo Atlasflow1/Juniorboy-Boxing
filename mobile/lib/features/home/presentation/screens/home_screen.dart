@@ -13,6 +13,7 @@ import '../widgets/gym_contact_footer.dart';
 import '../widgets/home_ads_section.dart';
 import '../widgets/home_hero_banner.dart';
 import '../widgets/youtube_background_player.dart';
+import '../../../sessions/presentation/widgets/sessions_section.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -47,6 +48,8 @@ class HomeScreen extends ConsumerWidget {
         const FeaturedProductsCarousel(),
         const SizedBox(height: AppSizes.s20),
         const HomeAdsSection(),
+        const SizedBox(height: AppSizes.s20),
+        const SessionsSection(),
         const SizedBox(height: AppSizes.s20),
         const MembershipPlansSection(),
         const SizedBox(height: AppSizes.s28),

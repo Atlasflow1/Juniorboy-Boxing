@@ -67,11 +67,22 @@ class _YoutubeBackgroundPlayerState extends State<YoutubeBackgroundPlayer>
   }
 
   @override
-  Widget build(BuildContext context) => ClipRRect(
-    borderRadius: BorderRadius.circular(AppSizes.radius16),
-    child: AspectRatio(
-      aspectRatio: AppSizes.videoAspectRatio,
-      child: AbsorbPointer(child: YoutubePlayer(controller: controller)),
-    ),
+  Widget build(BuildContext context) => YoutubeValueBuilder(
+    controller: controller,
+    buildWhen: (previous, current) => previous.hasError != current.hasError,
+    builder: (context, value) {
+      // The video owner can block embedding entirely (YouTube error
+      // 101/150) — nothing client-side can work around that. Hiding the
+      // banner is better than showing members a broken/blank player; the
+      // Admin Dashboard already explains this and offers "upload instead."
+      if (value.hasError) return const SizedBox.shrink();
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(AppSizes.radius16),
+        child: AspectRatio(
+          aspectRatio: AppSizes.videoAspectRatio,
+          child: AbsorbPointer(child: YoutubePlayer(controller: controller)),
+        ),
+      );
+    },
   );
 }

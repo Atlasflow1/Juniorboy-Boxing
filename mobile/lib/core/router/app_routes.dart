@@ -15,9 +15,9 @@ abstract final class AppRoutes {
   static const payments = '/payments';
   static const reviews = '/reviews';
   static const admin = '/admin';
-  static const adminProgramEditor = '/admin/program-editor';
   static const adminAdEditor = '/admin/ad-editor';
   static const adminSessionEditor = '/admin/session-editor';
+  static const sessionMembers = '/session-members';
   static const blog = '/blog';
   static const contact = '/contact';
   static const about = '/about';

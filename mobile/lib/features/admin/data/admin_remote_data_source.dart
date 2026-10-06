@@ -14,10 +14,6 @@ class AdminRemoteDataSource extends CachedRepository {
   String newId() => db.collection('membershipPlans').doc().id;
   Stream<List<Map<String, dynamic>>> plans() =>
       watchQuery(db.collection('membershipPlans'), 'admin_plans');
-  Stream<List<Map<String, dynamic>>> templates() =>
-      watchQuery(db.collection('recurringTemplates'), 'admin_templates');
-  Stream<List<Map<String, dynamic>>> programs() =>
-      watchQuery(db.collection('classes'), 'admin_programs');
   Stream<List<Map<String, dynamic>>> ads() =>
       watchQuery(db.collection('homeAds'), 'admin_ads');
 
@@ -29,53 +25,6 @@ class AdminRemoteDataSource extends CachedRepository {
       if (!exists) 'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
-  }
-
-  Future<void> savePlan(String id, Map<String, dynamic> values) =>
-      _saveCatalogDocument('membershipPlans/$id', values);
-
-  Future<void> deletePlan(String id) => db.doc('membershipPlans/$id').delete();
-
-  /// Shares the same `gym/plans/{id}` Storage path the web admin panel
-  /// uploads to, so a photo added from either platform shows on both.
-  Future<String> uploadPlanImage(String planId, File file) async {
-    if (await file.length() > 5 * 1024 * 1024) {
-      throw const FormatException('Image must be smaller than 5 MB');
-    }
-    final ref = FirebaseStorage.instance.ref('gym/plans/$planId');
-    await ref.putFile(file, SettableMetadata(contentType: 'image/jpeg'));
-    return ref.getDownloadURL();
-  }
-
-  Future<void> saveProgram(String id, Map<String, dynamic> values) =>
-      _saveCatalogDocument('classes/$id', values);
-
-  /// Shares the same `gym/programs/{id}` Storage path the web admin panel
-  /// uploads to, so a photo added from either platform shows on both.
-  Future<String> uploadProgramImage(String classId, File file) async {
-    if (await file.length() > 5 * 1024 * 1024) {
-      throw const FormatException('Image must be smaller than 5 MB');
-    }
-    final ref = FirebaseStorage.instance.ref('gym/programs/$classId');
-    await ref.putFile(file, SettableMetadata(contentType: 'image/jpeg'));
-    return ref.getDownloadURL();
-  }
-
-  /// Shares the same `gym/programs/{id}_ad{index}` Storage path the web
-  /// admin panel uploads to, for the home-page program ad banners.
-  Future<String> uploadProgramAdImage(
-    String classId,
-    int index,
-    File file,
-  ) async {
-    if (await file.length() > 5 * 1024 * 1024) {
-      throw const FormatException('Image must be smaller than 5 MB');
-    }
-    final ref = FirebaseStorage.instance.ref(
-      'gym/programs/${classId}_ad$index',
-    );
-    await ref.putFile(file, SettableMetadata(contentType: 'image/jpeg'));
-    return ref.getDownloadURL();
   }
 
   Future<void> saveAd(String id, Map<String, dynamic> values) =>
@@ -93,39 +42,6 @@ class AdminRemoteDataSource extends CachedRepository {
     await ref.putFile(file, SettableMetadata(contentType: 'image/jpeg'));
     return ref.getDownloadURL();
   }
-
-  Future<void> saveTemplate(String id, Map<String, dynamic> values) =>
-      db.doc('recurringTemplates/$id').set(values, SetOptions(merge: true));
-
-  Future<void> deleteTemplate(String id) =>
-      db.doc('recurringTemplates/$id').delete();
-
-  /// Immediately generates next week's bookable sessions from the active
-  /// recurring templates, instead of waiting for the Sunday cron — needed
-  /// right after adding/fixing a class time so it shows up without delay.
-  Future<void> generateScheduleNow() =>
-      FirebaseFunctions.instance.httpsCallable('generateScheduleNow').call();
-
-  /// Creates or edits a one-off bookable session on a specific date (as
-  /// opposed to a recurring weekly class time) — e.g. "October 10,
-  /// 10:00-11:00". Server-side `saveSchedule` enforces the capacity rule
-  /// (Private=1, Duo=2, Group=admin's choice) and future-date/overlap
-  /// checks, so this is a thin wrapper, same pattern as generateScheduleNow.
-  Future<void> saveSession({
-    String? scheduleId,
-    required String classId,
-    required String date,
-    required String startTime,
-    required String endTime,
-    required int maxSpots,
-  }) => FirebaseFunctions.instance.httpsCallable('saveSchedule').call({
-    'scheduleId': scheduleId,
-    'classId': classId,
-    'date': date,
-    'startTime': startTime,
-    'endTime': endTime,
-    'maxSpots': maxSpots,
-  });
 
   Future<void> savePromoVideoUrl(String url) =>
       db.doc('gymSettings/config').set({

@@ -12,6 +12,7 @@ const STRIPE_WEBHOOK_SECRET = defineSecret('STRIPE_WEBHOOK_SECRET');
 const stripe = () => new Stripe(STRIPE_SECRET_KEY.value());
 const purchaseSchema = z.object({ planId: id, requestId: z.string().uuid() });
 const productPurchaseSchema = z.object({ productId: id, requestId: z.string().uuid(), size: z.string().max(20).optional() });
+const joinSessionSchema = z.object({ sessionId: id, requestId: z.string().uuid() });
 
 async function createOrRetrieveIntent(ref: FirebaseFirestore.DocumentReference, order: FirebaseFirestore.DocumentData, metadata: Record<string, string>, receiptEmail?: string) {
   const api = stripe();
@@ -83,6 +84,38 @@ export const createProductPaymentIntent = onCall({ secrets: [STRIPE_SECRET_KEY],
   return { paymentId: ref.id, clientSecret: intent.client_secret, status: intent.status };
 });
 
+export const joinSession = onCall({ secrets: [STRIPE_SECRET_KEY], enforceAppCheck, maxInstances: 20 }, async request => {
+  const uid = requireRegistered(request);
+  const user = await requireMember(uid);
+  if (!user.phone?.trim()) throw new HttpsError('failed-precondition', 'Complete your phone number in Profile Settings before purchasing.');
+  await rateLimit(uid, 'payment', 8);
+  const input = joinSessionSchema.safeParse(request.data);
+  if (!input.success) throw new HttpsError('invalid-argument', 'A session and unique request ID are required.');
+  const { sessionId, requestId } = input.data;
+  const ref = db.doc(`payments/${uid}_${requestId}`);
+  const order = await db.runTransaction(async tx => {
+    const [old, sessionSnap] = await Promise.all([tx.get(ref), tx.get(db.doc(`sessions/${sessionId}`))]);
+    if (old.exists) {
+      if (old.data()!.sessionId !== sessionId) throw new HttpsError('already-exists', 'Use a new checkout request when changing sessions.');
+      if (!old.data()!.stripePaymentIntentId && Date.now() - old.data()!.createdAt.toMillis() > 23 * 3_600_000) throw new HttpsError('failed-precondition', 'Checkout expired. Start a new checkout.', { reason: 'checkout-expired' });
+      return old.data()!;
+    }
+    const session = sessionSnap.data();
+    if (!session) throw new HttpsError('not-found', 'Session not found.');
+    const joined: string[] = Array.isArray(session.joinedUserIds) ? session.joinedUserIds : [];
+    if (joined.includes(uid)) throw new HttpsError('already-exists', "You've already joined this session.");
+    if (joined.length >= (session.maxParticipants ?? 0)) throw new HttpsError('resource-exhausted', 'This session is full.');
+    if (typeof session.price !== 'number' || !Number.isFinite(session.price) || session.price <= 0) throw new HttpsError('failed-precondition', 'Session is not available for purchase.');
+    const amount = Math.round(session.price * 100);
+    const data = { userId: uid, sessionId, sessionTitle: session.title as string, amount, currency: 'usd', status: 'pending', paymentMethod: 'stripe', stripePaymentIntentId: null, receiptUrl: null, createdAt: now(), updatedAt: now() };
+    tx.create(ref, data);
+    return data;
+  });
+  if (['completed', 'refunded', 'refund_pending'].includes(order.status)) return { paymentId: ref.id, status: order.status };
+  const intent = await createOrRetrieveIntent(ref, order, { paymentId: ref.id, userId: uid, sessionId }, user.email);
+  return { paymentId: ref.id, clientSecret: intent.client_secret, status: intent.status };
+});
+
 export async function applySuccessfulPayment(paymentId: string, intent: { id: string; amount: number; currency: string }, receiptUrl: string | null = null) {
   await db.runTransaction(async tx => {
     const ref = db.doc(`payments/${paymentId}`);
@@ -92,11 +125,23 @@ export async function applySuccessfulPayment(paymentId: string, intent: { id: st
     if (payment.amount !== intent.amount || payment.currency !== intent.currency || (payment.stripePaymentIntentId && payment.stripePaymentIntentId !== intent.id)) throw new Error('Payment verification mismatch');
     const user = await tx.get(db.doc(`users/${payment.userId}`));
     const isProduct = !!payment.productId;
+    const isSession = !!payment.sessionId;
+    const sessionRef = isSession ? db.doc(`sessions/${payment.sessionId}`) : null;
+    const sessionSnap = sessionRef ? await tx.get(sessionRef) : null;
     tx.update(ref, { status: 'completed', stripePaymentIntentId: intent.id, receiptUrl, updatedAt: now(), paidAt: now(), fulfillmentStatus: !user.exists ? 'account_deleted' : isProduct ? 'ready_for_pickup' : 'fulfilled' });
     if (!user.exists) return;
     if (isProduct) {
       const label = payment.size ? `${payment.productName} (size ${payment.size})` : payment.productName;
       notify(tx, `payment_${paymentId}`, payment.userId, 'Order confirmed', `Your order for ${label} is ready to pick up at the gym.`, 'product_purchased', { paymentId });
+    } else if (isSession) {
+      if (sessionRef && sessionSnap?.exists) {
+        const session = sessionSnap.data()!;
+        const joined: string[] = Array.isArray(session.joinedUserIds) ? session.joinedUserIds : [];
+        if (!joined.includes(payment.userId) && joined.length < (session.maxParticipants ?? 0)) {
+          tx.update(sessionRef, { joinedUserIds: [...joined, payment.userId], updatedAt: now() });
+        }
+      }
+      notify(tx, `payment_${paymentId}`, payment.userId, "You're in!", `You've joined ${payment.sessionTitle || 'the session'}.`, 'session_joined', { paymentId, sessionId: payment.sessionId });
     } else {
       const trainingType: TrainingType = payment.trainingType || 'private';
       const remainingField = `${trainingType}SessionsRemaining`;

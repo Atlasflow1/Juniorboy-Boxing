@@ -1,9 +1,11 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:intl/intl.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/resources/app_icons.dart';
 import '../../../../core/resources/app_colors.dart';
@@ -25,6 +27,7 @@ class CompleteProfileScreen extends ConsumerStatefulWidget {
 
 class _CompleteProfileState extends ConsumerState<CompleteProfileScreen> {
   final form = GlobalKey<FormState>(),
+      fullName = TextEditingController(),
       lastName = TextEditingController(),
       age = TextEditingController(),
       houseNumber = TextEditingController(),
@@ -36,8 +39,10 @@ class _CompleteProfileState extends ConsumerState<CompleteProfileScreen> {
       childName = TextEditingController(),
       childAge = TextEditingController();
   bool busy = false, loaded = false, photoBusy = false;
+  DateTime? dateOfBirth;
   @override
   void dispose() {
+    fullName.dispose();
     lastName.dispose();
     age.dispose();
     houseNumber.dispose();
@@ -69,11 +74,28 @@ class _CompleteProfileState extends ConsumerState<CompleteProfileScreen> {
     }
   }
 
+  Future<void> pickDateOfBirth() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: dateOfBirth ?? DateTime(now.year - 10, now.month, now.day),
+      firstDate: DateTime(now.year - 100),
+      lastDate: now,
+    );
+    if (picked != null) setState(() => dateOfBirth = picked);
+  }
+
   Future<void> save() async {
     if (!form.currentState!.validate()) return;
+    if (dateOfBirth == null) {
+      showMessage(context, AppStrings.uiPickDate);
+      return;
+    }
     setState(() => busy = true);
     try {
       await ref.read(userRepositoryProvider).save({
+        'fullName': fullName.text.trim(),
+        'dateOfBirth': Timestamp.fromDate(dateOfBirth!),
         'lastName': lastName.text.trim(),
         'age': int.parse(age.text),
         'address': composeAddress(
@@ -106,6 +128,8 @@ class _CompleteProfileState extends ConsumerState<CompleteProfileScreen> {
     final user = ref.watch(profileProvider).value;
     if (user != null && !loaded) {
       loaded = true;
+      if (fullName.text.isEmpty) fullName.text = user.fullName ?? '';
+      dateOfBirth ??= user.dateOfBirth;
       if (lastName.text.isEmpty) lastName.text = user.lastName ?? '';
       if (age.text.isEmpty && (user.age) > 0) {
         age.text = '${user.age}';
@@ -175,6 +199,28 @@ class _CompleteProfileState extends ConsumerState<CompleteProfileScreen> {
                 ),
               ),
               const SizedBox(height: AppSizes.s24),
+              TextFormField(
+                controller: fullName,
+                decoration: const InputDecoration(
+                  labelText: AppStrings.uiFullName,
+                ),
+                validator: Validators.required,
+              ),
+              const SizedBox(height: AppSizes.s16),
+              InkWell(
+                onTap: pickDateOfBirth,
+                child: InputDecorator(
+                  decoration: const InputDecoration(
+                    labelText: AppStrings.uiDateOfBirth,
+                  ),
+                  child: Text(
+                    dateOfBirth == null
+                        ? AppStrings.uiPickDate
+                        : DateFormat.yMMMd().format(dateOfBirth!),
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppSizes.s16),
               TextFormField(
                 controller: lastName,
                 decoration: const InputDecoration(

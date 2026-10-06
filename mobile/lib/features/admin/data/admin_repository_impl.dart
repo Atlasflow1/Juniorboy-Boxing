@@ -8,11 +8,7 @@ import '../../membership/domain/membership_plan.dart';
 import '../../payments/domain/payment.dart';
 import '../../profile/domain/member.dart';
 import '../domain/admin_repository.dart';
-import '../domain/recurring_template.dart';
 import 'admin_remote_data_source.dart';
-import 'recurring_template_model.dart';
-import '../../schedule/domain/program.dart';
-import '../../schedule/data/program_model.dart';
 import '../../home/domain/home_ad.dart';
 import '../../home/data/home_ad_model.dart';
 
@@ -25,15 +21,6 @@ class AdminRepositoryImpl implements AdminRepository {
   @override
   Stream<List<MembershipPlan>> plans() => source.plans().map(
     (rows) => rows.map<MembershipPlan>(MembershipPlanModel.fromMap).toList(),
-  );
-  @override
-  Stream<List<RecurringTemplate>> templates() => source.templates().map(
-    (rows) =>
-        rows.map<RecurringTemplate>(RecurringTemplateModel.fromMap).toList(),
-  );
-  @override
-  Stream<List<Program>> programs() => source.programs().map(
-    (rows) => rows.map<Program>(ProgramModel.fromMap).toList(),
   );
   @override
   Stream<List<HomeAd>> ads() => source.ads().map(
@@ -50,23 +37,6 @@ class AdminRepositoryImpl implements AdminRepository {
   @override
   Future<Member?> buyer(String userId) => source.buyer(userId);
   @override
-  Future<void> savePlan(String id, Map<String, dynamic> values) =>
-      source.savePlan(id, values);
-  @override
-  Future<void> deletePlan(String id) => source.deletePlan(id);
-  @override
-  Future<String> uploadPlanImage(String id, File file) =>
-      source.uploadPlanImage(id, file);
-  @override
-  Future<void> saveProgram(String id, Map<String, dynamic> values) =>
-      source.saveProgram(id, values);
-  @override
-  Future<String> uploadProgramImage(String id, File file) =>
-      source.uploadProgramImage(id, file);
-  @override
-  Future<String> uploadProgramAdImage(String id, int index, File file) =>
-      source.uploadProgramAdImage(id, index, file);
-  @override
   Future<void> saveAd(String id, Map<String, dynamic> values) =>
       source.saveAd(id, values);
   @override
@@ -75,30 +45,7 @@ class AdminRepositoryImpl implements AdminRepository {
   Future<String> uploadAdImage(String id, File file) =>
       source.uploadAdImage(id, file);
   @override
-  Future<void> saveTemplate(String id, Map<String, dynamic> values) =>
-      source.saveTemplate(id, values);
-  @override
-  Future<void> deleteTemplate(String id) => source.deleteTemplate(id);
-  @override
   Future<void> savePromoVideoUrl(String url) => source.savePromoVideoUrl(url);
-  @override
-  Future<void> generateScheduleNow() => source.generateScheduleNow();
-  @override
-  Future<void> saveSession({
-    String? scheduleId,
-    required String classId,
-    required String date,
-    required String startTime,
-    required String endTime,
-    required int maxSpots,
-  }) => source.saveSession(
-    scheduleId: scheduleId,
-    classId: classId,
-    date: date,
-    startTime: startTime,
-    endTime: endTime,
-    maxSpots: maxSpots,
-  );
   @override
   Future<void> saveGymInfo({
     required String houseNumber,

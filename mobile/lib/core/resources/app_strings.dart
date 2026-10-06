@@ -293,6 +293,25 @@ abstract final class AppStrings {
   static const uiAboutUs = 'About Us';
   static const uiMember = 'Member';
   static const uiFullName = 'Full Name';
+  static const uiDateOfBirth = 'Date of Birth';
+  static const uiPickDate = 'Pick a date';
+  static const uiSessions = 'Sessions';
+  static const uiEditSession = 'Edit Session';
+  static const uiSessionType = 'Session Type';
+  static const uiIndividual = 'Individual';
+  static const uiDuo = 'Duo';
+  static const uiTeam = 'Team';
+  static const uiStartDate = 'Start Date';
+  static const uiEndDate = 'End Date';
+  static const uiMaxParticipants = 'Max Participants';
+  static const uiPrice = 'Price in USD';
+  static const uiJoinedMembers = 'Joined Members';
+  static const uiNoOneHasJoinedYet = 'No one has joined yet.';
+  static const uiDeleteSession = 'Delete Session';
+  static const uiNoSessionsYet =
+      'No sessions yet. Create one to feature it on the home page.';
+  static String couldNotLoadSessions(Object error) =>
+      'Could not load sessions: $error';
   static const uiEmail = 'Email';
   static const uiDisciplineBuildsChampionsTrainLearnAndGrowAt =
       'Discipline builds champions. Train, learn and grow at Junior Boy Boxing.';

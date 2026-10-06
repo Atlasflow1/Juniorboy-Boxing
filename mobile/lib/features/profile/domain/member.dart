@@ -22,6 +22,8 @@ class Member {
     required this.waiverParticipantAge,
     required this.pushNotifications,
     required this.emailNotifications,
+    this.dateOfBirth,
+    this.profilePicUrl,
     this.privateSessionsRemaining = 0,
     this.privateSessionsReserved = 0,
     this.groupSessionsRemaining = 0,
@@ -40,6 +42,8 @@ class Member {
   final String? waiverParticipantName;
   final int? waiverParticipantAge;
   final bool pushNotifications, emailNotifications;
+  final DateTime? dateOfBirth;
+  final String? profilePicUrl;
   final int privateSessionsRemaining, privateSessionsReserved;
   final int groupSessionsRemaining, groupSessionsReserved;
   final int duoSessionsRemaining, duoSessionsReserved;

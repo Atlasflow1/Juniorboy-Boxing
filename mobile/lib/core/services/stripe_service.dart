@@ -82,6 +82,81 @@ class StripeService {
     return 'Payment submitted. Check Payments for confirmation; do not pay again while pending.';
   }
 
+  Future<String> joinSession(String sessionId) async {
+    const configuredKey = String.fromEnvironment('STRIPE_PUBLISHABLE_KEY');
+    final settings = await FirebaseFirestore.instance
+        .doc('gymSettings/config')
+        .get();
+    final key = configuredKey.isNotEmpty
+        ? configuredKey
+        : settings.data()?['stripePublishableKey'] as String? ?? '';
+    if (!RegExp(r'^pk_(test|live)_').hasMatch(key)) {
+      throw const FormatException(
+        'Card payments are not configured yet. Contact the gym to join this session.',
+      );
+}
+    Stripe.publishableKey = key;
+    await Stripe.instance.applySettings();
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+    final attemptKey = 'checkout_session:$uid:$sessionId', box = Hive.box('jbb_device');
+    final requestId = box.get(attemptKey) as String? ?? const Uuid().v4();
+    await box.put(attemptKey, requestId);
+    dynamic data;
+    try {
+      data =
+          (await FirebaseFunctions.instance
+                  .httpsCallable('joinSession')
+                  .call({'sessionId': sessionId, 'requestId': requestId}))
+              .data;
+    } on FirebaseFunctionsException catch (e) {
+      if (e.details is Map && e.details['reason'] == 'checkout-expired') {
+        await box.delete(attemptKey);
+}
+      rethrow;
+    }
+    final status = data['status'] as String;
+    if (['completed', 'refunded', 'canceled'].contains(status)) {
+      await box.delete(attemptKey);
+      return status == 'completed'
+          ? "You're in! Payment confirmed."
+          : 'The previous attempt was $status. You can try joining again.';
+    }
+    if ([
+      'succeeded',
+      'processing',
+      'requires_capture',
+      'refund_pending',
+    ].contains(status)) {
+      return 'Payment is still being confirmed. Check Payments before trying again.';
+}
+    final secret = data['clientSecret'] as String?;
+    if (secret == null) {
+      throw const FormatException('This session is not available to join.');
+}
+    await Stripe.instance.initPaymentSheet(
+      paymentSheetParameters: SetupPaymentSheetParameters(
+        paymentIntentClientSecret: secret,
+        merchantDisplayName: 'Junior Boy Boxing',
+        style: ThemeMode.dark,
+      ),
+    );
+    try {
+      await Stripe.instance.presentPaymentSheet();
+    } on StripeException catch (e) {
+      if (e.error.code == FailureCode.Canceled) {
+        return 'Payment sheet closed. Check Payments if you submitted a payment.';
+}
+      rethrow;
+    }
+    final payment = await FirebaseFirestore.instance
+        .doc('payments/${data['paymentId']}')
+        .get();
+    if (payment.data()?['status'] == 'completed') {
+      return "You're in! Payment confirmed.";
+}
+    return 'Payment submitted. Check Payments for confirmation; do not pay again while pending.';
+  }
+
   Future<String> purchaseProduct(String productId, {String? size}) async {
     const configuredKey = String.fromEnvironment('STRIPE_PUBLISHABLE_KEY');
     final settings = await FirebaseFirestore.instance

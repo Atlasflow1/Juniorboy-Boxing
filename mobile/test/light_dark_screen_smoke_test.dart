@@ -11,10 +11,10 @@ import 'package:junior_boy_boxing/features/admin/presentation/screens/admin_book
 import 'package:junior_boy_boxing/features/admin/presentation/screens/admin_dashboard_screen.dart';
 import 'package:junior_boy_boxing/features/admin/presentation/screens/admin_orders_screen.dart';
 import 'package:junior_boy_boxing/features/admin/presentation/screens/admin_subscriptions_screen.dart';
-import 'package:junior_boy_boxing/features/admin/presentation/screens/plan_editor_screen.dart';
 import 'package:junior_boy_boxing/features/admin/presentation/screens/ad_editor_screen.dart';
-import 'package:junior_boy_boxing/features/admin/presentation/screens/program_editor_screen.dart';
-import 'package:junior_boy_boxing/features/admin/presentation/screens/session_editor_screen.dart';
+import 'package:junior_boy_boxing/features/sessions/domain/session_repository.dart';
+import 'package:junior_boy_boxing/features/sessions/presentation/providers/session_provider.dart';
+import 'package:junior_boy_boxing/features/sessions/presentation/screens/session_editor_screen.dart';
 import 'package:junior_boy_boxing/features/blog/presentation/screens/blog_screen.dart';
 import 'package:junior_boy_boxing/features/home/presentation/screens/home_screen.dart';
 import 'package:junior_boy_boxing/features/home/presentation/providers/home_provider.dart';
@@ -24,7 +24,6 @@ import 'package:junior_boy_boxing/features/membership/data/membership_plan_model
 import 'package:junior_boy_boxing/features/membership/presentation/widgets/membership_plans_section.dart';
 import 'package:junior_boy_boxing/features/membership/presentation/providers/membership_provider.dart';
 import 'package:junior_boy_boxing/features/payments/presentation/providers/payments_provider.dart';
-import 'package:junior_boy_boxing/features/admin/presentation/screens/template_editor_screen.dart';
 import 'package:junior_boy_boxing/features/booking/presentation/screens/book_class_screen.dart';
 import 'package:junior_boy_boxing/features/booking/presentation/screens/booking_confirmation_screen.dart';
 import 'package:junior_boy_boxing/features/booking/presentation/providers/booking_provider.dart';
@@ -65,6 +64,13 @@ class _ProductFake implements ProductRepository {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+class _SessionFake implements SessionRepository {
+  @override
+  String newId() => 'test-session-card';
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   tz_data.initializeTimeZones();
@@ -78,15 +84,12 @@ void main() {
     'admin orders': const AdminOrdersScreen(),
     'admin subscriptions': const AdminSubscriptionsScreen(),
     'admin bookings': const AdminBookingsScreen(),
-    'plan editor': const PlanEditorScreen(),
-    'program editor': const ProgramEditorScreen(),
     'ad editor': const AdEditorScreen(),
     'session editor': const SessionEditorScreen(),
     'blog': const BlogScreen(),
     'home': const Scaffold(body: HomeScreen()),
     'home ads': const Scaffold(body: HomeAdsSection()),
     'membership plans': const Scaffold(body: MembershipPlansSection()),
-    'template editor': const TemplateEditorScreen(),
     'book class': const BookClassScreen(scheduleId: 'test-session'),
     'booking confirmation': const BookingConfirmationScreen(),
     'notifications': const NotificationsScreen(),
@@ -112,11 +115,11 @@ void main() {
             overrides: [
               adminRepositoryProvider.overrideWithValue(_AdminFake()),
               productRepositoryProvider.overrideWithValue(_ProductFake()),
+              sessionRepositoryProvider.overrideWithValue(_SessionFake()),
+              sessionsProvider.overrideWith((ref) => Stream.value([])),
               adminPlansProvider.overrideWith((ref) => Stream.value([])),
-              adminTemplatesProvider.overrideWith((ref) => Stream.value([])),
               adminOrdersProvider.overrideWith((ref) => Stream.value([])),
               adminBookingsProvider.overrideWith((ref) => Stream.value([])),
-              adminProgramsProvider.overrideWith((ref) => Stream.value([sampleProgram])),
               adminAdsProvider.overrideWith((ref) => Stream.value([sampleAd])),
               homeAdsProvider.overrideWith((ref) => Stream.value([sampleAd])),
               plansProvider.overrideWith((ref) => Stream.value([samplePlan])),

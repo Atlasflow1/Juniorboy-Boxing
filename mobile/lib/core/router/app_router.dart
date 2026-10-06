@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/admin/presentation/screens/admin_dashboard_screen.dart';
-import '../../features/admin/presentation/screens/program_editor_screen.dart';
 import '../../features/admin/presentation/screens/ad_editor_screen.dart';
-import '../../features/admin/presentation/screens/session_editor_screen.dart';
+import '../../features/sessions/presentation/screens/session_editor_screen.dart';
+import '../../features/sessions/presentation/screens/session_members_screen.dart';
 import '../../features/blog/presentation/screens/blog_screen.dart';
 import '../../features/home/domain/home_ad.dart';
-import '../../features/schedule/domain/program.dart';
+import '../../features/sessions/models/session_model.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
 import '../../features/auth/presentation/screens/welcome_screen.dart';
 import '../../features/booking/presentation/screens/book_class_screen.dart';
@@ -157,19 +157,21 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (c, s) => const AdminDashboardScreen(),
       ),
       GoRoute(
-        path: AppRoutes.adminProgramEditor,
-        builder: (c, s) => ProgramEditorScreen(
-          program: s.extra is Program ? s.extra as Program : null,
-        ),
-      ),
-      GoRoute(
         path: AppRoutes.adminAdEditor,
         builder: (c, s) =>
             AdEditorScreen(ad: s.extra is HomeAd ? s.extra as HomeAd : null),
       ),
       GoRoute(
         path: AppRoutes.adminSessionEditor,
-        builder: (c, s) => const SessionEditorScreen(),
+        builder: (c, s) => SessionEditorScreen(
+          session: s.extra is SessionModel ? s.extra as SessionModel : null,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.sessionMembers,
+        builder: (c, s) => SessionMembersScreen(
+          uids: s.extra is List<String> ? s.extra as List<String> : const [],
+        ),
       ),
       GoRoute(path: AppRoutes.blog, builder: (c, s) => const BlogScreen()),
       GoRoute(

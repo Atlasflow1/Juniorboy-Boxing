@@ -12,16 +12,18 @@ service cloud.firestore {
     match /users/{uid} {
       allow read: if signedIn() && (request.auth.uid == uid || admin());
       allow update: if active() && request.auth.uid == uid
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['fullName', 'lastName', 'age', 'address', 'zipCode', 'phone', 'childName', 'childAge', 'avatarUrl', 'updatedAt', 'notificationPreferences'])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['fullName', 'lastName', 'age', 'dateOfBirth', 'address', 'zipCode', 'phone', 'childName', 'childAge', 'avatarUrl', 'profilePicUrl', 'updatedAt', 'notificationPreferences'])
         && request.resource.data.fullName is string && request.resource.data.fullName.size() > 0 && request.resource.data.fullName.size() <= 100
         && request.resource.data.lastName is string && request.resource.data.lastName.size() <= 100
         && request.resource.data.age is int && request.resource.data.age >= 0 && request.resource.data.age <= 120
+        && (!('dateOfBirth' in request.resource.data) || request.resource.data.dateOfBirth is timestamp)
         && request.resource.data.address is string && request.resource.data.address.size() <= 200
         && request.resource.data.zipCode is string && request.resource.data.zipCode.size() <= 20
         && request.resource.data.phone is string && request.resource.data.phone.size() <= 32
         && request.resource.data.childName is string && request.resource.data.childName.size() <= 100
         && request.resource.data.childAge is int && request.resource.data.childAge >= 0 && request.resource.data.childAge <= 120
         && request.resource.data.avatarUrl is string && request.resource.data.avatarUrl.size() <= 2048
+        && (!('profilePicUrl' in request.resource.data) || (request.resource.data.profilePicUrl is string && request.resource.data.profilePicUrl.size() <= 2048))
         && request.resource.data.notificationPreferences.keys().hasOnly(['push', 'email'])
         && request.resource.data.notificationPreferences.push is bool
         && request.resource.data.notificationPreferences.email is bool
@@ -36,6 +38,7 @@ service cloud.firestore {
       }
     }
     match /classes/{id} { allow read: if active(); allow write: if admin(); }
+    match /sessions/{id} { allow read: if active(); allow write: if admin(); }
     match /schedule/{id} { allow read: if active(); }
     match /recurringTemplates/{id} { allow read, write: if admin(); }
     match /bookings/{id} { allow read: if owns() || admin(); }

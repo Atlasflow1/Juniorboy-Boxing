@@ -27,6 +27,7 @@ class UserRemoteDataSource extends CachedRepository {
     }
     final image = FirebaseStorage.instance.ref('avatars/$uid/profile.jpg');
     await image.putFile(file, SettableMetadata(contentType: 'image/jpeg'));
-    await save({'avatarUrl': await image.getDownloadURL()});
+    final url = await image.getDownloadURL();
+    await save({'avatarUrl': url, 'profilePicUrl': url});
   }
 }
