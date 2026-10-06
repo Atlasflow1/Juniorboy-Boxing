@@ -6,6 +6,7 @@ import { useRows, useDocument } from '@/lib/hooks';
 import { call } from '@/lib/firebase';
 import { errorMessage } from '@/lib/utils';
 import { ActionLink, Button, Icon, Notice, PageHeading, Loading } from './ui';
+import { AuthModal } from './auth-modal';
 
 function Stars({ value, size = 18, onChange }: { value: number; size?: number; onChange?: (star: number) => void }) {
   const interactive = !!onChange;
@@ -28,8 +29,8 @@ export function ReviewForm() {
   const existing = useDocument(user ? `reviews/${user.uid}` : null);
   const [rating, setRating] = useState(0), [touched, setTouched] = useState(false);
   const [comment, setComment] = useState(''), [commentTouched, setCommentTouched] = useState(false);
-  const [busy, setBusy] = useState(false), [error, setError] = useState(''), [message, setMessage] = useState('');
-  if (!user) return <Notice>Sign in to write a review.</Notice>;
+  const [busy, setBusy] = useState(false), [error, setError] = useState(''), [message, setMessage] = useState(''), [showAuth,setShowAuth]=useState(false);
+  if (!user) return <><Button onClick={()=>setShowAuth(true)}>Sign in to write a review</Button>{showAuth&&<AuthModal onClose={()=>setShowAuth(false)} onSignedIn={()=>setShowAuth(false)}/>}</>;
   const effectiveRating = touched ? rating : (existing?.rating ?? rating);
   const effectiveComment = commentTouched ? comment : (existing?.comment ?? comment);
   async function submit(e: FormEvent<HTMLFormElement>) {

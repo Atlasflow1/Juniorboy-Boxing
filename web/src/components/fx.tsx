@@ -8,42 +8,115 @@ import './fx.css';
 declare global { interface Window { __jbbIntroDone?: boolean } }
 const EVT = 'jbb:intro-done';
 let introDecision: boolean | null = null;
+let introActive = false;
 const prefersReduced = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-function markIntroDone() { window.__jbbIntroDone = true; window.dispatchEvent(new Event(EVT)); }
+
+export function markIntroDone() {
+  if (typeof window === 'undefined') return;
+  window.__jbbIntroDone = true;
+  introActive = false;
+  window.dispatchEvent(new Event(EVT));
+}
+
+function resolveIntroDecision(): boolean {
+  if (typeof window === 'undefined') return false;
+  if (window.__jbbIntroDone) return false;
+  if (prefersReduced()) return false;
+  if (introDecision !== null) return introDecision;
+  let seen = false;
+  try {
+    seen = sessionStorage.getItem('jbb-intro') === '1';
+    sessionStorage.setItem('jbb-intro', '1');
+  } catch { /* storage blocked */ }
+  introDecision = !seen && !prefersReduced();
+  return introDecision;
+}
 
 export function useIntroDone() {
   const [done, setDone] = useState(false);
   useEffect(() => {
-    if (window.__jbbIntroDone) { setDone(true); return; }
+    if (window.__jbbIntroDone || !introActive) {
+      setDone(true);
+      return;
+    }
     const h = () => setDone(true);
     window.addEventListener(EVT, h);
-    return () => window.removeEventListener(EVT, h);
+    const fallback = setTimeout(() => setDone(true), 2500);
+    return () => {
+      clearTimeout(fallback);
+      window.removeEventListener(EVT, h);
+    };
   }, []);
   return done;
 }
 
 /* ───────── Intro: "ROUND 1" bell splash (once per browser session) ───────── */
 export function IntroSplash() {
+  if (typeof window === 'undefined') {
+    introActive = true;
+  } else if (!window.__jbbIntroDone && introDecision !== false) {
+    try {
+      if (sessionStorage.getItem('jbb-intro') !== '1' && !prefersReduced()) {
+        introActive = true;
+      }
+    } catch { /* storage blocked */ }
+  }
+
   const [show, setShow] = useState(() => typeof window === 'undefined' || !window.__jbbIntroDone);
+  const [playing, setPlaying] = useState(false);
+
   useEffect(() => {
     if (!show) return;
-    if (introDecision === null) {
-      let seen = false;
-      try { seen = sessionStorage.getItem('jbb-intro') === '1'; sessionStorage.setItem('jbb-intro', '1'); } catch { /* storage blocked */ }
-      introDecision = !seen && !prefersReduced();
+    const play = resolveIntroDecision();
+    if (!play || window.__jbbIntroDone) {
+      introActive = false;
+      setShow(false);
+      markIntroDone();
+      return;
     }
-    if (!introDecision || window.__jbbIntroDone) { setShow(false); markIntroDone(); return; }
-    const t = setTimeout(() => { setShow(false); markIntroDone(); }, 1950);
+    introActive = true;
+    setPlaying(true);
+    const t = setTimeout(() => {
+      introActive = false;
+      setShow(false);
+      markIntroDone();
+    }, 1950);
     return () => clearTimeout(t);
   }, [show]);
-  const skip = () => { setShow(false); markIntroDone(); };
+
+  const skip = () => {
+    introActive = false;
+    setShow(false);
+    markIntroDone();
+  };
+
   const ease = [0.76, 0, 0.24, 1] as const;
+
   return <AnimatePresence>{show && (
-    <motion.div className="fx-intro" key="intro" onClick={skip} aria-hidden="true" exit={{ opacity: 0, transition: { delay: 0.75, duration: 0.01 } }}>
-      <motion.div className="fx-intro-panel top" exit={{ y: '-101%' }} transition={{ duration: 0.75, ease }} />
-      <motion.div className="fx-intro-panel bottom" exit={{ y: '101%' }} transition={{ duration: 0.75, ease }} />
+    <motion.div
+      className="fx-intro"
+      key="intro"
+      onClick={skip}
+      aria-hidden="true"
+      exit={{ opacity: 0, transition: { delay: playing ? 0.75 : 0, duration: 0.01 } }}
+    >
+      <motion.div
+        className="fx-intro-panel top"
+        exit={{ y: '-101%' }}
+        transition={playing ? { duration: 0.75, ease } : { duration: 0 }}
+      />
+      <motion.div
+        className="fx-intro-panel bottom"
+        exit={{ y: '101%' }}
+        transition={playing ? { duration: 0.75, ease } : { duration: 0 }}
+      />
       <div className="fx-intro-lines" />
-      <motion.div className="fx-intro-content" animate={{ x: [0, 0, -16, 13, -8, 5, 0] }} transition={{ duration: 0.85, times: [0, 0.55, 0.62, 0.7, 0.8, 0.9, 1] }} exit={{ opacity: 0, scale: 1.35, filter: 'blur(10px)', transition: { duration: 0.35 } }}>
+      <motion.div
+        className="fx-intro-content"
+        animate={{ x: [0, 0, -16, 13, -8, 5, 0] }}
+        transition={{ duration: 0.85, times: [0, 0.55, 0.62, 0.7, 0.8, 0.9, 1] }}
+        exit={playing ? { opacity: 0, scale: 1.35, filter: 'blur(10px)', transition: { duration: 0.35 } } : { opacity: 0, transition: { duration: 0 } }}
+      >
         <motion.span className="fx-intro-round" initial={{ opacity: 0, letterSpacing: '1.4em' }} animate={{ opacity: 1, letterSpacing: '.55em' }} transition={{ duration: 0.5, ease: 'easeOut' }}>ROUND</motion.span>
         <span className="fx-intro-numwrap">
           <motion.span className="fx-intro-ring" initial={{ scale: 0, opacity: 0 }} animate={{ scale: [0, 4], opacity: [1, 0] }} transition={{ delay: 0.5, duration: 0.8, ease: 'easeOut' }} />
