@@ -30,8 +30,8 @@ class SessionRepositoryImpl implements SessionRepository {
       source.uploadImage(id, file);
 
   @override
-  Future<List<UserModel>> fetchMembers(List<String> uids) async {
-    final rows = await source.fetchMembers(uids);
+  Future<List<UserModel>> fetchMembers(String sessionId) async {
+    final rows = await source.fetchMembers(sessionId);
     return rows.map(UserModel.fromMap).toList();
   }
 

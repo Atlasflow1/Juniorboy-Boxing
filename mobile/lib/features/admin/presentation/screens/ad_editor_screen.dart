@@ -26,14 +26,6 @@ class _AdEditorState extends ConsumerState<AdEditorScreen> {
   final form = GlobalKey<FormState>();
   late final id = widget.ad?.id ?? ref.read(adminRepositoryProvider).newId();
   late final title = TextEditingController(text: widget.ad?.title);
-  late final description = TextEditingController(text: widget.ad?.description);
-  late final price = TextEditingController(
-    text: widget.ad?.price != null ? (widget.ad!.price! / 100).toString() : '',
-  );
-  late final timeLabel = TextEditingController(text: widget.ad?.timeLabel);
-  late final linkHref = TextEditingController(
-    text: widget.ad?.linkHref ?? '/pricing',
-  );
   late String imageUrl = widget.ad?.imageUrl ?? '';
   late bool isActive = widget.ad?.isActive ?? true;
   bool busy = false, photoBusy = false;
@@ -41,10 +33,6 @@ class _AdEditorState extends ConsumerState<AdEditorScreen> {
   @override
   void dispose() {
     title.dispose();
-    description.dispose();
-    price.dispose();
-    timeLabel.dispose();
-    linkHref.dispose();
     super.dispose();
   }
 
@@ -73,22 +61,10 @@ class _AdEditorState extends ConsumerState<AdEditorScreen> {
   Future<void> save() async {
     if (!form.currentState!.validate()) return;
     setState(() => busy = true);
-    final cents = price.text.trim().isEmpty
-        ? null
-        : (double.parse(price.text) * 100).round();
     try {
       await ref.read(adminRepositoryProvider).saveAd(id, {
         'title': title.text.trim(),
-        'description': description.text.trim(),
         'imageUrl': imageUrl,
-        'price': cents,
-        'priceLabel': cents != null
-            ? '\$${(cents / 100).toStringAsFixed(2)}'
-            : '',
-        'timeLabel': timeLabel.text.trim(),
-        'linkHref': linkHref.text.trim().isEmpty
-            ? '/pricing'
-            : linkHref.text.trim(),
         'isActive': isActive,
         'sortOrder': widget.ad?.sortOrder ?? 0,
       });
@@ -216,40 +192,6 @@ class _AdEditorState extends ConsumerState<AdEditorScreen> {
               validator: Validators.required,
             ),
             const SizedBox(height: AppSizes.s16),
-            TextFormField(
-              controller: description,
-              decoration: const InputDecoration(
-                labelText: AppStrings.descriptionOptional,
-              ),
-              maxLines: 2,
-            ),
-            const SizedBox(height: AppSizes.s16),
-            TextFormField(
-              controller: price,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-              decoration: const InputDecoration(
-                labelText: AppStrings.priceOptional,
-              ),
-              validator: (v) =>
-                  (v ?? '').trim().isEmpty || double.tryParse(v!) != null
-                  ? null
-                  : 'Enter a valid price',
-            ),
-            const SizedBox(height: AppSizes.s16),
-            TextFormField(
-              controller: timeLabel,
-              decoration: const InputDecoration(
-                labelText: AppStrings.timeScheduleNote,
-                hintText: AppStrings.timeScheduleHint,
-              ),
-            ),
-            const SizedBox(height: AppSizes.s16),
-            TextFormField(
-              controller: linkHref,
-              decoration: const InputDecoration(labelText: AppStrings.linksTo),
-            ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               title: const Text(AppStrings.activeOnHome),

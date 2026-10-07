@@ -6,22 +6,12 @@ import 'package:junior_boy_boxing/features/home/data/home_repository_impl.dart';
 import 'package:junior_boy_boxing/features/home/data/home_ad_model.dart';
 import 'package:junior_boy_boxing/core/utils/address_utils.dart';
 import 'package:junior_boy_boxing/features/profile/data/member_model.dart';
-import 'package:junior_boy_boxing/features/schedule/data/session_model.dart';
-import 'package:junior_boy_boxing/features/schedule/data/program_model.dart';
 import 'package:junior_boy_boxing/features/store/data/product_model.dart';
 import 'package:junior_boy_boxing/features/reviews/data/review_model.dart';
 import 'package:junior_boy_boxing/features/profile/data/gym_settings_model.dart';
 
 void main() {
   test('blank optional presentation fields normalize to null', () {
-    final program = ProgramModel.fromMap({
-      'className': ' ',
-      'ageGroup': '',
-      'address': '  ',
-    });
-    expect(program.className, isNull);
-    expect(program.ageGroup, isNull);
-    expect(program.address, isNull);
     expect(MemberModel.fromMap({'fullName': '  '}).fullName, isNull);
     expect(ProductModel.fromMap({'name': ' ', 'description': ''}).name, isNull);
     expect(GymSettingsModel.fromMap({'aboutText': ' '}).aboutText, isNull);
@@ -41,57 +31,13 @@ void main() {
     expect(BookingModel.fromMap({}).status, '');
   });
 
-  test('schedule parses counters and defaults', () {
-    final session = SessionModel.fromMap({
-      'id': 's1',
-      'maxSpots': 12,
-      'bookedSpots': 3,
-    });
-    expect(session.maxSpots - session.bookedSpots, 9);
-    expect(session.isCancelled, false);
-    expect(session.date.millisecondsSinceEpoch, 0);
-    expect(SessionModel.fromMap({}).maxSpots, 0);
-  });
-
-  test('one-off session slot keeps date, times, and capacity', () {
-    final slot = SessionModel.fromMap({
-      'id': 'slot-1',
-      'classId': 'boxing',
-      'date': '2026-10-10T17:00:00.000Z',
-      'endAt': '2026-10-10T18:00:00.000Z',
-      'startTime': '10:00',
-      'endTime': '11:00',
-      'maxSpots': 2,
-      'bookedSpots': 1,
-    });
-    expect(slot.classId, 'boxing');
-    expect(slot.startTime, '10:00');
-    expect(slot.endTime, '11:00');
-    expect(slot.maxSpots - slot.bookedSpots, 1);
-  });
-
-  test('program and ad parse admin fields', () {
-    final program = ProgramModel.fromMap({
-      'id': 'p',
-      'trainingType': 'duo',
-      'category': 'Team',
-      'price': 6000,
-      'adImages': ['one', '', 'two'],
-      'discountActive': true,
-      'discountPercent': 15,
-    });
+  test('ad parses admin fields', () {
     final ad = HomeAdModel.fromMap({
       'id': 'a',
       'title': 'Special',
-      'price': 3000,
-      'linkHref': '/pricing',
       'sortOrder': 2,
       'isActive': false,
     });
-    expect(program.trainingType, 'duo');
-    expect(program.adImages, ['one', 'two']);
-    expect(program.discountPercent, 15);
-    expect(ad.linkHref, '/pricing');
     expect(ad.sortOrder, 2);
     expect(ad.isActive, false);
   });

@@ -1,21 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../features/profile/presentation/providers/profile_provider.dart';
 import '../resources/app_icons.dart';
 import '../resources/app_sizes.dart';
 import '../resources/app_strings.dart';
 import '../theme/app_palette.dart';
 import 'app_icon.dart';
 
-class JbbBottomNav extends StatelessWidget {
+class JbbBottomNav extends ConsumerWidget {
   const JbbBottomNav({super.key, required this.navigationShell});
   final StatefulNavigationShell navigationShell;
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final role = ref.watch(profileProvider).value?.role;
+    final isAdmin = role == 'admin' || role == 'superAdmin';
     final items = [
-      (AppStrings.navHome, AppIcons.navHome),
-      (AppStrings.navSchedule, AppIcons.navSchedule),
-      (AppStrings.myBookings, AppIcons.navLog),
       (AppStrings.navMore, AppIcons.navMore),
+      (AppStrings.myBookings, AppIcons.navLog),
+      (AppStrings.navHome, AppIcons.navHome),
+      (AppStrings.navProfile, AppIcons.user),
+      if (isAdmin) (AppStrings.adminDashboard, AppIcons.admin),
     ];
     return Container(
       decoration: BoxDecoration(

@@ -28,7 +28,7 @@ export async function requireMember(uid: string, admin = false) {
   const snapshot = await db.doc(`users/${uid}`).get();
   const user = snapshot.data();
   if (!user?.isActive) throw new HttpsError('permission-denied', 'Account is not active.');
-  if (admin && user.role !== 'admin') throw new HttpsError('permission-denied', 'Administrator access required.');
+  if (admin && user.role !== 'admin' && user.role !== 'superAdmin') throw new HttpsError('permission-denied', 'Administrator access required.');
   return user;
 }
 export async function rateLimit(uid: string, operation: string, max = 30): Promise<void> {

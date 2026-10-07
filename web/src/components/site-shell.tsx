@@ -6,6 +6,7 @@ import { useAuth } from './providers';
 import { useDocument } from '@/lib/hooks';
 import { gym } from '@/lib/types';
 import { isProfileComplete } from '@/lib/utils';
+import { isStaff } from '@/lib/permissions';
 import { Icon, SocialIcon } from './ui';
 const PROFILE_GATE_EXEMPT = ['/complete-profile','/signin','/signup','/waiver','/privacy','/terms','/contact','/about','/blog','/reviews','/store','/'];
 function ThemeToggle(){
@@ -20,5 +21,5 @@ export function SiteShell({children}:{children:ReactNode}){
   useEffect(()=>{if(!loading&&user&&profile&&!isProfileComplete(profile as any)&&!PROFILE_GATE_EXEMPT.includes(path)&&!['/offers','/store/'].some(prefix=>path.startsWith(prefix)))router.replace('/complete-profile');},[loading,user,profile,path,router]);
   if(path.startsWith('/admin'))return <>{children}</>;
   const links=[['Sessions','/offers'],['Shop','/store'],['Account',user?'/dashboard':'/signin']];
-  return <><header className="site-header"><Link className="wordmark" href="/" aria-label="Junior Boy Boxing home">JUNIOR BOY <em>BOXING</em></Link><nav className="site-nav" aria-label="Main navigation">{links.map(([label,href])=><Link aria-current={path===href?'page':undefined} href={href} key={label}>{label}</Link>)}</nav><ThemeToggle/></header><main id="main">{children}</main><footer className="site-footer"><div className="footer-top"><Link className="wordmark" href="/">JUNIOR BOY <em>BOXING</em></Link><SocialLinks links={settings.socialLinks||{}}/></div><div className="footer-bottom"><span>© {new Date().getFullYear()} Junior Boy Boxing</span><div><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/waiver">Waiver</Link></div></div></footer></>;
+  return <><header className="site-header"><Link className="wordmark" href="/" aria-label="Junior Boy Boxing home">JUNIOR BOY <em>BOXING</em></Link><nav className="site-nav" aria-label="Main navigation">{links.map(([label,href])=><Link aria-current={path===href?'page':undefined} href={href} key={label}>{label}</Link>)}{isStaff(profile)&&<Link href="/admin" className="row" style={{gap:4,alignItems:'center'}}><Icon name="admin_panel_settings" size={18}/>Admin Dashboard</Link>}</nav><ThemeToggle/></header><main id="main">{children}</main><footer className="site-footer"><div className="footer-top"><Link className="wordmark" href="/">JUNIOR BOY <em>BOXING</em></Link><SocialLinks links={settings.socialLinks||{}}/></div><div className="footer-bottom"><span>© {new Date().getFullYear()} Junior Boy Boxing</span><div><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/waiver">Waiver</Link></div></div></footer></>;
 }

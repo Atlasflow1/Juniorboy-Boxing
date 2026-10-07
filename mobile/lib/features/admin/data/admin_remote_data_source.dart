@@ -43,12 +43,6 @@ class AdminRemoteDataSource extends CachedRepository {
     return ref.getDownloadURL();
   }
 
-  Future<void> savePromoVideoUrl(String url) =>
-      db.doc('gymSettings/config').set({
-        'promoVideoUrl': url,
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-
   Future<void> saveGymInfo({
     required String houseNumber,
     required String streetName,
@@ -76,24 +70,6 @@ class AdminRemoteDataSource extends CachedRepository {
         'socialLinks': links,
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
-
-  /// Uploads the gym's own promo video to Storage and points Home at it.
-  /// Being the gym's own file (not a YouTube embed), there's no embedding
-  /// restriction to run into regardless of what the source video is.
-  Future<void> uploadPromoVideo(File file) async {
-    if (await file.length() > 80 * 1024 * 1024) {
-      throw const FormatException('Video must be smaller than 80 MB');
-    }
-    final ext = file.path.split('.').last.toLowerCase();
-    final contentType = switch (ext) {
-      'mov' => 'video/quicktime',
-      'webm' => 'video/webm',
-      _ => 'video/mp4',
-    };
-    final ref = FirebaseStorage.instance.ref('gym/promo_video.$ext');
-    await ref.putFile(file, SettableMetadata(contentType: contentType));
-    await savePromoVideoUrl(await ref.getDownloadURL());
-  }
 
   Stream<List<Map<String, dynamic>>> orders() => watchQuery(
     db.collection('payments').orderBy('createdAt', descending: true).limit(200),

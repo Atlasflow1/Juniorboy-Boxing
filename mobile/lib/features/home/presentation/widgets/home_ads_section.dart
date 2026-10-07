@@ -2,12 +2,9 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/resources/app_sizes.dart';
-import '../../../../core/utils/snackbar_utils.dart';
-import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_palette.dart';
-import '../../../../core/utils/nav_debounce.dart';
+import '../../../../core/widgets/full_screen_image_viewer.dart';
 import '../../domain/home_ad.dart';
 import '../providers/home_provider.dart';
 
@@ -73,15 +70,8 @@ class _AdBanner extends StatelessWidget {
   Widget build(BuildContext context) => Material(
     color: context.palette.surface,
     child: InkWell(
-      onTap: () async {
-        final href = ad.linkHref;
-        final external = href == null ? null : Uri.tryParse(href);
-        if (external != null && (external.scheme == 'https' || external.scheme == 'http')) {
-          try { await launchUrl(external, mode: LaunchMode.externalApplication); }
-          catch (error) { if (context.mounted) showMessage(context, friendlyError(error)); }
-          return;
-        }
-        if (context.mounted) context.safeNavigate(_routeFor(href));
+      onTap: () {
+        if (ad.imageUrl != null) showFullScreenImage(context, ad.imageUrl!);
       },
       child: Stack(
         fit: StackFit.expand,
@@ -118,14 +108,6 @@ class _AdBanner extends StatelessWidget {
                       color: context.palette.textPrimary,
                     ),
                   ),
-                  if (ad.priceLabel != null || ad.timeLabel != null)
-                    Text(
-                      [
-                        ad.priceLabel,
-                        ad.timeLabel,
-                      ].whereType<String>().join(' · '),
-                      style: TextStyle(color: context.palette.accent),
-                    ),
                 ],
               ),
             ),
@@ -134,16 +116,4 @@ class _AdBanner extends StatelessWidget {
       ),
     ),
   );
-  String _routeFor(String? href) {
-    if (href == null) return AppRoutes.membership;
-    if (href == '/pricing') return AppRoutes.membership;
-    if (href.startsWith('/programs/')) return href;
-    if (href == AppRoutes.blog || href == AppRoutes.bookings || href == AppRoutes.membership || href == AppRoutes.home || href == AppRoutes.more) return href;
-    if (href == AppRoutes.store ||
-        href == AppRoutes.schedulePath ||
-        href == AppRoutes.contact) {
-      return href;
-    }
-    return AppRoutes.membership;
-  }
 }

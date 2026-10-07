@@ -6,8 +6,6 @@ import 'package:junior_boy_boxing/core/theme/app_palette.dart';
 import 'package:junior_boy_boxing/core/theme/app_theme.dart';
 import 'package:junior_boy_boxing/core/theme/theme_provider.dart';
 import 'package:junior_boy_boxing/core/widgets/settings_group.dart';
-import 'package:junior_boy_boxing/features/schedule/presentation/widgets/day_selector.dart';
-import 'package:junior_boy_boxing/core/resources/app_colors.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -28,21 +26,9 @@ void main() {
     ('light', lightTheme, AppPalette.light),
     ('dark', darkTheme, AppPalette.dark),
   ]) {
-    testWidgets('selected schedule day uses on-accent text in $name mode', (
+    testWidgets('theme tokens match the expected palette in $name mode', (
       tester,
     ) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: theme,
-          home: Scaffold(
-            body: DaySelector(date: DateTime(2026, 10, 5), onChange: (_) {}),
-          ),
-        ),
-      );
-      final weekday = tester.widget<Text>(find.text('MON'));
-      final date = tester.widget<Text>(find.text('5'));
-      expect(weekday.style?.color, AppColors.onAccent);
-      expect(date.style?.color, AppColors.onAccent);
       expect(theme.bottomSheetTheme.backgroundColor, expected.surface);
       expect(theme.bottomSheetTheme.surfaceTintColor, Colors.transparent);
       expect(theme.colorScheme.onSurfaceVariant, expected.textSecondary);

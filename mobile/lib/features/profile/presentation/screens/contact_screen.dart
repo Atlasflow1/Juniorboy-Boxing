@@ -11,6 +11,10 @@ import '../../domain/gym_settings.dart';
 
 class ContactScreen extends ConsumerWidget {
   const ContactScreen({super.key});
+
+  static String _digitsOnly(String value) =>
+      value.replaceAll(RegExp(r'[^0-9]'), '');
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider).value ?? GymSettings.empty;
@@ -47,6 +51,21 @@ class ContactScreen extends ConsumerWidget {
                   ),
                 ),
               ),
+              if ((settings.phone ?? '').isNotEmpty)
+                SettingsRow(
+                  icon: AppIcons.whatsapp,
+                  title: AppStrings.whatsapp,
+                  onTap: () => open(
+                    Uri.https('wa.me', '/${_digitsOnly(settings.phone!)}'),
+                  ),
+                ),
+              if ((settings.phone ?? '').isNotEmpty)
+                SettingsRow(
+                  icon: AppIcons.phone,
+                  title: AppStrings.call,
+                  onTap: () =>
+                      open(Uri(scheme: 'tel', path: settings.phone)),
+                ),
             ],
           ),
           SizedBox(height: AppSizes.s24),

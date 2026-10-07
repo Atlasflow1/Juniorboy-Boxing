@@ -45,8 +45,6 @@ class AdminRepositoryImpl implements AdminRepository {
   Future<String> uploadAdImage(String id, File file) =>
       source.uploadAdImage(id, file);
   @override
-  Future<void> savePromoVideoUrl(String url) => source.savePromoVideoUrl(url);
-  @override
   Future<void> saveGymInfo({
     required String houseNumber,
     required String streetName,
@@ -65,8 +63,6 @@ class AdminRepositoryImpl implements AdminRepository {
   @override
   Future<void> saveSocialLinks(Map<String, String> links) =>
       source.saveSocialLinks(links);
-  @override
-  Future<void> uploadPromoVideo(File file) => source.uploadPromoVideo(file);
   @override
   Future<void> setOrderDelivery(String id, DateTime date, String note) =>
       source.setOrderDelivery(id, date, note);

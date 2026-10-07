@@ -1,5 +1,5 @@
 import Stripe from 'stripe';
-import { Timestamp } from 'firebase-admin/firestore';
+import { FieldPath, Timestamp } from 'firebase-admin/firestore';
 import { defineSecret } from 'firebase-functions/params';
 import { HttpsError, onCall, onRequest } from 'firebase-functions/v2/https';
 import { logger } from 'firebase-functions';
@@ -87,6 +87,7 @@ export const createProductPaymentIntent = onCall({ secrets: [STRIPE_SECRET_KEY],
 export const joinSession = onCall({ secrets: [STRIPE_SECRET_KEY], enforceAppCheck, maxInstances: 20 }, async request => {
   const uid = requireRegistered(request);
   const user = await requireMember(uid);
+  if (user.role === 'admin' || user.role === 'superAdmin') throw new HttpsError('permission-denied', 'Admin accounts cannot join sessions.');
   if (!user.phone?.trim()) throw new HttpsError('failed-precondition', 'Complete your phone number in Profile Settings before purchasing.');
   await rateLimit(uid, 'payment', 8);
   const input = joinSessionSchema.safeParse(request.data);
@@ -281,6 +282,27 @@ export const getPaymentHistory = callable(z.object({ before: z.string().datetime
   if (before) q = q.startAfter(new Date(before));
   const page = await q.get();
   return { payments: page.docs.map(d => ({ ...d.data(), id: d.id, createdAt: d.data().createdAt.toDate().toISOString(), updatedAt: d.data().updatedAt.toDate().toISOString() })) };
+});
+
+// Members can't read each other's user docs directly (Firestore rules only
+// allow a user to read their own profile or an admin to read any), so the
+// joined-members list on a session card goes through this function instead,
+// which uses the Admin SDK to return just the public display fields.
+export const getSessionMembers = callable(z.object({ sessionId: id }), 'getSessionMembers', async ({ sessionId }) => {
+  const sessionSnap = await db.doc(`sessions/${sessionId}`).get();
+  if (!sessionSnap.exists) throw new HttpsError('not-found', 'Session not found.');
+  const uids: string[] = sessionSnap.data()?.joinedUserIds || [];
+  if (!uids.length) return { members: [] };
+  const members: { uid: string; fullName: string; childName: string; profilePicUrl: string | null }[] = [];
+  for (let i = 0; i < uids.length; i += 30) {
+    const chunk = uids.slice(i, i + 30);
+    const snap = await db.collection('users').where(FieldPath.documentId(), 'in', chunk).get();
+    snap.forEach(d => {
+      const data = d.data();
+      members.push({ uid: d.id, fullName: data.fullName || 'Member', childName: data.childName || '', profilePicUrl: data.profilePicUrl || data.avatarUrl || null });
+    });
+  }
+  return { members };
 });
 
 // Lets an admin schedule a store order for pickup/delivery, so the buyer can

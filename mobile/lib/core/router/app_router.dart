@@ -10,10 +10,7 @@ import '../../features/home/domain/home_ad.dart';
 import '../../features/sessions/models/session_model.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
 import '../../features/auth/presentation/screens/welcome_screen.dart';
-import '../../features/booking/presentation/screens/book_class_screen.dart';
-import '../../features/booking/presentation/screens/booking_confirmation_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
-import '../../features/home/presentation/screens/program_screen.dart';
 import '../../features/membership/presentation/screens/membership_screen.dart';
 import '../../features/profile/presentation/providers/profile_provider.dart';
 import '../../features/profile/presentation/screens/complete_profile_screen.dart';
@@ -26,7 +23,6 @@ import '../../features/notifications/presentation/screens/notifications_screen.d
 import '../../features/payments/presentation/screens/payments_screen.dart';
 import '../../features/profile/presentation/screens/waiver_screen.dart';
 import '../../features/reviews/presentation/screens/reviews_screen.dart';
-import '../../features/schedule/presentation/screens/schedule_screen.dart';
 import '../../features/store/presentation/screens/store_screen.dart';
 import '../resources/app_strings.dart';
 import 'app_routes.dart';
@@ -61,7 +57,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       }
       if (user != null && isAuth) return AppRoutes.home;
       if (state.uri.path.startsWith(AppRoutes.admin) &&
-          profile.value?.role != 'admin') {
+          profile.value?.role != 'admin' &&
+          profile.value?.role != 'superAdmin') {
         return AppRoutes.home;
       }
       return null;
@@ -78,19 +75,9 @@ final routerProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: AppRoutes.home,
-                name: 'home',
-                builder: (c, s) => const HomeScreen(),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: AppRoutes.schedulePath,
-                name: 'schedule',
-                builder: (c, s) =>
-                    ScheduleScreen(programId: s.uri.queryParameters['program']),
+                path: AppRoutes.more,
+                name: 'more',
+                builder: (c, s) => const MoreScreen(),
               ),
             ],
           ),
@@ -106,9 +93,27 @@ final routerProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: AppRoutes.more,
-                name: 'more',
-                builder: (c, s) => const MoreScreen(),
+                path: AppRoutes.home,
+                name: 'home',
+                builder: (c, s) => const HomeScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.profile,
+                name: 'profile',
+                builder: (c, s) => const EditProfileScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.admin,
+                name: 'admin',
+                builder: (c, s) => const AdminDashboardScreen(),
               ),
             ],
           ),
@@ -120,21 +125,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (c, s) => const StoreScreen(),
       ),
       GoRoute(
-        path: AppRoutes.bookingPath,
-        builder: (c, s) => BookClassScreen(scheduleId: s.pathParameters['id']!),
-      ),
-      GoRoute(
-        path: AppRoutes.bookingConfirmed,
-        builder: (c, s) => const BookingConfirmationScreen(),
-      ),
-      GoRoute(path: AppRoutes.book, builder: (c, s) => const ScheduleScreen()),
-      GoRoute(
         path: AppRoutes.membership,
         builder: (c, s) => const MembershipScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.profile,
-        builder: (c, s) => const EditProfileScreen(),
       ),
       GoRoute(
         path: AppRoutes.completeProfile,
@@ -153,10 +145,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (c, s) => const ReviewsScreen(),
       ),
       GoRoute(
-        path: AppRoutes.admin,
-        builder: (c, s) => const AdminDashboardScreen(),
-      ),
-      GoRoute(
         path: AppRoutes.adminAdEditor,
         builder: (c, s) =>
             AdEditorScreen(ad: s.extra is HomeAd ? s.extra as HomeAd : null),
@@ -169,9 +157,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.sessionMembers,
-        builder: (c, s) => SessionMembersScreen(
-          uids: s.extra is List<String> ? s.extra as List<String> : const [],
-        ),
+        builder: (c, s) => SessionMembersScreen(session: s.extra as SessionModel),
       ),
       GoRoute(path: AppRoutes.blog, builder: (c, s) => const BlogScreen()),
       GoRoute(
@@ -197,10 +183,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(path: AppRoutes.waiver, builder: (c, s) => const WaiverScreen()),
-      GoRoute(
-        path: AppRoutes.programPath,
-        builder: (c, s) => ProgramScreen(id: s.pathParameters['id']!),
-      ),
     ],
   );
   ref.onDispose(() {

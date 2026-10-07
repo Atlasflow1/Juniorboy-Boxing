@@ -9,6 +9,6 @@ abstract class SessionRepository {
   Future<void> save(String id, Map<String, dynamic> values);
   Future<void> delete(String id);
   Future<String> uploadImage(String id, File file);
-  Future<List<UserModel>> fetchMembers(List<String> uids);
+  Future<List<UserModel>> fetchMembers(String sessionId);
   Future<String> join(String sessionId);
 }

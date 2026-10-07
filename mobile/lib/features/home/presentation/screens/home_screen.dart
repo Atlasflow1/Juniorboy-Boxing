@@ -7,12 +7,10 @@ import '../../../../core/widgets/social_links_row.dart';
 import '../../../booking/presentation/providers/booking_provider.dart';
 import '../../../membership/presentation/widgets/membership_plans_section.dart';
 import '../../../profile/presentation/providers/profile_provider.dart';
-import '../widgets/direct_video_background_player.dart';
 import '../widgets/featured_products_carousel.dart';
 import '../widgets/gym_contact_footer.dart';
 import '../widgets/home_ads_section.dart';
 import '../widgets/home_hero_banner.dart';
-import '../widgets/youtube_background_player.dart';
 import '../../../sessions/presentation/widgets/sessions_section.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -21,8 +19,6 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(profileProvider).value;
     final settings = ref.watch(settingsProvider).value;
-    final promoUrl = settings?.promoVideoUrl ?? '';
-    final videoId = extractYoutubeId(promoUrl);
     return PageContent(
       showHeader: false,
       refresh: () async {
@@ -32,18 +28,15 @@ class HomeScreen extends ConsumerWidget {
       },
       children: [
         HomeHeroBanner(
-          name: (user?.fullName ?? AppStrings.uiChampion).split(' ').first,
+          name: ((user?.childName.isNotEmpty ?? false)
+                  ? user!.childName
+                  : (user?.fullName ?? AppStrings.uiChampion))
+              .split(' ')
+              .first,
           imageUrl: settings?.heroImageUrl,
         ),
         const SizedBox(height: AppSizes.s14),
         const Center(child: SocialLinksRow()),
-        if (videoId != null) ...[
-          const SizedBox(height: AppSizes.s16),
-          YoutubeBackgroundPlayer(videoId: videoId),
-        ] else if (promoUrl.isNotEmpty) ...[
-          const SizedBox(height: AppSizes.s16),
-          DirectVideoBackgroundPlayer(url: promoUrl),
-        ],
         const SizedBox(height: AppSizes.s20),
         const FeaturedProductsCarousel(),
         const SizedBox(height: AppSizes.s20),

@@ -62,7 +62,7 @@ function ClassAdminBookings() {
     const filter = member.trim().toLowerCase();
     if (!filter || targetUid) return true;
     const p = profiles[b.userId];
-    const name = p ? formatMemberName(p.fullName, p.lastName).toLowerCase() : '';
+    const name = p ? formatMemberName(p.fullName, p.lastName, p.childName).toLowerCase() : '';
     const email = (p?.email || '').toLowerCase();
     return (
       b.userId.toLowerCase().includes(filter) ||

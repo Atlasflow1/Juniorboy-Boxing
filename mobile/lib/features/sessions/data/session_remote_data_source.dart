@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import '../../../core/data/cached_repository.dart';
 
@@ -30,19 +31,11 @@ class SessionRemoteDataSource extends CachedRepository {
     return ref.getDownloadURL();
   }
 
-  Future<List<Map<String, dynamic>>> fetchMembers(List<String> uids) async {
-    if (uids.isEmpty) return [];
-    final results = <Map<String, dynamic>>[];
-    for (var i = 0; i < uids.length; i += 30) {
-      final chunk = uids.sublist(i, i + 30 > uids.length ? uids.length : i + 30);
-      final snap = await db
-          .collection('users')
-          .where(FieldPath.documentId, whereIn: chunk)
-          .get();
-      results.addAll(
-        snap.docs.map((d) => <String, dynamic>{...d.data(), 'uid': d.id}),
-      );
-    }
-    return results;
+  Future<List<Map<String, dynamic>>> fetchMembers(String sessionId) async {
+    final result = await FirebaseFunctions.instance
+        .httpsCallable('getSessionMembers')
+        .call({'sessionId': sessionId});
+    final members = (result.data as Map)['members'] as List? ?? const [];
+    return members.map((m) => Map<String, dynamic>.from(m as Map)).toList();
   }
 }

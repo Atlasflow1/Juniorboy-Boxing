@@ -56,8 +56,6 @@ class Member {
 
   bool get isProfileComplete =>
       (phone ?? '').isNotEmpty &&
-      (lastName ?? '').isNotEmpty &&
-      age > 0 &&
       (address ?? '').isNotEmpty &&
       (zipCode ?? '').isNotEmpty;
 }

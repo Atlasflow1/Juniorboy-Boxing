@@ -16,7 +16,6 @@ abstract class AdminRepository {
   Future<void> saveAd(String id, Map<String, dynamic> values);
   Future<void> deleteAd(String id);
   Future<String> uploadAdImage(String id, File file);
-  Future<void> savePromoVideoUrl(String url);
   Future<void> saveGymInfo({
     required String houseNumber,
     required String streetName,
@@ -26,7 +25,6 @@ abstract class AdminRepository {
     required String phone,
   });
   Future<void> saveSocialLinks(Map<String, String> links);
-  Future<void> uploadPromoVideo(File file);
   Future<void> setOrderDelivery(String paymentId, DateTime date, String note);
   Future<void> deletePayment(String paymentId);
   Future<void> markAttendance(String bookingId, String status);

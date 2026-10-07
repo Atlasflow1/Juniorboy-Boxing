@@ -15,7 +15,7 @@ export function MemberCell({
     return <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{uid}</span>;
   }
 
-  const name = formatMemberName(profile.fullName, profile.lastName);
+  const name = formatMemberName(profile.fullName, profile.lastName, profile.childName);
   const displayName = name || uid;
   const isFallback = !name;
 

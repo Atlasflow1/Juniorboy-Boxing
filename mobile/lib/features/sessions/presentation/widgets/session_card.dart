@@ -9,6 +9,7 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/utils/nav_debounce.dart';
 import '../../../../core/utils/snackbar_utils.dart';
 import '../../../../core/widgets/jbb_button.dart';
+import '../../../profile/presentation/providers/profile_provider.dart';
 import '../../models/session_model.dart';
 import '../providers/session_provider.dart';
 import 'avatar_stack.dart';
@@ -73,6 +74,8 @@ class _SessionCardState extends ConsumerState<SessionCard> {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     final joined = uid != null && session.joinedUserIds.contains(uid);
     final full = session.joinedUserIds.length >= session.maxParticipants;
+    final role = ref.watch(profileProvider).value?.role;
+    final isAdmin = role == 'admin' || role == 'superAdmin';
     return ClipRRect(
       borderRadius: BorderRadius.circular(AppSizes.radius12),
       child: Container(
@@ -143,14 +146,14 @@ class _SessionCardState extends ConsumerState<SessionCard> {
                   InkWell(
                     onTap: () => context.safeNavigate(
                       AppRoutes.sessionMembers,
-                      extra: session.joinedUserIds,
+                      extra: session,
                     ),
                     child: Row(
                       children: [
                         FutureBuilder(
                           future: ref
                               .read(sessionRepositoryProvider)
-                              .fetchMembers(session.joinedUserIds),
+                              .fetchMembers(session.id),
                           builder: (context, snapshot) => AvatarStack(
                             photoUrls: [
                               for (final m in snapshot.data ?? const [])
@@ -170,16 +173,18 @@ class _SessionCardState extends ConsumerState<SessionCard> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: AppSizes.s12),
-                  JbbButton(
-                    label: joined
-                        ? "You're in"
-                        : full
-                        ? 'Full'
-                        : 'Join · \$${session.price.toStringAsFixed(2)}',
-                    busy: busy,
-                    onPressed: joined || full ? null : join,
-                  ),
+                  if (!isAdmin) ...[
+                    const SizedBox(height: AppSizes.s12),
+                    JbbButton(
+                      label: joined
+                          ? "You're in"
+                          : full
+                          ? 'Full'
+                          : 'Join · \$${session.price.toStringAsFixed(2)}',
+                      busy: busy,
+                      onPressed: joined || full ? null : join,
+                    ),
+                  ],
                 ],
               ),
             ),

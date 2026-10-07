@@ -7,7 +7,7 @@ import { useRows, useDocument } from '@/lib/hooks';
 import { useMemberProfiles } from '@/lib/member-cache';
 import { can } from '@/lib/permissions';
 import { Row } from '@/lib/types';
-import { dateLabel, timeLabel, asDate, money, errorMessage } from '@/lib/utils';
+import { dateLabel, timeLabel, asDate, money, errorMessage, paymentMethodLabel } from '@/lib/utils';
 import { useAuth } from '../providers';
 import { Button, Notice, PageHeading, Loading, Modal, Empty } from '../ui';
 import { usePaged, Pagination, Status } from './data';
@@ -67,7 +67,7 @@ export function AdminPayments() {
           <select value={method} onChange={(e) => setMethod(e.target.value)}>
             <option value="">All</option>
             {['stripe', 'cash', 'manual'].map((s) => (
-              <option key={s}>{s}</option>
+              <option key={s} value={s}>{paymentMethodLabel(s)}</option>
             ))}
           </select>
         </label>
@@ -113,7 +113,7 @@ export function AdminPayments() {
                     {p.estimatedDeliveryDate ? dateLabel(p.estimatedDeliveryDate) : '—'}
                   </td>
                   <td>{money(p.amount)}</td>
-                  <td>{p.paymentMethod}</td>
+                  <td>{paymentMethodLabel(p.paymentMethod)}</td>
                   <td>
                     <Status row={p} />
                   </td>
@@ -198,7 +198,7 @@ function BuyerDelivery({
         ) : (
           <div className="card" style={{ padding: 12 }}>
             <p style={{ margin: 0, fontWeight: 600 }}>
-              {buyer.fullName} {buyer.lastName || ''}
+              {buyer.childName ? buyer.childName : `${buyer.fullName || ''} ${buyer.lastName || ''}`.trim()}
             </p>
             <p className="muted" style={{ margin: '4px 0', fontSize: 13 }}>
               {buyer.phone || 'No phone on file'} · {buyer.email || '—'}

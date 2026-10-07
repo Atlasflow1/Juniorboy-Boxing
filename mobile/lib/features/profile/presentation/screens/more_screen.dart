@@ -47,7 +47,9 @@ class MoreScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      user?.fullName ?? AppStrings.uiMember,
+                      (user?.childName.isNotEmpty ?? false)
+                          ? user!.childName
+                          : (user?.fullName ?? AppStrings.uiMember),
                       style: TextStyle(
                         fontSize: AppSizes.font20,
                         fontWeight: FontWeight.bold,
@@ -62,10 +64,6 @@ class MoreScreen extends ConsumerWidget {
                           color: context.palette.textSecondary,
                         ),
                       ),
-                    TextButton(
-                      onPressed: () => context.safeNavigate(AppRoutes.profile),
-                      child: Text(AppStrings.editProfile),
-                    ),
                   ],
                 ),
               ),
@@ -93,8 +91,6 @@ class MoreScreen extends ConsumerWidget {
               (AppStrings.uiPrivacyPolicy, AppIcons.shield, AppRoutes.privacy),
               (AppStrings.uiTermsOfService, AppIcons.document, AppRoutes.terms),
               (AppStrings.waiverDisclaimer, AppIcons.gavel, AppRoutes.waiver),
-              if (user?.role == 'admin')
-                (AppStrings.adminDashboard, AppIcons.admin, AppRoutes.admin),
             ])
               SettingsRow(
                 icon: item.$2,

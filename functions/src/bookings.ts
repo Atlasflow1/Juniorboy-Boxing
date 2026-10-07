@@ -55,7 +55,7 @@ export async function releaseBooking(actor: string, bookingId: string, reason = 
     ]);
     const booking = bookingSnap.data();
     if (!booking) throw new HttpsError('not-found', 'Booking not found.');
-    const isAdmin = system || (actorSnap.data()?.role === 'admin' && actorSnap.data()?.isActive);
+    const isAdmin = system || (['admin', 'superAdmin'].includes(actorSnap.data()?.role) && actorSnap.data()?.isActive);
     if (!system && !actorSnap.data()?.isActive) throw new HttpsError('permission-denied', 'Account is not active.');
     if (!isAdmin && booking.userId !== actor) throw new HttpsError('permission-denied', 'This booking belongs to another member.');
     if (booking.status === 'cancelled') return { cancelled: true };
@@ -82,7 +82,7 @@ export async function releaseBooking(actor: string, bookingId: string, reason = 
 export async function completeBooking(actor: string, bookingId: string, status: 'completed' | 'no-show') {
   await db.runTransaction(async tx => {
     const [admin, snapshot] = await Promise.all([tx.get(db.doc(`users/${actor}`)), tx.get(db.doc(`bookings/${bookingId}`))]);
-    if (!admin.data()?.isActive || admin.data()?.role !== 'admin') throw new HttpsError('permission-denied', 'Administrator access required.');
+    if (!admin.data()?.isActive || !['admin', 'superAdmin'].includes(admin.data()?.role)) throw new HttpsError('permission-denied', 'Administrator access required.');
     const booking = snapshot.data();
     if (!booking) throw new HttpsError('not-found', 'Booking not found.');
     if (booking.status === status) return;

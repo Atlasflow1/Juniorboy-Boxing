@@ -10,7 +10,6 @@ class GymSettingsModel extends GymSettings {
     required super.operatingHours,
     required super.aboutText,
     required super.cancellationPolicyHours,
-    required super.promoVideoUrl,
     required super.heroImageUrl,
     super.zipCode,
     super.socialLinks,
@@ -29,7 +28,6 @@ class GymSettingsModel extends GymSettings {
             const {},
         aboutText: nonEmpty(map['aboutText'] as String?),
         cancellationPolicyHours: map['cancellationPolicyHours'] as num? ?? 24,
-        promoVideoUrl: nonEmpty(map['promoVideoUrl'] as String?),
         heroImageUrl: nonEmpty(map['heroImageUrl'] as String?),
         zipCode: nonEmpty(map['zipCode'] as String?),
         socialLinks:

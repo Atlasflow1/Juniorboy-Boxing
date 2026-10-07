@@ -137,9 +137,6 @@ export function AdminSettings() {
               <Icon name="admin_panel_settings" size={16} /> Staff
             </Link>
           )}
-          <Link href="/admin/ads" className="button secondary small">
-            <Icon name="campaign" size={16} /> Ads
-          </Link>
         </div>
       </div>
 

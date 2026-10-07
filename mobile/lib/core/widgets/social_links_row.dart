@@ -20,15 +20,15 @@ class SocialLinksRow extends ConsumerWidget {
   const SocialLinksRow({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final links =
-        ref.watch(settingsProvider).value?.socialLinks ??
-        const <String, String>{};
+    final settings = ref.watch(settingsProvider).value;
+    final links = settings?.socialLinks ?? const <String, String>{};
+    final address = settings?.address ?? '';
     final active = _icons.entries
         .where(
           (entry) => Uri.tryParse(links[entry.key] ?? '')?.scheme == 'https',
         )
         .toList();
-    if (active.isEmpty) return const SizedBox.shrink();
+    if (active.isEmpty && address.isEmpty) return const SizedBox.shrink();
     return Wrap(
       alignment: WrapAlignment.center,
       spacing: AppSizes.s10,
@@ -55,6 +55,35 @@ class SocialLinksRow extends ConsumerWidget {
                 backgroundColor: context.palette.accentTint,
                 child: AppIcon(
                   entry.value,
+                  size: AppSizes.s18,
+                  color: context.palette.accent,
+                ),
+              ),
+            ),
+          ),
+        if (address.isNotEmpty)
+          Tooltip(
+            message: 'maps',
+            child: InkWell(
+              onTap: () async {
+                try {
+                  await launchUrl(
+                    Uri.https('www.google.com', '/maps/search/', {
+                      'api': '1',
+                      'query': address,
+                    }),
+                    mode: LaunchMode.externalApplication,
+                  );
+                } catch (error) {
+                  if (context.mounted) {
+                    showMessage(context, friendlyError(error));
+                  }
+                }
+              },
+              child: CircleAvatar(
+                backgroundColor: context.palette.accentTint,
+                child: AppIcon(
+                  AppIcons.location,
                   size: AppSizes.s18,
                   color: context.palette.accent,
                 ),

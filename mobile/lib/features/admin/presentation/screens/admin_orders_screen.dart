@@ -269,7 +269,10 @@ class _OrderDetailSheetState extends ConsumerState<_OrderDetailSheet> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${buyer?.fullName ?? ''} ${buyer?.lastName ?? ''}'.trim(),
+                    (buyer?.childName ?? '').trim().isNotEmpty
+                        ? buyer!.childName.trim()
+                        : '${buyer?.fullName ?? ''} ${buyer?.lastName ?? ''}'
+                              .trim(),
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: AppSizes.s4),

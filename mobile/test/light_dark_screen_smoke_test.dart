@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:junior_boy_boxing/core/theme/app_theme.dart';
-import 'package:junior_boy_boxing/core/resources/app_strings.dart';
 import 'package:junior_boy_boxing/features/admin/domain/admin_repository.dart';
 import 'package:junior_boy_boxing/features/admin/presentation/providers/admin_provider.dart';
 import 'package:junior_boy_boxing/features/admin/presentation/screens/admin_bookings_screen.dart';
@@ -24,8 +23,6 @@ import 'package:junior_boy_boxing/features/membership/data/membership_plan_model
 import 'package:junior_boy_boxing/features/membership/presentation/widgets/membership_plans_section.dart';
 import 'package:junior_boy_boxing/features/membership/presentation/providers/membership_provider.dart';
 import 'package:junior_boy_boxing/features/payments/presentation/providers/payments_provider.dart';
-import 'package:junior_boy_boxing/features/booking/presentation/screens/book_class_screen.dart';
-import 'package:junior_boy_boxing/features/booking/presentation/screens/booking_confirmation_screen.dart';
 import 'package:junior_boy_boxing/features/booking/presentation/providers/booking_provider.dart';
 import 'package:junior_boy_boxing/features/notifications/presentation/providers/notification_provider.dart';
 import 'package:junior_boy_boxing/features/notifications/presentation/screens/notifications_screen.dart';
@@ -41,10 +38,6 @@ import 'package:junior_boy_boxing/features/profile/presentation/screens/waiver_s
 import 'package:junior_boy_boxing/features/reviews/presentation/providers/review_provider.dart';
 import 'package:junior_boy_boxing/features/reviews/domain/review.dart';
 import 'package:junior_boy_boxing/features/reviews/presentation/screens/reviews_screen.dart';
-import 'package:junior_boy_boxing/features/schedule/data/session_model.dart';
-import 'package:junior_boy_boxing/features/schedule/data/program_model.dart';
-import 'package:junior_boy_boxing/features/schedule/domain/program.dart';
-import 'package:junior_boy_boxing/features/schedule/presentation/providers/schedule_provider.dart';
 import 'package:junior_boy_boxing/features/store/domain/product_repository.dart';
 import 'package:junior_boy_boxing/features/store/presentation/providers/store_provider.dart';
 import 'package:junior_boy_boxing/features/store/presentation/screens/product_editor_screen.dart';
@@ -75,8 +68,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   tz_data.initializeTimeZones();
   GoogleFonts.config.allowRuntimeFetching = false;
-  final sampleProgram = ProgramModel.fromMap({'id': 'boxing', 'className': 'Boxing', 'trainingType': 'private'});
-  final sampleAd = HomeAdModel.fromMap({'id': 'ad', 'title': 'Train this week', 'linkHref': '/pricing'});
+  final sampleAd = HomeAdModel.fromMap({'id': 'ad', 'title': 'Train this week'});
   final samplePlan = MembershipPlanModel.fromMap({'id': 'ten', 'name': 'Ten Sessions', 'price': 60000, 'priceLabel': '\$600', 'perSessionLabel': '\$60 per session', 'sessionCount': 10});
 
   final screens = <String, Widget>{
@@ -90,8 +82,6 @@ void main() {
     'home': const Scaffold(body: HomeScreen()),
     'home ads': const Scaffold(body: HomeAdsSection()),
     'membership plans': const Scaffold(body: MembershipPlansSection()),
-    'book class': const BookClassScreen(scheduleId: 'test-session'),
-    'booking confirmation': const BookingConfirmationScreen(),
     'notifications': const NotificationsScreen(),
     'complete profile': const CompleteProfileScreen(),
     'edit profile': const EditProfileScreen(),
@@ -154,25 +144,12 @@ void main() {
                   ),
                 ),
               ),
-              classesProvider.overrideWith((ref) => Stream.value(<Program>[sampleProgram])),
-              sessionProvider.overrideWith(
-                (ref, id) => Stream.value(
-                  SessionModel.fromMap({
-                    'id': id,
-                    'date': DateTime(2026, 10, 5).toIso8601String(),
-                    'maxSpots': 12,
-                  }),
-                ),
-              ),
             ],
             child: MaterialApp(theme: theme, home: entry.value),
           ),
         );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 20));
-        if (entry.key == 'book class') {
-          expect(find.text(AppStrings.uiBoxingClass), findsOneWidget);
-        }
         expect(tester.takeException(), isNull);
       });
     }

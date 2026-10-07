@@ -13,7 +13,6 @@ import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_icon.dart';
 import '../../../../core/widgets/jbb_button.dart';
 import '../providers/profile_provider.dart';
-import '../../../auth/presentation/providers/auth_provider.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
@@ -23,7 +22,7 @@ class EditProfileScreen extends ConsumerStatefulWidget {
 
 class _EditState extends ConsumerState<EditProfileScreen> {
   final form = GlobalKey<FormState>();
-  final fields = List.generate(12, (_) => TextEditingController());
+  final fields = List.generate(8, (_) => TextEditingController());
   bool loaded = false, busy = false, photoBusy = false;
   @override
   void dispose() {
@@ -39,29 +38,18 @@ class _EditState extends ConsumerState<EditProfileScreen> {
     try {
       final repo = ref.read(userRepositoryProvider);
       await repo.save({
-        'fullName': fields[0].text.trim(),
-        'lastName': fields[1].text.trim(),
-        'age': int.parse(fields[3].text),
+        'childName': fields[0].text.trim(),
+        'childAge': int.tryParse(fields[1].text) ?? 0,
         'address': composeAddress(
-          houseNumber: fields[4].text.trim(),
-          streetName: fields[5].text.trim(),
-          city: fields[6].text.trim(),
-          country: fields[7].text.trim(),
+          houseNumber: fields[2].text.trim(),
+          streetName: fields[3].text.trim(),
+          city: fields[4].text.trim(),
+          country: fields[5].text.trim(),
         ),
-        'zipCode': fields[8].text.trim(),
-        'phone': fields[9].text.trim(),
-        'childName': fields[10].text.trim(),
-        'childAge': int.tryParse(fields[11].text) ?? 0,
+        'zipCode': fields[6].text.trim(),
+        'phone': fields[7].text.trim(),
       });
-      if (fields[2].text.trim() !=
-          ref.read(authRepositoryProvider).currentUser?.email) {
-        await repo.changeEmail(fields[2].text.trim());
-        if (mounted) {
-          showMessage(context, AppStrings.profileSavedVerifyTheNewEmailTo);
-        }
-      } else if (mounted) {
-        showMessage(context, AppStrings.profileSaved);
-      }
+      if (mounted) showMessage(context, AppStrings.profileSaved);
     } catch (e) {
       if (mounted) showMessage(context, friendlyError(e));
     } finally {
@@ -93,18 +81,14 @@ class _EditState extends ConsumerState<EditProfileScreen> {
     if (!loaded && user != null) {
       final address = StructuredAddress.parse(user.address);
       final values = [
-        user.fullName,
-        user.lastName,
-        user.email,
-        (user.age) > 0 ? '${user.age}' : '',
+        user.childName,
+        (user.childAge) > 0 ? '${user.childAge}' : '',
         address.houseNumber,
         address.streetName,
         address.city,
         address.country,
         user.zipCode,
         user.phone,
-        user.childName,
-        (user.childAge) > 0 ? '${user.childAge}' : '',
       ];
       for (var i = 0; i < fields.length; i++) {
         fields[i].text = values[i] ?? '';
@@ -162,8 +146,6 @@ class _EditState extends ConsumerState<EditProfileScreen> {
                     controller: fields[i],
                     keyboardType: [
                       TextInputType.text,
-                      TextInputType.text,
-                      TextInputType.emailAddress,
                       TextInputType.number,
                       TextInputType.text,
                       TextInputType.text,
@@ -171,40 +153,30 @@ class _EditState extends ConsumerState<EditProfileScreen> {
                       TextInputType.text,
                       TextInputType.text,
                       TextInputType.phone,
-                      TextInputType.text,
-                      TextInputType.number,
                     ][i],
                     decoration: InputDecoration(
                       labelText: [
-                        AppStrings.uiFullName,
-                        AppStrings.lastName,
-                        AppStrings.uiEmail,
-                        AppStrings.yourAge,
+                        AppStrings.participantNameYourselfOrChildOptional,
+                        AppStrings.participantAgeOptional,
                         AppStrings.houseNumber,
                         AppStrings.streetName,
                         AppStrings.city,
                         AppStrings.country,
                         AppStrings.postalZipCode,
                         AppStrings.phone,
-                        AppStrings.participantNameYourselfOrChildOptional,
-                        AppStrings.participantAgeOptional,
                       ][i],
                     ),
                     validator: [
-                      Validators.required,
-                      Validators.required,
-                      Validators.email,
-                      Validators.age,
+                      null,
+                      (String? value) => (value ?? '').trim().isEmpty
+                          ? null
+                          : Validators.age(value),
                       Validators.required,
                       Validators.required,
                       Validators.required,
                       Validators.required,
                       Validators.zip,
                       Validators.phone,
-                      null,
-                      (String? value) => (value ?? '').trim().isEmpty
-                          ? null
-                          : Validators.age(value),
                     ][i],
                   ),
                 ),
@@ -244,6 +216,12 @@ class _EditState extends ConsumerState<EditProfileScreen> {
                     if (context.mounted) showMessage(context, friendlyError(e));
                   }
                 },
+              ),
+              const SizedBox(height: AppSizes.s16),
+              TextFormField(
+                initialValue: user?.email ?? '',
+                enabled: false,
+                decoration: const InputDecoration(labelText: AppStrings.uiEmail),
               ),
             ],
           ),

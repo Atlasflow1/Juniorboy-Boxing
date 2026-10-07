@@ -6,7 +6,7 @@ service cloud.firestore {
       return signedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isActive == true;
     }
     function admin() {
-      return active() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      return active() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'superAdmin'];
     }
     function owns() { return active() && resource.data.userId == request.auth.uid; }
     match /users/{uid} {

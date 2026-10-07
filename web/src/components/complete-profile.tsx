@@ -27,7 +27,7 @@ export function CompleteProfilePage() {
     const address = composeAddress(data);
     setBusy(true); setError('');
     try {
-      await updateDoc(doc(db,'users',user!.uid), {fullName:data.fullName||profile?.fullName||'Member', childName:data.childName, childAge:Number(data.childAge), phone:data.phone, address, zipCode:data.zipCode, avatarUrl, updatedAt:serverTimestamp()});
+      await updateDoc(doc(db,'users',user!.uid), {fullName:profile?.fullName||'Member', childName:data.childName, childAge:Number(data.childAge), phone:data.phone, address, zipCode:data.zipCode, avatarUrl, updatedAt:serverTimestamp()});
       const next = new URLSearchParams(window.location.search).get('next');
       router.push(next?.startsWith('/')&&!next.startsWith('//')?next:'/dashboard');
     } catch (e) { setError(errorMessage(e)); setBusy(false); }
@@ -35,8 +35,6 @@ export function CompleteProfilePage() {
   return <div className="auth-panel card"><p className="eyebrow">Almost there</p><h1>Complete your profile.</h1><p className="muted">Just a few details before you book your first session.</p>{error&&<Notice error>{error}</Notice>}<form className="stack" onSubmit={submit}>
     <h3 style={{margin:0}}>Profile photo</h3>
     <div className="row" style={{alignItems:'center',gap:16}}>{avatarUrl&&<img className="avatar" src={avatarUrl} alt="Your profile" style={{width:64,height:64,borderRadius:'50%',objectFit:'cover'}}/>}<label className="field" style={{flex:1}}>Upload a photo (optional)<input type="file" accept="image/jpeg,image/png,image/webp" disabled={busy} onChange={e=>uploadAvatar(e.target.files?.[0])}/></label></div>
-    <h3 style={{margin:0}}>Your name</h3>
-    <label className="field">Full name (optional)<input name="fullName" defaultValue={profile?.fullName||''} maxLength={100}/></label>
     <h3 style={{margin:0}}>Participant</h3>
     <label className="field">Participant name<input name="childName" required maxLength={100} defaultValue={profile?.childName||''}/></label>
     <label className="field">Participant age<input name="childAge" required type="number" min="1" max="120" defaultValue={profile?.childAge||''}/></label>

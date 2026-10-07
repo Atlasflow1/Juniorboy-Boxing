@@ -24,6 +24,103 @@
   }
 }
 
+/* 1b. Home page preview: horizontally swipeable strip instead of a wrapping
+   grid, so a 4th+ session is reachable by swipe/scroll rather than being
+   hidden or forcing the home page to grow taller. */
+.home-sessions-track {
+  display: flex;
+  gap: 24px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+  margin: 0 -40px;
+  padding-left: 40px;
+  padding-right: 40px;
+}
+
+.home-sessions-track::-webkit-scrollbar {
+  display: none;
+}
+
+.home-sessions-track .parent-offer-card {
+  flex: 0 0 auto;
+  width: min(360px, 85vw);
+  scroll-snap-align: start;
+}
+
+@media (max-width: 1050px) {
+  .home-sessions-track {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 700px) {
+  .home-sessions-track {
+    margin: 0 -20px;
+    padding-left: 20px;
+    padding-right: 20px;
+    gap: 16px;
+  }
+}
+
+.home-carousel-arrows {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.home-carousel-arrow {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.home-carousel-arrow:hover {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+/* 1c. Home shop preview: same swipeable-strip treatment as sessions. */
+.home-shop-track {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+  margin: 0 -40px;
+  padding-left: 40px;
+  padding-right: 40px;
+}
+
+.home-shop-track::-webkit-scrollbar {
+  display: none;
+}
+
+.home-shop-track .shop-card {
+  flex: 0 0 auto;
+  width: min(260px, 70vw);
+  scroll-snap-align: start;
+}
+
+@media (max-width: 700px) {
+  .home-shop-track {
+    margin: 0 -20px;
+    padding-left: 20px;
+    padding-right: 20px;
+    gap: 16px;
+  }
+}
+
 /* 2. Offer Card: equal-height flex column with pinned bottom CTA */
 .parent-offer-card {
   display: flex;

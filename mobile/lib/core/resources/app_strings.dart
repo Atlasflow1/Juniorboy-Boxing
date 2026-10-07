@@ -53,10 +53,6 @@ abstract final class AppStrings {
       'The selected program no longer exists. Choose another.';
   static String capacityLocked(int spots) =>
       'Locked to $spots for this training type';
-  static const trainingType = 'TRAINING TYPE';
-  static const sessionsRemainingLabel = 'SESSIONS REMAINING';
-  static const priceLabel = 'PRICE';
-  static String purchasePackage(String type) => 'Purchase a $type Package';
   static const gymName = 'Junior Boy Boxing';
   static const contactEmail = 'email@juniorboyboxing.com';
   static const tagline = 'DISCIPLINE BUILDS CHAMPIONS';
@@ -100,6 +96,8 @@ abstract final class AppStrings {
   static const past = 'Past';
   static const noBookingsHereYet = 'No bookings here yet.';
   static const contactUs = 'Contact Us';
+  static const whatsapp = 'WhatsApp';
+  static const call = 'Call';
   static const getDirections = 'Get Directions';
   static const contactTheGymToConfirmTrainingHours =
       'Contact the gym to confirm training hours.';
@@ -124,7 +122,7 @@ abstract final class AppStrings {
   static const editProfile = 'Edit Profile';
   static const blackBackground = 'Black Background';
   static const signOut = 'Sign Out';
-  static const more = 'More';
+  static const more = 'Settings';
   static const pushNotifications = 'Push notifications';
   static const emailNotifications = 'Email notifications';
   static const bookings = 'Bookings';
@@ -151,10 +149,8 @@ abstract final class AppStrings {
   static const planName = 'Plan name';
   static const description = 'Description';
   static const sessionCreditsIncluded = 'Session credits included';
-  static const program = 'Program';
   static const adminDashboard = 'Admin Dashboard';
   static const add = 'Add';
-  static const videoLink = 'Video link';
   static const removeThisClassTime = 'Remove this class time?';
   static const remove = 'Remove';
   static const activeGeneratesWeeklySessions =
@@ -162,16 +158,12 @@ abstract final class AppStrings {
   static const dayOfWeek = 'Day of week';
   static const startTime24hEG1600 = 'Start time (24h, e.g. 16:00)';
   static const maxSpots = 'Max spots';
-  static const bookClass = 'Book Class';
-  static const backToHome = 'Back to Home';
-  static const viewMyBookings = 'View My Bookings';
   static const classSchedule = 'Class Schedule';
   static const previousMonth = 'Previous month';
   static const nextMonth = 'Next month';
   static const chooseYourTrainingDay = 'Choose your training day';
   static const previousWeek = 'Previous week';
   static const nextWeek = 'Next week';
-  static const askTheCoach = 'Ask the Coach';
   static const yourNextSessionStartsWithABooking =
       'Your next session starts with a booking.';
   static const nextSession = 'Next Session';
@@ -181,10 +173,9 @@ abstract final class AppStrings {
   static const book = 'Book';
   static const retry = 'Retry';
   static const navHome = 'Home';
-  static const navSchedule = 'Schedule';
-  static const navBook = 'Book';
+  static const navProfile = 'Me';
   static const navMembership = 'Membership';
-  static const navMore = 'More';
+  static const navMore = 'Settings';
   static const offlineSavedData = 'Offline · Showing saved data';
   static const inactiveAccount = 'Your account is inactive. Contact the gym.';
   static const startupError =
@@ -199,16 +190,11 @@ abstract final class AppStrings {
   static const saveDeliveryDate = 'Save Delivery Date';
   static const savePlan = 'Save Plan';
   static const saveGymInfo = 'Save Gym Info';
-  static const uploadVideoFromPhone = 'Upload Video from Phone';
-  static const saveLink = 'Save Link';
-  static const confirmBooking = 'Confirm Booking  ›';
-  static const viewAvailableSessions = 'View Available Sessions';
   static const exitApp = 'Exit App?';
   static const areYouSureYouWantToExit = 'Are you sure you want to exit?';
   static const no = 'No';
   static const yes = 'Yes';
   static String sessionsRemaining(Object count) => '$count sessions remaining';
-  static String viewProgramSchedule(Object program) => 'View $program schedule';
   static String removeProduct(Object name) => 'Remove "$name" from the store.';
   static String removePlan(Object name) =>
       'Remove "$name" from membership plans.';
@@ -240,10 +226,6 @@ abstract final class AppStrings {
   static const orderDeleted = 'Order deleted.';
   static const recordDeleted = 'Record deleted.';
   static const gymInfoSaved = 'Gym info saved.';
-  static const thatDoesnTLookLikeAValid =
-      'That doesn\'t look like a valid link.';
-  static const videoUploaded = 'Video uploaded.';
-  static const chooseAPlanToContinue = 'Choose a plan to continue.';
   static const uiNoReviewsYetBeTheFirstToShare =
       'No reviews yet. Be the first to share your experience!';
   static const uiEditYourReview = 'Edit Your Review';
@@ -293,7 +275,6 @@ abstract final class AppStrings {
   static const uiAboutUs = 'About Us';
   static const uiMember = 'Member';
   static const uiFullName = 'Full Name';
-  static const uiDateOfBirth = 'Date of Birth';
   static const uiPickDate = 'Pick a date';
   static const uiSessions = 'Sessions';
   static const uiEditSession = 'Edit Session';
@@ -332,13 +313,9 @@ abstract final class AppStrings {
   static const uiShownOnTheContactScreenAndTheWebsite =
       'Shown on the Contact screen and the website.';
   static const uiNoClassTimesSetUpYet = 'No class times set up yet.';
-  static const uiVideoRemovedFromHome = 'Video removed from Home.';
   static const uiManageStoreProducts = 'Manage Store Products';
   static const uiClassScheduleTimes = 'Class Schedule Times';
   static const uiMembershipPrices = 'Membership Prices';
-  static const uiOrPasteALink = 'Or paste a link';
-  static const uiVideoSaved = 'Video saved.';
-  static const uiPromoVideo = 'Promo Video';
   static const uiGymInfo = 'Gym Info';
   static const uiGeneral = 'General';
   static const uiHidden2 = 'Hidden';
@@ -358,33 +335,11 @@ abstract final class AppStrings {
   static const uiFriday = 'Friday';
   static const uiMonday = 'Monday';
   static const uiSunday = 'Sunday';
-  static const uiAvailability = 'AVAILABILITY';
   static const uiBoxingClass = 'Boxing class';
-  static const uiLocation2 = 'LOCATION';
-  static const uiTime = 'TIME';
-  static const uiDate = 'DATE';
-  static const uiYourSessionCreditIsReservedSeeYouAt =
-      'Your session credit is reserved. See you at Junior Boy Boxing.';
   static const uiContinueWithGoogle = 'Continue with Google';
   static const uiSkip = 'Skip';
   static const uiNoClassesScheduledForThisSelectionContactThe =
       'No classes scheduled for this selection. Contact the gym for availability.';
-  static const uiBuildConsistentExerciseHabitsWithStructuredActivityAnd =
-      'Build consistent exercise habits with structured activity and conditioning. Results vary; training does not guarantee weight loss or replace medical or nutritional care.';
-  static const uiBuildStanceFootworkDefenseAndPunchingTechniqueWith =
-      'Build stance, footwork, defense and punching technique with focused coaching. Progress from fundamentals to more advanced drills at your level.';
-  static const uiPracticeAwarenessPositioningMovementAndDefensiveFundamentalsTraining =
-      'Practice awareness, positioning, movement and defensive fundamentals. Training cannot guarantee safety in a real confrontation.';
-  static const uiDevelopStrengthEnduranceAndMovementQualityThroughProgressive =
-      'Develop strength, endurance and movement quality through progressive resistance work and conditioning drills.';
-  static const uiImproveGeneralFitnessThroughCardioMobilityAndWhole =
-      'Improve general fitness through cardio, mobility and whole-body exercises adapted to your starting level.';
-  static const uiPlansForThisProgramWillAppearHereWhen =
-      'Plans for this program will appear here when available.';
-  static const uiAvailabilityAndSuitabilityAreConfirmedByTheGym =
-      'Availability and suitability are confirmed by the gym.';
-  static const uiContactTheGymForProgramDetails =
-      'Contact the gym for program details.';
   static const uiChampion = 'Champion';
   static const uiYourMembership = 'Your Membership';
   static const uiKeepTrainingKeepImproving = 'Keep training. Keep improving.';

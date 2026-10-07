@@ -35,10 +35,9 @@ void main() {
                 GoRoute(
                   path: AppRoutes.home,
                   builder: (context, state) => TextButton(
-                    onPressed: () => context.safeNavigate(
-                      AppRoutes.schedule(programId: 'boxing'),
-                    ),
-                    child: const Text('schedule'),
+                    onPressed: () =>
+                        context.safeNavigate(AppRoutes.bookings),
+                    child: const Text('bookings'),
                   ),
                 ),
               ],
@@ -46,10 +45,10 @@ void main() {
             StatefulShellBranch(
               routes: [
                 GoRoute(
-                  path: AppRoutes.schedulePath,
+                  path: AppRoutes.bookings,
                   builder: (context, state) => TextButton(
                     onPressed: () => context.safeNavigate(AppRoutes.store),
-                    child: Text(state.uri.queryParameters['program'] ?? ''),
+                    child: const Text('my bookings'),
                   ),
                 ),
               ],
@@ -64,13 +63,13 @@ void main() {
     );
 
     await tester.pumpWidget(MaterialApp.router(routerConfig: router));
-    await tester.tap(find.text('schedule'));
+    await tester.tap(find.text('bookings'));
     await tester.pumpAndSettle();
     expect(find.text('branch:1'), findsOneWidget);
-    expect(find.text('boxing'), findsOneWidget);
+    expect(find.text('my bookings'), findsOneWidget);
     expect(router.canPop(), isFalse);
 
-    await tester.tap(find.text('boxing'));
+    await tester.tap(find.text('my bookings'));
     await tester.pumpAndSettle();
     expect(find.text('store'), findsOneWidget);
     expect(router.canPop(), isTrue);

@@ -23,3 +23,10 @@ export function isProfileComplete(profile: { childName?: string; childAge?: numb
 export function composeAddress(data: {houseNumber?:string; streetName?:string; city?:string; country?:string}): string {
   return [[data.houseNumber,data.streetName].filter(Boolean).join(' '), data.city, data.country].filter(Boolean).join(', ').trim();
 }
+// Never surface the payment processor's name in the UI — just how the card was charged.
+export function paymentMethodLabel(method?: string): string {
+  if (method === 'stripe') return 'Card';
+  if (method === 'manual') return 'Manual';
+  if (method === 'cash') return 'Cash';
+  return method || '—';
+}

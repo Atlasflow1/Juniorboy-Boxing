@@ -15,6 +15,8 @@ class BuyerName extends ConsumerWidget {
       final buyer = snapshot.data;
       final name = buyer == null
           ? null
+          : buyer.childName.trim().isNotEmpty
+          ? buyer.childName.trim()
           : '${buyer.fullName ?? ''} ${buyer.lastName ?? ''}'.trim();
       return Text(
         (name ?? '').isNotEmpty ? name! : 'Loading…',

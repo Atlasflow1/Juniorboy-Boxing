@@ -238,7 +238,8 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isAdmin = ref.watch(profileProvider).value?.role == 'admin';
+    final role = ref.watch(profileProvider).value?.role;
+    final isAdmin = role == 'admin' || role == 'superAdmin';
     final products = ref.watch(
       isAdmin ? productsAdminProvider : productsProvider,
     );

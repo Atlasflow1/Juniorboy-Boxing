@@ -6,6 +6,7 @@ export type MemberSummary = {
   uid: string;
   fullName?: string;
   lastName?: string;
+  childName?: string;
   email?: string;
   phone?: string;
 };
@@ -14,7 +15,11 @@ export type MemberSummary = {
 const profileCache = new Map<string, MemberSummary | null>();
 const pendingFetches = new Map<string, Promise<MemberSummary | null>>();
 
-export function formatMemberName(fullName?: string, lastName?: string): string {
+// Prefers the name the member chose themselves (participant name) over the
+// account's full name, which is often just whatever their Google account set.
+export function formatMemberName(fullName?: string, lastName?: string, childName?: string): string {
+  const chosen = (childName || '').trim();
+  if (chosen) return chosen;
   const first = (fullName || '').trim();
   const last = (lastName || '').trim();
   if (!last) return first;
@@ -40,6 +45,7 @@ export async function getMemberProfile(uid: string): Promise<MemberSummary | nul
           uid,
           fullName: data.fullName,
           lastName: data.lastName,
+          childName: data.childName,
           email: data.email,
           phone: data.phone,
         };
@@ -88,6 +94,7 @@ export async function fetchMemberProfiles(uids: string[]): Promise<Record<string
               uid: d.id,
               fullName: data.fullName,
               lastName: data.lastName,
+              childName: data.childName,
               email: data.email,
               phone: data.phone,
             });
@@ -109,6 +116,7 @@ export async function fetchMemberProfiles(uids: string[]): Promise<Record<string
                     uid: id,
                     fullName: data.fullName,
                     lastName: data.lastName,
+                    childName: data.childName,
                     email: data.email,
                     phone: data.phone,
                   });
@@ -146,7 +154,7 @@ export async function searchMemberUids(text: string): Promise<string[]> {
   // Check in-memory cache first
   for (const [uid, profile] of profileCache.entries()) {
     if (!profile) continue;
-    const name = formatMemberName(profile.fullName, profile.lastName).toLowerCase();
+    const name = formatMemberName(profile.fullName, profile.lastName, profile.childName).toLowerCase();
     const email = (profile.email || '').toLowerCase();
     const q = trimmed.toLowerCase();
     if (name.includes(q) || email.includes(q) || uid.toLowerCase() === q) {
@@ -167,6 +175,7 @@ export async function searchMemberUids(text: string): Promise<string[]> {
           uid: d.id,
           fullName: data.fullName,
           lastName: data.lastName,
+          childName: data.childName,
           email: data.email,
           phone: data.phone,
         });
@@ -190,6 +199,7 @@ export async function searchMemberUids(text: string): Promise<string[]> {
           uid: d.id,
           fullName: data.fullName,
           lastName: data.lastName,
+          childName: data.childName,
           email: data.email,
           phone: data.phone,
         });

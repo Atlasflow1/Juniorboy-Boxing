@@ -61,12 +61,6 @@ export const hiddenRoutes: AdminNavItem[] = [
     visible: (p) => can(p, 'manageMembers'),
   },
   {
-    title: 'Ads',
-    href: '/admin/ads',
-    icon: 'campaign',
-    visible: (p) => can(p, 'manageContent'),
-  },
-  {
     title: 'Payments',
     href: '/admin/payments',
     icon: 'credit_card',

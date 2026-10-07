@@ -1,8 +1,6 @@
 import '../../../../core/theme/app_palette.dart';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/utils/nav_debounce.dart';
@@ -78,8 +76,6 @@ class AdminDashboardScreen extends ConsumerWidget {
           const _GymInfoSection(),
           SizedBox(height: AppSizes.s24),
           const _SocialLinksSection(),
-          SizedBox(height: AppSizes.s24),
-          const _PromoVideoSection(),
           SizedBox(height: AppSizes.s24),
           Row(
             children: [
@@ -388,135 +384,3 @@ class _SocialLinksSectionState extends ConsumerState<_SocialLinksSection> {
   }
 }
 
-/// Lets the admin set the video that plays silently and on loop near the
-/// top of Home — either upload a file from the phone (goes to Storage,
-/// so there's never an embedding restriction), or paste a YouTube / direct
-/// video link. Some YouTube videos block embedding elsewhere entirely (a
-/// Content ID claim on the audio is the usual cause) and that can't be
-/// worked around client-side, so uploading is the reliable option.
-class _PromoVideoSection extends ConsumerStatefulWidget {
-  const _PromoVideoSection();
-  @override
-  ConsumerState<_PromoVideoSection> createState() => _PromoVideoSectionState();
-}
-
-class _PromoVideoSectionState extends ConsumerState<_PromoVideoSection> {
-  final url = TextEditingController();
-  bool loaded = false, busy = false;
-
-  @override
-  void dispose() {
-    url.dispose();
-    super.dispose();
-  }
-
-  Future<void> save() async {
-    var trimmed = url.text.trim();
-    // Pasting from some apps/browsers drops the scheme (e.g.
-    // "youtube.com/watch?v=..." or "youtu.be/..."). Treat that as the
-    // admin's intent rather than silently rejecting it.
-    if (trimmed.isNotEmpty && !trimmed.contains('://')) {
-      trimmed = 'https://$trimmed';
-    }
-    if (trimmed.isNotEmpty && Uri.tryParse(trimmed)?.hasScheme != true) {
-      showMessage(context, AppStrings.thatDoesnTLookLikeAValid);
-      return;
-    }
-    setState(() => busy = true);
-    try {
-      await ref.read(adminRepositoryProvider).savePromoVideoUrl(trimmed);
-      if (mounted) {
-        url.text = trimmed;
-        showMessage(
-          context,
-          trimmed.isEmpty
-              ? AppStrings.uiVideoRemovedFromHome
-              : AppStrings.uiVideoSaved,
-        );
-      }
-    } catch (e) {
-      if (mounted) showMessage(context, friendlyError(e));
-    } finally {
-      if (mounted) setState(() => busy = false);
-    }
-  }
-
-  Future<void> pickAndUpload() async {
-    final video = await ImagePicker().pickVideo(source: ImageSource.gallery);
-    if (video == null) return;
-    setState(() => busy = true);
-    try {
-      await ref
-          .read(adminRepositoryProvider)
-          .uploadPromoVideo(File(video.path));
-      if (mounted) {
-        url.text = ref.read(settingsProvider).value?.promoVideoUrl ?? '';
-        showMessage(context, AppStrings.videoUploaded);
-      }
-    } catch (e) {
-      if (mounted) showMessage(context, friendlyError(e));
-    } finally {
-      if (mounted) setState(() => busy = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final settings = ref.watch(settingsProvider).value;
-    if (!loaded && settings != null) {
-      url.text = settings.promoVideoUrl ?? '';
-      loaded = true;
-    }
-    return JbbCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            AppStrings.uiPromoVideo,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: AppSizes.font15,
-            ),
-          ),
-          SizedBox(height: AppSizes.s4),
-          Text(
-            'Plays silently on loop at the top of Home. Upload a video from '
-            'your phone (most reliable — no embedding restrictions), or '
-            'paste a YouTube / direct video link instead. If a YouTube '
-            'video shows "video unavailable" on Home, YouTube itself is '
-            'blocking it from being embedded — upload the file instead.',
-            style: TextStyle(
-              color: context.palette.textSecondary,
-              fontSize: AppSizes.font12,
-            ),
-          ),
-          SizedBox(height: AppSizes.s12),
-          JbbButton(
-            label: AppStrings.uploadVideoFromPhone,
-            busy: busy,
-            onPressed: pickAndUpload,
-          ),
-          SizedBox(height: AppSizes.s16),
-          Text(
-            AppStrings.uiOrPasteALink,
-            style: TextStyle(
-              color: context.palette.textSecondary,
-              fontSize: AppSizes.font12,
-            ),
-          ),
-          SizedBox(height: AppSizes.s8),
-          TextField(
-            controller: url,
-            decoration: InputDecoration(
-              labelText: AppStrings.videoLink,
-              hintText:
-                  'https://www.youtube.com/watch?v=... or https://.../video.mp4',
-            ),
-          ),
-          SizedBox(height: AppSizes.s12),
-          JbbButton(label: AppStrings.saveLink, busy: busy, onPressed: save),
-        ],
-      ),
-    );
-  }
-}

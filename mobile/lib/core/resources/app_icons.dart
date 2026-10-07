@@ -4,7 +4,6 @@ abstract final class AppIcons {
   static const _dir = 'assets/icons';
 
   static const navHome = '$_dir/ic_nav_home.svg';
-  static const navSchedule = '$_dir/ic_nav_schedule.svg';
   static const navLog = '$_dir/ic_nav_log.svg';
   static const instagram = '$_dir/ic_instagram.svg';
   static const facebook = '$_dir/ic_facebook.svg';
@@ -42,6 +41,7 @@ abstract final class AppIcons {
   static const star = '$_dir/ic_star.svg';
   static const starFilled = '$_dir/ic_star_filled.svg';
   static const starHalf = '$_dir/ic_star_half.svg';
+  static const whatsapp = '$_dir/ic_whatsapp.svg';
   static const swap = '$_dir/ic_swap.svg';
   static const trash = '$_dir/ic_trash.svg';
   static const truck = '$_dir/ic_truck.svg';
